@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Redirect, useLocation } from 'react-router';
 
 import { Card } from 'frontend-elements';
-import { LUM_TWITTER } from 'constant';
+import { CHEQ_TWITTER } from 'constant';
 import { TransactionsTable, AddressCard, BalanceCard, LumPriceCard } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 
@@ -73,7 +73,7 @@ const Dashboard = (): JSX.Element => {
                         />
                     </div>
                     <div className="col-lg-2 col-12 scale-animation">
-                        <a href={LUM_TWITTER} target="_blank" rel="noreferrer">
+                        <a href={CHEQ_TWITTER} target="_blank" rel="noreferrer">
                             <Card className="h-100 dashboard-card align-items-center justify-content-center text-center">
                                 <div className="twitter mb-2" />
                                 <h4>{t('dashboard.followTwitter')}</h4>

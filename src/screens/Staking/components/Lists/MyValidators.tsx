@@ -5,7 +5,7 @@ import { LumConstants } from '@lum-network/sdk-javascript';
 import numeral from 'numeral';
 import { Table, ValidatorLogo } from 'frontend-elements';
 
-import { CLIENT_PRECISION, LUM_ASSETS_GITHUB, LUM_EXPLORER } from 'constant';
+import { CLIENT_PRECISION, CHEQ_ASSETS_GITHUB, CHEQ_EXPLORER } from 'constant';
 import { getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
 import { Rewards, UserValidator } from 'models';
 import { DropdownButton, SmallerDecimal } from 'components';
@@ -77,11 +77,11 @@ const MyValidators = ({
     const renderRow = (validator: UserValidator, index: number) => (
         <tr key={index} className="validators-table-row">
             <td data-label={headers[0]}>
-                <a href={`${LUM_EXPLORER}/validators/${validator.operatorAddress}`} target="_blank" rel="noreferrer">
+                <a href={`${CHEQ_EXPLORER}/validators/${validator.operatorAddress}`} target="_blank" rel="noreferrer">
                     <ValidatorLogo
                         width={34}
                         height={34}
-                        githubUrl={LUM_ASSETS_GITHUB}
+                        githubUrl={CHEQ_ASSETS_GITHUB}
                         validatorAddress={validator.operatorAddress}
                         chainId={WalletClient.chainId || ''}
                         className="me-2 me-sm-3"

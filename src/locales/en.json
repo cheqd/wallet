@@ -50,7 +50,7 @@
                 "address": "Mint faucet error\nUnknown address"
             },
             "ledger": "Unable to connect to your wallet, check your Ledger connection",
-            "client": "Unable to connect the lum client with the blockchain, try again later",
+            "client": "Unable to connect the cheq client with the blockchain, try again later",
             "generic": "An unknown error has occured, please try again later"
         }
     },
@@ -60,8 +60,8 @@
         "keplrKeystoreChange": "Keplr Key store/account has changed"
     },
     "dashboard": {
-        "lumPrice": "Lum Value",
-        "getLum": "Buy Lum",
+        "cheqPrice": "Cheq Value",
+        "getCheq": "Buy Cheq",
         "latestTx": "Latest Transactions",
         "currentBalance": "Current balance",
         "followTwitter": "Follow us on Twitter",
@@ -101,7 +101,7 @@
         },
         "extensionModal": {
             "title": "Access by an extension",
-            "description": "Keplr is a chrome extension to allow you to handle a wallet on multiple chain on the Cosmos environment including the Lum Network",
+            "description": "Keplr is a chrome extension to allow you to handle a wallet on multiple chain on the Cosmos environment including the Cheq Network",
             "info": "RECOMMENDED",
             "types": {
                 "keplr": {
@@ -109,7 +109,7 @@
                     "notInstalled": "You have to <u>install</u> Keplr extension first",
                     "advanced": {
                         "title": "Coin Type",
-                        "description": "You will need to remove the current network from Keplr first (if already added) to apply the changes, you can <a target='_blank' rel='noreferrer' href='https://medium.com/lum-network/tutorial-keplr-custom-derivation-path-46fd1f337889'>follow this tutorial</a> for detailed steps"
+                        "description": "You will need to remove the current network from Keplr first (if already added) to apply the changes, you can <a target='_blank' rel='noreferrer' href='https://medium.com/cheq-network/tutorial-keplr-custom-derivation-path-46fd1f337889'>follow this tutorial</a> for detailed steps"
                     }
                 }
             }
@@ -124,7 +124,7 @@
             "note": "Only Ledger dongles are compatible right now",
             "types": {
                 "cosmos": "Cosmos app",
-                "lum": "Lum app"
+                "cheq": "Cheq app"
             },
             "advanced": {
                 "title": "HD Derivation Path",
@@ -346,9 +346,9 @@
         "invalidMessage": "Invalid message payload"
     },
     "airdrop": {
-        "title": "Airdrop Lum to claim",
+        "title": "Airdrop Cheq to claim",
         "actionsToClaim": {
-            "delegate": "Stake Lum",
+            "delegate": "Stake Cheq",
             "vote": "Vote on a proposal"
         },
         "moreInformations": "More information"

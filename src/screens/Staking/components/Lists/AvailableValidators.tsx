@@ -5,7 +5,7 @@ import numeral from 'numeral';
 import { Table, ValidatorLogo } from 'frontend-elements';
 
 import { Button, Input } from 'components';
-import { CLIENT_PRECISION, LUM_ASSETS_GITHUB, LUM_EXPLORER } from 'constant';
+import { CLIENT_PRECISION, CHEQ_ASSETS_GITHUB, CHEQ_EXPLORER } from 'constant';
 import { trunc, NumbersUtils, sortByVotingPower, WalletClient } from 'utils';
 
 import searchIcon from 'assets/images/search.svg';
@@ -64,14 +64,14 @@ const AvailableValidators = ({ validators, totalVotingPower, onDelegate }: Props
                 </td>
                 <td data-label={headers[1]}>
                     <a
-                        href={`${LUM_EXPLORER}/validators/${validator.operatorAddress}`}
+                        href={`${CHEQ_EXPLORER}/validators/${validator.operatorAddress}`}
                         target="_blank"
                         rel="noreferrer"
                     >
                         <ValidatorLogo
                             width={34}
                             height={34}
-                            githubUrl={LUM_ASSETS_GITHUB}
+                            githubUrl={CHEQ_ASSETS_GITHUB}
                             validatorAddress={validator.operatorAddress}
                             chainId={WalletClient.chainId || ''}
                             className="me-2 me-sm-3"

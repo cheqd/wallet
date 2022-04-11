@@ -5,7 +5,7 @@ import Chart from 'kaktana-react-lightweight-charts';
 import { UTCTimestamp } from 'lightweight-charts';
 import { Card } from 'frontend-elements';
 
-import { BUY_LUM_URL } from 'constant';
+import { BUY_CHEQ_URL } from 'constant';
 import { NumbersUtils, WalletClient } from 'utils';
 
 import './Cards.scss';
@@ -38,7 +38,7 @@ const LumPriceCard = ({ balance }: Props): JSX.Element => {
 
     return (
         <Card withoutPadding className="h-100 dashboard-card lum-price-card justify-content-start p-4">
-            <h2 className="ps-2 pt-3">{t('dashboard.lumPrice')}</h2>
+            <h2 className="ps-2 pt-3">{t('dashboard.cheqPrice')}</h2>
             <div className="ps-2 my-3 d-flex flex-column flex-lg-row justify-content-between align-items-lg-center w-100">
                 <SmallerDecimal
                     big
@@ -106,13 +106,13 @@ const LumPriceCard = ({ balance }: Props): JSX.Element => {
                     <span className="big-text fs-4">{numeral(lumPrice).format('$0,0.0000')}</span>
                 </div>
                 <a
-                    href={BUY_LUM_URL}
+                    href={BUY_CHEQ_URL}
                     target="_blank"
                     rel="noreferrer"
                     className="scale-anim mt-4 mt-lg-0 align-self-start"
                 >
                     <Card withoutPadding className="buy-btn px-4 py-3">
-                        <b>{t('dashboard.getLum')}</b>
+                        <b>{t('dashboard.getCheq')}</b>
                     </Card>
                 </a>
             </div>

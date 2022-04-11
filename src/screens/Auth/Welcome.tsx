@@ -380,8 +380,8 @@ const Welcome = (): JSX.Element => {
                                 }`}
                             >
                                 <p className="d-flex align-items-center justify-content-center fw-normal">
-                                    <img src={Assets.images.lumLogo} height="28" className="me-3" />
-                                    {t('welcome.hardwareModal.types.lum')} (Coming soon)
+                                    <img src={Assets.images.cheqdLogo} height="28" className="me-3" />
+                                    {t('welcome.hardwareModal.types.cheq')} (Coming soon)
                                 </p>
                             </button>
                             {/* 

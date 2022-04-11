@@ -29,7 +29,7 @@ import extensionIcon from './images/extension.svg';
 import keplrIcon from './images/keplr.svg';
 import telegramIcon from './images/telegram.png';
 import ledgerIcon from './images/ledger.svg';
-import lumLogo from './images/lum_logo.svg';
+import cheqdLogo from './images/cheqd_logo.png';
 import lumTicker from './images/lum_ticker.png';
 import lumWallet from './images/lum_wallet.svg';
 import syncIcon from './images/sync.png';
@@ -69,7 +69,7 @@ export default {
         extensionIcon,
         keplrIcon,
         ledgerIcon,
-        lumLogo,
+        cheqdLogo,
         lumTicker,
         lumWallet,
         syncIcon,
