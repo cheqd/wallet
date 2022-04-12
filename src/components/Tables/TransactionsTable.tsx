@@ -1,13 +1,11 @@
 import React from 'react';
-
 import { useTranslation } from 'react-i18next';
-import { LumConstants } from '@lum-network/sdk-javascript';
-
 import { Table } from 'frontend-elements';
 import { CHEQ_EXPLORER } from 'constant';
 import { Transaction, Wallet } from 'models';
 import { NumbersUtils, trunc } from 'utils';
 import { SmallerDecimal, TransactionTypeBadge } from 'components';
+import { CheqBech32PrefixValAddr, CheqDenom } from 'network';
 
 interface TransactionsTableProps {
 	transactions: Transaction[];
@@ -36,7 +34,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
 			<td data-label={headers[2]}>
 				<a
 					href={`${CHEQ_EXPLORER}/${
-						row.fromAddress.includes(LumConstants.LumBech32PrefixValAddr) ? 'validators' : 'account'
+						row.fromAddress.includes(CheqBech32PrefixValAddr) ? 'validators' : 'account'
 					}/${row.fromAddress}`}
 					target="_blank"
 					rel="noreferrer"
@@ -47,7 +45,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
 			<td data-label={headers[3]} className="text-end">
 				<a
 					href={`${CHEQ_EXPLORER}/${
-						row.toAddress.includes(LumConstants.LumBech32PrefixValAddr) ? 'validators' : 'account'
+						row.toAddress.includes(CheqBech32PrefixValAddr) ? 'validators' : 'account'
 					}/${row.toAddress}`}
 					target="_blank"
 					rel="noreferrer"
@@ -62,12 +60,12 @@ const TransactionRow = (props: RowProps): JSX.Element => {
 							? row.amount[0]
 							: {
 									amount: '0',
-									denom: LumConstants.LumDenom,
+									denom: CheqDenom,
 							  },
 						true,
 					)}
 				/>
-				<span className="ms-2">{LumConstants.LumDenom}</span>
+				<span className="ms-2">{CheqDenom}</span>
 			</td>
 			{/* 
             <td data-label={headers[5]} className="text-end">
