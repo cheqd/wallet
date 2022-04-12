@@ -5,15 +5,15 @@ import { initReactI18next } from 'react-i18next';
 import en from './en.json';
 
 export const resources = {
-    en: {
-        translation: en,
-    },
+	en: {
+		translation: en,
+	},
 } as const;
 
 i18n.use(LangDetector).use(initReactI18next).init({
-    fallbackLng: 'en',
-    resources,
-    nonExplicitSupportedLngs: true,
+	fallbackLng: 'en',
+	resources,
+	nonExplicitSupportedLngs: true,
 });
 
 export default i18n;

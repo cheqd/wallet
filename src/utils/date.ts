@@ -10,11 +10,11 @@ dayjs.extend(relativeTimePlugin);
 dayjs.extend(localizedFormatPLugin);
 
 export const dateFromNow = (date: dayjs.ConfigType, withoutSuffix = false): string => {
-    return dayjs.utc(date).fromNow(withoutSuffix);
+	return dayjs.utc(date).fromNow(withoutSuffix);
 };
 
 export const dateToNow = (date: dayjs.ConfigType, withoutSuffix = false): string => {
-    return dayjs.utc(date).toNow(withoutSuffix);
+	return dayjs.utc(date).toNow(withoutSuffix);
 };
 
 export const toLocaleDateFormat = (date: dayjs.ConfigType): string => dayjs.utc(date).format('lll');

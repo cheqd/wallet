@@ -202,23 +202,23 @@
         "types": {
             "send": {
                 "name": "Send",
-                "description": "Send LUM directly to another wallet address"
+                "description": "Send Cheq directly to another wallet address"
             },
             "delegate": {
                 "name": "Delegate",
-                "description": "Delegate LUM to a network validator address"
+                "description": "Delegate Cheq to a network validator address"
             },
             "undelegate": {
                 "name": "Undelegate",
-                "description": "Undelegate LUM from a network validator address"
+                "description": "Undelegate Cheq from a network validator address"
             },
             "getRewards": {
                 "name": "Get Rewards",
-                "description": "Get LUM rewards from a network validator you delegated to"
+                "description": "Get Cheq rewards from a network validator you delegated to"
             },
             "redelegate": {
                 "name": "Redelegate",
-                "description": "Redelegate LUM from one network validator to another"
+                "description": "Redelegate Cheq from one network validator to another"
             },
             "getAllRewards": {
                 "name": "Get All Rewards"

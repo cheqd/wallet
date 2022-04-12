@@ -14,11 +14,13 @@ module.exports = {
             jsx: true, // Allows for the parsing of JSX
         },
     },
+    ignorePatterns: ["src/frontend-elements/*"],
     rules: {
         // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
         // E.g. "@typescript-eslint/explicit-function-return-type": "off",
         '@typescript-eslint/no-empty-interface': 'off',
         'react/prop-types': 'off',
+        '@typescript-eslint/ban-ts-comment': 'off',
         'react-hooks/rules-of-hooks': 'warn',
         'react-hooks/exhaustive-deps': 'error',
     },

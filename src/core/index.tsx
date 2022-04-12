@@ -7,9 +7,9 @@ import { RootState } from '../redux/store';
 interface IProps {}
 
 const mapState = (state: RootState) => ({
-    loading: state.loading.global.loading,
-    transactions: state.wallet.transactions,
-    wallet: state.wallet.currentWallet,
+	loading: state.loading.global.loading,
+	transactions: state.wallet.transactions,
+	wallet: state.wallet.currentWallet,
 });
 
 type StateProps = ReturnType<typeof mapState>;
@@ -17,25 +17,25 @@ type StateProps = ReturnType<typeof mapState>;
 type Props = IProps & StateProps;
 
 class Core extends PureComponent<Props> {
-    async componentDidMount() {
-        WalletClient.init();
-    }
+	async componentDidMount() {
+		WalletClient.init();
+	}
 
-    renderContent(): JSX.Element {
-        return <RootNavigator />;
-    }
+	renderContent(): JSX.Element {
+		return <RootNavigator />;
+	}
 
-    renderLoading(): JSX.Element {
-        return (
-            <div className="spinner-grow" role="status">
-                <span className="visually-hidden">Loading...</span>
-            </div>
-        );
-    }
+	renderLoading(): JSX.Element {
+		return (
+			<div className="spinner-grow" role="status">
+				<span className="visually-hidden">Loading...</span>
+			</div>
+		);
+	}
 
-    render(): JSX.Element {
-        return this.renderContent();
-    }
+	render(): JSX.Element {
+		return this.renderContent();
+	}
 }
 
 export default connect(mapState)(Core);

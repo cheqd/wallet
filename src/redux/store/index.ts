@@ -6,13 +6,13 @@ import { RootModel, reduxModels } from 'models';
 type FullModel = ExtraModelsFromLoading<RootModel, { type: 'full' }>;
 
 const store = init<RootModel, FullModel>({
-    models: reduxModels,
-    redux: {
-        rootReducers: {
-            LOGOUT: () => undefined,
-        },
-    },
-    plugins: [loadingPlugin({ type: 'full' })],
+	models: reduxModels,
+	redux: {
+		rootReducers: {
+			LOGOUT: () => undefined,
+		},
+	},
+	plugins: [loadingPlugin({ type: 'full' })],
 });
 
 export type Store = typeof store;
