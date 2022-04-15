@@ -31,6 +31,7 @@
         "staking": "Staking",
         "message": "Messages",
         "governance": "Governance",
+        "identity": "Identity",
         "logout": "Logout"
     },
     "wallet": {
@@ -387,5 +388,18 @@
         "confirmingTitle": "Are you sure of your vote on proposal {{ proposal }} ?",
         "confirmingVote": "Your vote: {{ vote }}",
         "voteSuccess": "You have successfully voted"
+    },
+    "credentials": {
+        "get": {
+            "title": "Get a credential",
+            "description": "Get a new credential issued by cheqd",
+            "get": "Get",
+            "auth": "Authorize"
+        },
+        "list": {
+            "title": "My credentials",
+            "backup": "Backup",
+            "restore": "Restore"
+        }
     }
 }

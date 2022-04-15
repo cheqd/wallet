@@ -255,6 +255,7 @@ export const wallet = createModel<RootModel>()({
 						],
 						coinType,
 						gasPriceStep: {
+							// TODO
 							low: 0.01,
 							average: 0.025,
 							high: 0.04,

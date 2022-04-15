@@ -3,6 +3,7 @@ import operations from './images/navbarIcons/operations.svg';
 import staking from './images/navbarIcons/staking.svg';
 import messages from './images/navbarIcons/messages.svg';
 import governance from './images/navbarIcons/governance.svg';
+import identity from './images/navbarIcons/identity.svg';
 import logout from './images/navbarIcons/logout.svg';
 import delegate from './images/messageTypes/delegate.svg';
 import createValidator from './images/messageTypes/createValidator.svg';
@@ -111,6 +112,7 @@ export default {
 			staking,
 			messages,
 			governance,
+			identity,
 			logout,
 		},
 	},

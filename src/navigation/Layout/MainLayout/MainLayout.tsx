@@ -147,6 +147,21 @@ class MainLayout extends PureComponent<Props> {
 								<span className="d-none d-sm-block">{t('navbar.governance')}</span>
 							</NavLink>
 						</li>
+						<li>
+							<NavLink
+								to="/identity"
+								className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
+								activeClassName="selected-navbar-item"
+							>
+								<img
+									src={assets.images.navbarIcons.identity}
+									width="20"
+									height="20"
+									className="me-md-2 nav-icon"
+								/>
+								<span className="d-none d-sm-block">{t('navbar.identity')}</span>
+							</NavLink>
+						</li>
 					</ul>
 					{!bottom && (
 						<ul className="navbar-nav navbar-logout-btn">
