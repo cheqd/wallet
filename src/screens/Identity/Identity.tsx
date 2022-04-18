@@ -8,8 +8,8 @@ import { Button as CustomButton } from 'components';
 import { RootState } from 'redux/store';
 
 import './styles/Identity.scss';
-import { showInfoToast } from 'utils';
-import { buildAuthTx } from '../../utils/walletAuth';
+import { showErrorToast, showInfoToast } from 'utils';
+import { getAuthToken } from '../../utils/walletAuth';
 
 const Identity = (): JSX.Element => {
 	// Redux hooks
@@ -26,10 +26,14 @@ const Identity = (): JSX.Element => {
 
 	// Methods
 	const handleAuth = async () => {
-		const authTokenBytes = await buildAuthTx(wallet, process.env.ISSUER_URL);
-		console.log(authTokenBytes);
+		try {
+			const authTokenBytes = await getAuthToken(wallet, process.env.ISSUER_URL);
+			console.log(authTokenBytes);
 
-		showInfoToast('done');
+			showInfoToast('Authorized');
+		} catch (e) {
+			showErrorToast((e as Error).message);
+		}
 	};
 
 	return (

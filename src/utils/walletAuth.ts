@@ -5,9 +5,11 @@ import { WalletClient } from './index';
 import { Doc } from '../network/types/msg';
 import { LumUtils } from '@lum-network/sdk-javascript';
 import { Wallet } from '../models';
+import { KeplrHelper } from 'utils/keplrHelper';
+import { KeplrIntereactionOptions } from '@keplr-wallet/types';
 
 // Builds submit text proposal transaction with specific title and description
-export const buildAuthTx = async (wallet: Wallet, uri: string): Promise<Uint8Array> => {
+export const getAuthToken = async (wallet: Wallet, uri: string): Promise<Uint8Array> => {
 	const title = 'AuthRequest';
 	const description = JSON.stringify({
 		uri,
@@ -52,6 +54,25 @@ export const buildAuthTx = async (wallet: Wallet, uri: string): Promise<Uint8Arr
 		],
 	};
 
+	const keplr = new KeplrHelper();
+	let optionsBak: KeplrIntereactionOptions;
+
+	if (keplr.isInstalled) {
+		optionsBak = keplr.defaultOptions;
+		keplr.defaultOptions = {
+			sign: {
+				preferNoSetFee: true,
+				preferNoSetMemo: true,
+			},
+		};
+	}
+
 	const [signDoc, signature] = await wallet.signTransaction(doc);
+
+	if (keplr.isInstalled) {
+		// @ts-ignore
+		keplr.defaultOptions = optionsBak;
+	}
+
 	return LumUtils.generateTxBytes(signDoc, [signature]);
 };
