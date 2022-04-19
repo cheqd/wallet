@@ -3,8 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
-import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript';
+import { Validator } from 'cosmjs-types/cosmos/staking/v1beta1/staking';
+import { LumMessages, LumUtils } from '@lum-network/sdk-javascript';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
@@ -34,6 +34,7 @@ import Undelegate from '../Operations/components/Forms/Undelegate';
 import GetReward from '../Operations/components/Forms/GetReward';
 import GetAllRewards from '../Operations/components/Forms/GetAllRewards';
 import Redelegate from 'screens/Operations/components/Forms/Redelegate';
+import { CheqBech32PrefixValAddr, CheqDenom, NanoCheqDenom } from 'network';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
@@ -111,7 +112,7 @@ const Staking = (): JSX.Element => {
 			address: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`), {
 					message: t('operations.errors.address'),
 				}),
 			amount: yup.string().required(t('common.required')),
@@ -126,13 +127,13 @@ const Staking = (): JSX.Element => {
 			fromAddress: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`), {
 					message: t('operations.errors.address'),
 				}),
 			toAddress: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`), {
 					message: t('operations.errors.address'),
 				}),
 			amount: yup.string().required(t('common.required')),
@@ -147,7 +148,7 @@ const Staking = (): JSX.Element => {
 			address: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`), {
 					message: t('operations.errors.address'),
 				}),
 			amount: yup.string().required(t('common.required')),
@@ -162,7 +163,7 @@ const Staking = (): JSX.Element => {
 			address: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`)),
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`)),
 		}),
 		onSubmit: (values) => onSubmitClaim(values.address, values.memo),
 	});
@@ -244,7 +245,7 @@ const Staking = (): JSX.Element => {
 			const delegateResult = await delegate({ validatorAddress, amount, memo, from: wallet });
 
 			if (delegateResult) {
-				setTxResult({ hash: LumUtils.toHex(delegateResult.hash), error: delegateResult.error });
+				setTxResult({ hash: delegateResult.hash, error: delegateResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -279,7 +280,7 @@ const Staking = (): JSX.Element => {
 			const undelegateResult = await undelegate({ validatorAddress, amount, memo, from: wallet });
 
 			if (undelegateResult) {
-				setTxResult({ hash: LumUtils.toHex(undelegateResult.hash), error: undelegateResult.error });
+				setTxResult({ hash: undelegateResult.hash, error: undelegateResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -412,11 +413,6 @@ const Staking = (): JSX.Element => {
 			<div className="mt-4">
 				<div className="container">
 					<div className="row gy-4">
-						{airdrop && airdrop.amount > 0 ? (
-							<div className="col-12">
-								<AirdropCard airdrop={airdrop} />
-							</div>
-						) : null}
 						{vestings ? (
 							<div className="col-12">
 								<RewardsCard rewards={rewards} onClaim={onClaimAll} isLoading={!!loadingClaimAll} />
@@ -427,12 +423,7 @@ const Staking = (): JSX.Element => {
 								amount={stakedCoins}
 								amountVesting={
 									vestings
-										? Number(
-												LumUtils.convertUnit(
-													vestings.lockedDelegatedCoins,
-													LumConstants.LumDenom,
-												),
-										  )
+										? Number(LumUtils.convertUnit(vestings.lockedDelegatedCoins, CheqDenom))
 										: 0
 								}
 							/>
@@ -441,9 +432,9 @@ const Staking = (): JSX.Element => {
 							<BalanceCard
 								balance={
 									vestings
-										? balance.lum -
-										  Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
-										: balance.lum
+										? balance.cheq -
+										  Number(LumUtils.convertUnit(vestings.lockedBankCoins, NanoCheqDenom))
+										: balance.cheq
 								}
 								address={wallet.getAddress()}
 							/>

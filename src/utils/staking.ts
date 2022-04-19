@@ -2,10 +2,12 @@ import {
 	DelegationResponse,
 	UnbondingDelegation,
 	Validator,
-} from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+	// } from '@cosmjs/stargate/build/modules/index';
+} from 'cosmjs-types/cosmos/staking/v1beta1/staking';
 import { CLIENT_PRECISION } from 'constant';
 import { Rewards, UserValidator } from 'models';
 import { NumbersUtils } from '.';
+import { Timestamp } from 'cosmjs-types/google/protobuf/timestamp';
 
 export const calculateTotalVotingPower = (validators: Validator[]): number => {
 	if (!validators || !validators.length) {
@@ -27,7 +29,7 @@ export const sortByVotingPower = (validators: Validator[], totalVotingPower: num
 	});
 };
 
-export const unbondingsTimeRemaining = (unbondings: UnbondingDelegation[]): Date | undefined => {
+export const unbondingsTimeRemaining = (unbondings: UnbondingDelegation[]): Timestamp | undefined => {
 	let time = undefined;
 
 	for (const unbonding of unbondings) {

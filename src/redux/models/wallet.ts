@@ -72,7 +72,7 @@ interface SetWalletDataPayload {
 	transactions?: Transaction[];
 	currentBalance?: {
 		fiat: number;
-		lum: number;
+		cheq: number;
 	};
 	rewards?: Rewards;
 	vestings?: Vestings;
@@ -89,7 +89,7 @@ interface WalletState {
 	currentWallet: Wallet | null;
 	currentBalance: {
 		fiat: number;
-		lum: number;
+		cheq: number;
 	};
 	transactions: Transaction[];
 	rewards: Rewards;
@@ -103,7 +103,7 @@ export const wallet = createModel<RootModel>()({
 		currentWallet: null,
 		currentBalance: {
 			fiat: 0,
-			lum: 0,
+			cheq: 0,
 		},
 		transactions: [],
 		rewards: {
@@ -255,9 +255,9 @@ export const wallet = createModel<RootModel>()({
 						],
 						coinType,
 						gasPriceStep: {
-							low: 0.01,
-							average: 0.025,
-							high: 0.04,
+							low: 0.0000025,
+							average: 0.000005,
+							high: 0.00001,
 						},
 						beta: chainId.includes('testnet'),
 					});
@@ -288,7 +288,7 @@ export const wallet = createModel<RootModel>()({
 		},
 		async signInWithLedgerAsync(payload: { app: string; customHdPath?: string }) {
 			try {
-				const wallet: null | CheqWallet = null;
+				let wallet: null | CheqWallet = null;
 				let breakLoop = false;
 				let userCancelled = false;
 				let isNanoS = false;
@@ -304,15 +304,14 @@ export const wallet = createModel<RootModel>()({
 					try {
 						const transport = await TransportWebUsb.create();
 						isNanoS = transport.deviceModel?.id === DeviceModelId.nanoS;
-
 						//FIXME: Remove ts-ignore
-						// wallet = await LumWalletFactory.fromLedgerTransport(
-						//     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-						//     // @ts-ignore
-						//     transport,
-						//     HDPath,
-						//     CheqBech32PrefixAccAddr,
-						// );
+						wallet = await CheqWalletFactory.fromLedgerTransport(
+							// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+							// @ts-ignore
+							transport,
+							HDPath,
+							CheqBech32PrefixAccAddr,
+						);
 					} catch (e) {
 						if ((e as Error).name === 'TransportOpenUserCancelled') {
 							breakLoop = true;
@@ -342,6 +341,7 @@ export const wallet = createModel<RootModel>()({
 		signInWithMnemonicAsync(payload: { mnemonic: string; customHdPath?: string }) {
 			CheqWalletFactory.fromMnemonic(payload.mnemonic)
 				.then((wallet) => {
+					localStorage.setItem('mn', payload.mnemonic);
 					// @ts-ignore
 					dispatch.wallet.signIn(wallet);
 					if (payload.customHdPath) {

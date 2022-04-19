@@ -1,6 +1,6 @@
 import { CheqWallet } from '../network/wallet';
-import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
-import { Proposal as BaseProposal } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import { Validator } from 'cosmjs-types/cosmos/staking/v1beta1/staking';
+import { Proposal as BaseProposal } from 'cosmjs-types/cosmos/gov/v1beta1/gov';
 import { Models } from '@rematch/core';
 import { governance } from '../redux/models/governance';
 import { staking } from '../redux/models/staking';

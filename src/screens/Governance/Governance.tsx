@@ -73,6 +73,7 @@ const Governance = (): JSX.Element => {
 				proposal.status !== ProposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD &&
 				proposal.status !== ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD,
 		);
+		console.log('proposals: ', passed);
 
 		setActiveProposals(active);
 		setPassedProposals(GovernanceUtils.sortByDate(passed));

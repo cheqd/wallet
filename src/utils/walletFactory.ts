@@ -1,11 +1,11 @@
 import Transport from '@ledgerhq/hw-transport';
-import { OfflineSigner } from '@cosmjs/proto-signing';
+import { DirectSecp256k1HdWallet, OfflineSigner } from '@cosmjs/proto-signing';
 
 import { CheqWallet } from '../network/wallet';
 // import { CheqLedgerWallet } from './LumLedgerWallet';
 import { CheqPaperWallet } from './paperWallet';
 // import { CheqOfflineSignerWallet } from './LumOfflineSignerWallet';
-import { getCheqHdPath, CheqBech32PrefixAccAddr } from '../network/constants';
+import { getCheqHdPath, CheqBech32PrefixAccAddr, CheqDenom } from '../network/constants';
 import { LumUtils } from '@lum-network/sdk-javascript';
 import { CheqLedgerWallet } from './ledgerWallet';
 import { CheqOfflineSignerWallet } from './offlineSigner';

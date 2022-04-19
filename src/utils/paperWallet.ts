@@ -1,16 +1,17 @@
 import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
+import { sha256, ripemd160 } from '@cosmjs/crypto';
+import { DirectSecp256k1HdWallet, OfflineDirectSigner } from '@cosmjs/proto-signing';
+import { Bech32 } from '@cosmjs/encoding';
 import {
 	isUint8Array,
-	getPrivateKeyFromMnemonic,
-	getPublicKeyFromPrivateKey,
-	getAddressFromPublicKey,
 	generateSignature,
 	uint8IndexOf,
 	generateSignDoc,
 	generateSignDocBytes,
-	sha256,
 	toAscii,
+	toHex,
 } from '@lum-network/sdk-javascript/build/utils';
+import { getPrivateKeyFromMnemonic, getPublicKeyFromPrivateKey, getAddressFromPublicKey } from '../network/keys';
 import { SignDoc } from '@lum-network/sdk-javascript/build/types';
 import { CheqWallet } from '../network/wallet';
 import {
@@ -23,6 +24,7 @@ import { SignMsg } from '../network/types/signMsg';
 import { Doc } from '../network/types/msg';
 
 export class CheqPaperWallet extends CheqWallet {
+	private directWallet: DirectSecp256k1HdWallet | undefined;
 	private readonly mnemonic?: string;
 	private privateKey?: Uint8Array;
 
@@ -54,9 +56,15 @@ export class CheqPaperWallet extends CheqWallet {
 
 	useAccount = async (hdPath = getCheqHdPath(0, 0), addressPrefix = CheqBech32PrefixAccAddr): Promise<boolean> => {
 		if (this.mnemonic) {
+			this.directWallet = await DirectSecp256k1HdWallet.fromMnemonic(this.mnemonic, {
+				prefix: CheqBech32PrefixAccAddr,
+			});
+
+			// @ts-ignore
+			const [account] = await this.directWallet.getAccounts();
+			this.publicKey = account.pubkey;
+			this.address = account.address;
 			this.privateKey = await getPrivateKeyFromMnemonic(this.mnemonic, hdPath);
-			this.publicKey = await getPublicKeyFromPrivateKey(this.privateKey);
-			this.address = getAddressFromPublicKey(this.publicKey, addressPrefix);
 			return true;
 		} else if (this.privateKey) {
 			this.publicKey = await getPublicKeyFromPrivateKey(this.privateKey);
@@ -66,24 +74,34 @@ export class CheqPaperWallet extends CheqWallet {
 		throw new Error('No available mnemonic or private key.');
 	};
 
+	getAddressFromPublicKey = (publicKey: Uint8Array, prefix = CheqBech32PrefixAccAddr) => {
+		if (publicKey.length !== 33) {
+			throw new Error(`Invalid Secp256k1 pubkey length (compressed): ${publicKey.length}`);
+		}
+		const hash1 = sha256(publicKey);
+		const hash2 = ripemd160(hash1);
+		return Bech32.encode(prefix, hash2);
+	};
+
 	sign = async (data: Uint8Array): Promise<Uint8Array> => {
 		if (!this.privateKey || !this.publicKey) {
-			throw new Error('No account selected.');
+			throw new Error('sign: No account selected.');
 		}
+
 		const signature = await generateSignature(data, this.privateKey);
 		return signature;
 	};
 
 	signTransaction = async (doc: Doc): Promise<[SignDoc, Uint8Array]> => {
 		if (!this.privateKey || !this.publicKey) {
-			throw new Error('No account selected.');
+			throw new Error('signTransaction: No account selected.');
 		}
 		const signerIndex = uint8IndexOf(
 			doc.signers.map((signer: any) => signer.publicKey),
 			this.publicKey as Uint8Array,
 		);
 		if (signerIndex === -1) {
-			throw new Error('Signer not found in document');
+			throw new Error('signTransaction: Signer not found in document');
 		}
 		const signDoc = generateSignDoc(doc, signerIndex, this.signingMode());
 		const signBytes = generateSignDocBytes(signDoc);
@@ -94,7 +112,7 @@ export class CheqPaperWallet extends CheqWallet {
 
 	signMessage = async (msg: string): Promise<SignMsg> => {
 		if (!this.privateKey || !this.publicKey) {
-			throw new Error('No account selected.');
+			throw new Error('signMessage: No account selected.');
 		}
 		const signature = await generateSignature(sha256(toAscii(msg)), this.privateKey);
 		return {

@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import { Badge, SmallerDecimal } from 'components';
 import { Button, Card } from 'frontend-elements';
 import { Proposal, VotesResult } from 'models';
-import { dateFromNow, GovernanceUtils, NumbersUtils } from 'utils';
+import { dateFromNow, dateFromTimestamp, GovernanceUtils, NumbersUtils } from 'utils';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
 
@@ -118,48 +118,46 @@ const LargeProposalCard = ({
 					<div className="col-6">
 						<h6 className="mb-2">{t('governance.proposalCard.submitTime')}</h6>
 						<p>
-							{dayjs(proposal.submitTime?.toISOString() || '')
+							{dayjs(dateFromTimestamp(proposal.submitTime).toISOString() || '')
 								.utc()
 								.tz(dayjs.tz.guess())
 								.format('ll')}{' '}
 							<span className="text-muted">
-								({dateFromNow(proposal.submitTime?.toISOString() || '')})
+								({dateFromNow(dateFromTimestamp(proposal.submitTime).toISOString() || '')})
 							</span>
 						</p>
 					</div>
 					<div className="col-6">
 						<h6 className="mb-2">{t('governance.proposalCard.depositEnd')}</h6>
 						<p>
-							{dayjs(proposal.depositEndTime?.toISOString() || '')
+							{dayjs(dateFromTimestamp(proposal.depositEndTime).toISOString() || '')
 								.utc()
 								.tz(dayjs.tz.guess())
-								.format('ll')}{' '}
-							<span className="text-muted">
-								({dateFromNow(proposal.depositEndTime?.toISOString() || '')})
-							</span>
+								.format('ll')}
+							<span className="text-muted">(proposal.depositEndTime?.nanos))</span>
 						</p>
 					</div>
 					<div className="col-6">
 						<h6 className="mb-2">{t('governance.proposalCard.votingStart')}</h6>
 						<p>
-							{dayjs(proposal.votingStartTime?.toISOString() || '')
+							{dayjs(dateFromTimestamp(proposal.votingStartTime).toISOString() || '')
 								.utc()
 								.tz(dayjs.tz.guess())
 								.format('ll')}{' '}
 							<span className="text-muted">
-								({dateFromNow(proposal.votingStartTime?.toISOString() || '')})
+								({dateFromTimestamp(proposal.votingStartTime).toISOString()})
 							</span>
 						</p>
 					</div>
 					<div className="col-6">
 						<h6 className="mb-2">{t('governance.proposalCard.votingEnd')}</h6>
 						<p>
-							{dayjs(proposal.votingEndTime?.toISOString() || '')
+							{dayjs(dateFromTimestamp(proposal.votingEndTime).toISOString() || '')
 								.utc()
 								.tz(dayjs.tz.guess())
 								.format('ll')}{' '}
 							<span className="text-muted">
-								({dateFromNow(proposal.votingEndTime?.toISOString() || '')})
+								({dateFromTimestamp(proposal.votingEndTime).toISOString()})
 							</span>
 						</p>
 					</div>
@@ -251,17 +249,17 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
 		switch (proposal.status) {
 			case ProposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD:
 				dateTitle = t('governance.proposalCard.depositEnd');
-				date = proposal.depositEndTime?.toISOString() || '';
+				date = dateFromTimestamp(proposal.depositEndTime).toISOString() || '';
 				break;
 
 			case ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD:
 				dateTitle = t('governance.proposalCard.votingEnd');
-				date = proposal.votingEndTime?.toISOString() || '';
+				date = dateFromTimestamp(proposal.votingEndTime).toISOString() || '';
 				break;
 
 			default:
 				dateTitle = t('governance.proposalCard.votingEnd');
-				date = proposal.votingEndTime?.toISOString() || '';
+				date = dateFromTimestamp(proposal.votingEndTime).toISOString() || '';
 		}
 
 		return (

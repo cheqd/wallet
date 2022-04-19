@@ -1,40 +1,57 @@
-import { Tendermint34Client, StatusResponse } from '@cosmjs/tendermint-rpc';
-import { QueryClient as StargateQueryClient } from '@cosmjs/stargate';
+import {
+	Tendermint34Client,
+	StatusResponse,
+	TxResponse,
+	TxSearchParams,
+	BroadcastTxCommitResponse,
+	BlockResponse,
+} from '@cosmjs/tendermint-rpc';
+import {
+	QueryClient as StargateQueryClient,
+	assertIsDeliverTxSuccess,
+	SigningStargateClient,
+	StargateClient,
+} from '@cosmjs/stargate';
 
-// import { LumWallet, } from '..';
 import {
 	Coin,
-	BlockResponse,
+	// BlockResponse,
 	Account,
-	TxResponse,
-	BroadcastTxCommitResponse,
+	// TxResponse,
+	// BroadcastTxCommitResponse,
 	SignDoc,
-	TxSearchParams,
+	// TxSearchParams,
 } from '@lum-network/sdk-javascript/build/types';
 
 import { Doc, DocSigner } from './types/msg';
 import {
-	AuthExtension,
-	setupAuthExtension,
+	// AuthExtension,
+	// setupAuthExtension,
 	BankExtension,
 	setupBankExtension,
 	TxExtension,
 	setupTxExtension,
-	GovExtension,
-	setupGovExtension,
+	// GovExtension,
+	// setupGovExtension,
 } from './modules';
 import { LumUtils } from '@lum-network/sdk-javascript';
 import { CheqWallet } from './wallet';
 
 import {
 	StakingExtension,
+	AuthExtension,
+	setupAuthExtension,
 	setupStakingExtension,
 	DistributionExtension,
 	setupDistributionExtension,
-} from '@lum-network/sdk-javascript/build/extensions';
+	GovExtension,
+	setupGovExtension,
+} from '@cosmjs/stargate/build/modules';
+import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 
 export class CheqClient {
 	readonly tmClient: Tendermint34Client;
+	protected stargateSigninClient: SigningStargateClient | undefined;
 	readonly queryClient: StargateQueryClient &
 		AuthExtension &
 		BankExtension &
@@ -60,7 +77,6 @@ export class CheqClient {
 			setupDistributionExtension,
 			setupStakingExtension,
 		);
-
 		// Used for debugging while gasWanted, gasUsed and codespace are still waiting to be included in the code lib
 		// // @ts-ignore
 		// this.tmClient.r.decodeTx = (data) => {
@@ -86,6 +102,10 @@ export class CheqClient {
 	static connect = async (endpoint: string): Promise<CheqClient> => {
 		const tmClient = await Tendermint34Client.connect(endpoint);
 		return new CheqClient(tmClient);
+	};
+
+	setupStargateSigninClient = (client: SigningStargateClient) => {
+		this.stargateSigninClient = client;
 	};
 
 	/**
@@ -296,6 +316,7 @@ export class CheqClient {
 			if (!account) {
 				throw new Error(`Account not found for wallet at index ${i}`);
 			}
+
 			const [walletSignedDoc, signature] = await wallets[i].signTransaction(doc);
 			if (i === 0) {
 				signDoc = walletSignedDoc;

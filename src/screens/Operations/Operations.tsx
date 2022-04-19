@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
-import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript';
+import { LumMessages, LumUtils } from '@lum-network/sdk-javascript';
 import * as yup from 'yup';
 
 import assets from 'assets';
@@ -22,7 +22,8 @@ import Vote from './components/Forms/Vote';
 
 import './Operations.scss';
 import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
-import { CheqBech32PrefixAccAddr } from 'network';
+import { CheqBech32PrefixAccAddr, CheqBech32PrefixValAddr, CheqDenom } from 'network';
+import { CHEQ_EXPLORER } from 'constant';
 
 type MsgType = { name: string; icon: string; iconClassName?: string; id: string; description: string };
 
@@ -126,7 +127,7 @@ const Operations = (): JSX.Element => {
 			address: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`), {
 					message: t('operations.errors.address'),
 				}),
 			amount: yup.string().required(t('common.required')),
@@ -141,7 +142,7 @@ const Operations = (): JSX.Element => {
 			address: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`), {
 					message: t('operations.errors.address'),
 				}),
 			amount: yup.string().required(t('common.required')),
@@ -156,13 +157,13 @@ const Operations = (): JSX.Element => {
 			fromAddress: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`), {
 					message: t('operations.errors.address'),
 				}),
 			toAddress: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`), {
 					message: t('operations.errors.address'),
 				}),
 			amount: yup.string().required(t('common.required')),
@@ -177,7 +178,7 @@ const Operations = (): JSX.Element => {
 			address: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`), {
 					message: t('operations.errors.address'),
 				}),
 			memo: yup.string(),
@@ -243,10 +244,12 @@ const Operations = (): JSX.Element => {
 
 	const onSubmitSend = async (toAddress: string, amount: string, memo: string) => {
 		try {
+			console.log('sendTx Resp: ', amount);
 			const sendResult = await sendTx({ from: wallet, to: toAddress, amount, memo });
 
 			if (sendResult) {
 				setConfirming(false);
+				// @ts-ignore
 				setTxResult({ hash: LumUtils.toHex(sendResult.hash), error: sendResult.error });
 			}
 		} catch (e) {
@@ -259,7 +262,7 @@ const Operations = (): JSX.Element => {
 			const delegateResult = await delegate({ validatorAddress, amount, memo, from: wallet });
 
 			if (delegateResult) {
-				setTxResult({ hash: LumUtils.toHex(delegateResult.hash), error: delegateResult.error });
+				setTxResult({ hash: delegateResult.hash, error: delegateResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -271,7 +274,7 @@ const Operations = (): JSX.Element => {
 			const undelegateResult = await undelegate({ validatorAddress, amount, memo, from: wallet });
 
 			if (undelegateResult) {
-				setTxResult({ hash: LumUtils.toHex(undelegateResult.hash), error: undelegateResult.error });
+				setTxResult({ hash: undelegateResult.hash, error: undelegateResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -387,9 +390,9 @@ const Operations = (): JSX.Element => {
 							<BalanceCard
 								balance={
 									vestings
-										? balance.lum -
-										  Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
-										: balance.lum
+										? balance.cheq -
+										  Number(LumUtils.convertUnit(vestings.lockedBankCoins, CheqDenom))
+										: balance.cheq
 								}
 								address={wallet.getAddress()}
 							/>
@@ -411,7 +414,7 @@ const Operations = (): JSX.Element => {
 						<h2 className="text-center">{modal.name}</h2>
 						{!txResult ? (
 							renderModal()
-						) : txResult.error !== null ? (
+						) : !!txResult.error ? (
 							<>
 								<p className="color-error">{t('common.failure')}</p>
 								<p className="color-error my-5 text-start">
@@ -425,6 +428,13 @@ const Operations = (): JSX.Element => {
 							<>
 								<p className="color-success">{t('common.success')}</p>
 								<Input
+									onClick={() => {
+										window.open(
+											`${CHEQ_EXPLORER}/transactions/${new Buffer(txResult.hash).toString(
+												'hex',
+											)}`,
+										);
+									}}
 									readOnly
 									value={txResult.hash}
 									label="Hash"

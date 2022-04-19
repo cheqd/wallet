@@ -1,6 +1,6 @@
 /**
  * CHEQ Exponent
- * 1 CHEQ = 10^9 ncheqd
+ * 1 CHEQ = 10^9 ncheq
  */
 export const CheqExponent = 9;
 

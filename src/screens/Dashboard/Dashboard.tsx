@@ -15,7 +15,8 @@ import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
 import AirdropCard from 'components/Cards/AirdropCard';
 import StakedCoinsCard from 'screens/Staking/components/Cards/StakedCoinsCard';
 import VestingTokensCard from 'screens/Staking/components/Cards/VestingTokensCard';
-import { CheqDenom } from 'network';
+import { CheqDenom, NanoCheqDenom } from 'network';
+import { convertCoin } from 'network/util';
 
 const Dashboard = (): JSX.Element => {
 	// Redux hooks
@@ -61,8 +62,9 @@ const Dashboard = (): JSX.Element => {
 						<BalanceCard
 							balance={
 								vestings
-									? balance.lum - Number(LumUtils.convertUnit(vestings.lockedBankCoins, CheqDenom))
-									: balance.lum
+									? balance.cheq -
+									  Number(LumUtils.convertUnit(vestings.lockedBankCoins, NanoCheqDenom))
+									: balance.cheq
 							}
 							address={wallet.getAddress()}
 						/>
@@ -81,14 +83,7 @@ const Dashboard = (): JSX.Element => {
 								<StakedCoinsCard
 									amount={stakedCoins}
 									amountVesting={
-										vestings
-											? Number(
-													LumUtils.convertUnit(
-														vestings.lockedDelegatedCoins,
-														LumConstants.LumDenom,
-													),
-											  )
-											: 0
+										vestings ? convertCoin(vestings.lockedDelegatedCoins.amount, NanoCheqDenom) : 0
 									}
 								/>
 							</div>
