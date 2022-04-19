@@ -10,6 +10,8 @@ import { RootState } from 'redux/store';
 import './styles/Identity.scss';
 import { showErrorToast, showInfoToast } from 'utils';
 import { getAuthToken } from '../../utils/walletAuth';
+import { toBase64 } from '@lum-network/sdk-javascript/build/utils';
+import { getCredential } from '../../apis/issuer';
 
 const Identity = (): JSX.Element => {
 	// Redux hooks
@@ -27,10 +29,19 @@ const Identity = (): JSX.Element => {
 	// Methods
 	const handleAuth = async () => {
 		try {
-			const authTokenBytes = await getAuthToken(wallet, process.env.ISSUER_URL);
-			console.log(authTokenBytes);
+			const authTokenBytes = await getAuthToken(wallet, process.env.REACT_APP_ISSUER_URL);
+			console.log(toBase64(authTokenBytes));
 
 			showInfoToast('Authorized');
+		} catch (e) {
+			showErrorToast((e as Error).message);
+		}
+	};
+
+	const handleGet = async () => {
+		try {
+			const cred = await getCredential();
+			console.log(cred);
 		} catch (e) {
 			showErrorToast((e as Error).message);
 		}
@@ -52,7 +63,9 @@ const Identity = (): JSX.Element => {
 										{t('credentials.get.auth')}
 									</CustomButton>
 									<div className="mx-4">
-										<CustomButton className="px-5">{t('credentials.get.get')}</CustomButton>
+										<CustomButton className="px-5" onClick={handleGet}>
+											{t('credentials.get.get')}
+										</CustomButton>
 									</div>
 								</div>
 							</Card>

@@ -124,3 +124,11 @@ export interface CheqInfo {
 	name: number;
 	previousDaysPrices: PreviousDayPrice[];
 }
+
+export interface Credential {
+	credentialSubject: CredentialSubject;
+}
+
+export interface CredentialSubject {
+	id: string;
+}
