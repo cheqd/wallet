@@ -18,6 +18,7 @@
         "i18next": "^19.8.9",
         "i18next-browser-languagedetector": "^6.0.1",
         "immer": "^8.0.1",
+        "immutability-helper": "^3.1.1",
         "kaktana-react-lightweight-charts": "^2.0.0",
         "lightweight-charts": "^3.7.0",
         "numeral": "^2.0.6",
@@ -69,7 +70,7 @@
         "start": "react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
-		"lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+        "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "eject": "react-scripts eject"
     },
     "eslintConfig": {

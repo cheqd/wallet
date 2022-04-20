@@ -5,15 +5,17 @@ import { Models } from '@rematch/core';
 import { governance } from '../redux/models/governance';
 import { staking } from '../redux/models/staking';
 import { wallet } from '../redux/models/wallet';
+import { identity } from '../redux/models/identity';
 import { Coin } from '@lum-network/sdk-javascript/build/types';
 
 export interface RootModel extends Models<RootModel> {
 	wallet: typeof wallet;
 	staking: typeof staking;
 	governance: typeof governance;
+	identity: typeof identity;
 }
 
-export const reduxModels: RootModel = { wallet, staking, governance };
+export const reduxModels: RootModel = { wallet, staking, governance, identity };
 
 export interface Wallet extends CheqWallet {
 	isExtensionImport?: boolean;
@@ -125,10 +127,17 @@ export interface CheqInfo {
 	previousDaysPrices: PreviousDayPrice[];
 }
 
+export interface IdentityWallet {
+	credentials: Credential[];
+}
+
 export interface Credential {
+	id: string;
+	issuer: string;
 	credentialSubject: CredentialSubject;
 }
 
 export interface CredentialSubject {
 	id: string;
+	twitter_handle: string;
 }

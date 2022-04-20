@@ -399,7 +399,8 @@
         "list": {
             "title": "My credentials",
             "backup": "Backup",
-            "restore": "Restore"
+            "load": "Load",
+            "new": "New"
         }
     }
 }
