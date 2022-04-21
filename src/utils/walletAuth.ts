@@ -7,6 +7,7 @@ import { LumUtils } from '@lum-network/sdk-javascript';
 import { Wallet } from '../models';
 import { KeplrHelper } from 'utils/keplrHelper';
 import { KeplrIntereactionOptions } from '@keplr-wallet/types';
+import { CheqRegistry } from '../network/modules';
 
 // Builds submit text proposal transaction with specific title and description
 export const getAuthToken = async (wallet: Wallet, uri: string): Promise<Uint8Array> => {
@@ -16,16 +17,23 @@ export const getAuthToken = async (wallet: Wallet, uri: string): Promise<Uint8Ar
 		time: new Date(),
 	});
 
+	const msg_text_proposal = {
+		typeUrl: '/cosmos.gov.v1beta1.TextProposal',
+		value: {
+			title,
+			description,
+		},
+	};
+
 	const msg = {
 		typeUrl: '/cosmos.gov.v1beta1.MsgSubmitProposal',
 		value: {
 			content: {
-				typeUrl: '/cosmos.gov.v1beta1.TextProposal',
-				value: {
-					title,
-					description,
-				},
+				typeUrl: msg_text_proposal.typeUrl,
+				value: CheqRegistry.encode(msg_text_proposal),
 			},
+			proposer: '',
+			initialDeposit: [],
 		},
 	};
 

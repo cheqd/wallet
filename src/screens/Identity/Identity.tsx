@@ -8,7 +8,7 @@ import { Button as CustomButton } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 
 import './styles/Identity.scss';
-import { showErrorToast, showInfoToast, showSuccessToast } from 'utils';
+import { showErrorToast, showInfoToast, showSuccessToast, trunc } from 'utils';
 import { getAuthToken } from '../../utils/walletAuth';
 import { toBase64 } from '@lum-network/sdk-javascript/build/utils';
 import { getCredential } from '../../apis/issuer';
@@ -134,7 +134,7 @@ const Identity = (): JSX.Element => {
 												<Card className="d-flex flex-column h-100 justify-content-between">
 													<div>
 														<h2>Credential</h2>
-														<p>Id: {cred.id}</p>
+														<p>Id: {trunc(cred.id, 15)}</p>
 														<p>Issuer: {cred.issuer}</p>
 														<p>Subject: {cred.credentialSubject.id}</p>
 														<p>Twitter: {cred.credentialSubject.twitter_handle}</p>
