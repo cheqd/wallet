@@ -91,8 +91,11 @@ const Identity = (): JSX.Element => {
 				return;
 			}
 
-			const encrypted = encrypt(JSON.stringify(identityWallet), '');
-			await backupCryptoBox(wallet.getAddress(), encrypted);
+			const textEncoder = new TextEncoder();
+			const walletBytes = textEncoder.encode(JSON.stringify(identityWallet));
+
+			const encrypted = await encrypt(walletBytes, 'password');
+			await backupCryptoBox(wallet.getAddress(), toBase64(encrypted));
 			showSuccessToast('Wallet backed up');
 		} catch (e) {
 			showErrorToast((e as Error).message);

@@ -3,6 +3,7 @@ import { Credential, IdentityWallet, RootModel } from '../../models';
 import update from 'immutability-helper';
 import { loadCryptoBox } from '../../apis/storage';
 import { decrypt } from '../../utils/cryptoBox';
+import { fromBase64 } from '@lum-network/sdk-javascript/build/utils';
 
 interface IdentityState {
 	authToken: string | null;
@@ -52,9 +53,12 @@ export const identity = createModel<RootModel>()({
 		},
 		async loadWallet(accountId: string) {
 			const cryptoBox = await loadCryptoBox<string>(accountId);
+			const decrypted = await decrypt(fromBase64(cryptoBox), 'password');
 
-			const decrypted = JSON.parse(decrypt(cryptoBox, '')) as IdentityWallet;
-			dispatch.identity.setWallet(decrypted);
+			const textDecoder = new TextDecoder();
+			const wallet = JSON.parse(textDecoder.decode(decrypted));
+
+			dispatch.identity.setWallet(wallet);
 		},
 	}),
 });
