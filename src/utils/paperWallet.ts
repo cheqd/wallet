@@ -19,12 +19,17 @@ import {
 	CheqMessageSigner,
 	CheqWalletSigningVersion,
 	getCheqHdPath,
+	NanoCheqDenom,
 } from '../network/constants';
 import { SignMsg } from '../network/types/signMsg';
 import { Doc } from '../network/types/msg';
+import { GasPrice, SigningStargateClient } from '@cosmjs/stargate';
+import { showErrorToast } from 'utils';
+import i18n from 'locales';
 
 export class CheqPaperWallet extends CheqWallet {
-	private directWallet: DirectSecp256k1HdWallet | undefined;
+	private directWallet!: DirectSecp256k1HdWallet;
+	private signingStargateClient!: SigningStargateClient;
 	private readonly mnemonic?: string;
 	private privateKey?: Uint8Array;
 
@@ -43,6 +48,22 @@ export class CheqPaperWallet extends CheqWallet {
 		} else {
 			// @ts-ignore
 			this.mnemonic = mnemonicOrPrivateKey;
+			DirectSecp256k1HdWallet.fromMnemonic(mnemonicOrPrivateKey, { prefix: CheqBech32PrefixAccAddr })
+				.then((wallet) => {
+					this.directWallet = wallet;
+					SigningStargateClient.connectWithSigner(process.env.REACT_APP_RPC_URL, wallet, {
+						gasPrice: GasPrice.fromString('25' + NanoCheqDenom),
+					})
+						.then((signingClient) => {
+							this.signingStargateClient = signingClient;
+						})
+						.catch((err) => {
+							showErrorToast(i18n.t('wallet.errors.client'));
+						});
+				})
+				.catch((err) => {
+					showErrorToast(i18n.t('wallet.errors.client'));
+				});
 		}
 	}
 
@@ -64,7 +85,6 @@ export class CheqPaperWallet extends CheqWallet {
 			const [account] = await this.directWallet.getAccounts();
 			this.publicKey = account.pubkey;
 			this.address = account.address;
-			this.privateKey = await getPrivateKeyFromMnemonic(this.mnemonic, hdPath);
 			return true;
 		} else if (this.privateKey) {
 			this.publicKey = await getPublicKeyFromPrivateKey(this.privateKey);
@@ -88,6 +108,7 @@ export class CheqPaperWallet extends CheqWallet {
 			throw new Error('sign: No account selected.');
 		}
 
+		// this.signingClient().sign
 		const signature = await generateSignature(data, this.privateKey);
 		return signature;
 	};
@@ -107,6 +128,7 @@ export class CheqPaperWallet extends CheqWallet {
 		const signBytes = generateSignDocBytes(signDoc);
 		const hashedMessage = sha256(signBytes);
 		const signature = await generateSignature(hashedMessage, this.privateKey);
+
 		return [signDoc, signature];
 	};
 
@@ -123,5 +145,13 @@ export class CheqPaperWallet extends CheqWallet {
 			version: CheqWalletSigningVersion,
 			signer: CheqMessageSigner.PAPER,
 		};
+	};
+
+	signingClient = () => {
+		return this.signingStargateClient;
+	};
+
+	wallet = () => {
+		return this.directWallet;
 	};
 }

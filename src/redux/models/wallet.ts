@@ -16,6 +16,7 @@ import {
 	getCheqHdPath,
 } from '../../network';
 
+import { DirectSecp256k1HdWallet, OfflineDirectSigner } from '@cosmjs/proto-signing';
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 import { DeviceModelId } from '@ledgerhq/devices';
 
@@ -28,6 +29,7 @@ import { Airdrop, HardwareMethod, Rewards, RootModel, Transaction, Vestings, Wal
 import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import { CheqWallet } from 'network/wallet';
 import { CheqWalletFactory } from 'utils/walletFactory';
+import { GasPrice, SigningStargateClient } from '@cosmjs/stargate';
 
 interface SendPayload {
 	to: string;
@@ -341,8 +343,24 @@ export const wallet = createModel<RootModel>()({
 		signInWithMnemonicAsync(payload: { mnemonic: string; customHdPath?: string }) {
 			CheqWalletFactory.fromMnemonic(payload.mnemonic)
 				.then((wallet) => {
-					localStorage.setItem('mn', payload.mnemonic);
+					// localStorage.setItem('mn', payload.mnemonic);
 					// @ts-ignore
+
+					DirectSecp256k1HdWallet.fromMnemonic(payload.mnemonic, { prefix: CheqBech32PrefixAccAddr })
+						.then((w) => {
+							SigningStargateClient.connectWithSigner(process.env.REACT_APP_RPC_URL, w, {
+								gasPrice: GasPrice.fromString('25' + NanoCheqDenom),
+							})
+								.then((signingClient) => {
+									WalletClient.cheqClient.withStargateSigninClient(signingClient);
+								})
+								.catch((err) => {
+									showErrorToast(i18n.t('wallet.errors.client'));
+								});
+						})
+						.catch((err) => {
+							showErrorToast(i18n.t('wallet.errors.client'));
+						});
 					dispatch.wallet.signIn(wallet);
 					if (payload.customHdPath) {
 						wallet.useAccount(payload.customHdPath, CheqBech32PrefixAccAddr);

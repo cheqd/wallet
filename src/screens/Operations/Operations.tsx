@@ -244,13 +244,12 @@ const Operations = (): JSX.Element => {
 
 	const onSubmitSend = async (toAddress: string, amount: string, memo: string) => {
 		try {
-			console.log('sendTx Resp: ', amount);
 			const sendResult = await sendTx({ from: wallet, to: toAddress, amount, memo });
 
 			if (sendResult) {
 				setConfirming(false);
 				// @ts-ignore
-				setTxResult({ hash: LumUtils.toHex(sendResult.hash), error: sendResult.error });
+				setTxResult({ hash: sendResult.hash, error: sendResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -297,7 +296,7 @@ const Operations = (): JSX.Element => {
 			});
 
 			if (redelegateResult) {
-				setTxResult({ hash: LumUtils.toHex(redelegateResult.hash), error: redelegateResult.error });
+				setTxResult({ hash: redelegateResult.hash, error: redelegateResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -309,7 +308,7 @@ const Operations = (): JSX.Element => {
 			const getRewardResult = await getReward({ validatorAddress, memo, from: wallet });
 
 			if (getRewardResult) {
-				setTxResult({ hash: LumUtils.toHex(getRewardResult.hash), error: getRewardResult.error });
+				setTxResult({ hash: getRewardResult.hash, error: getRewardResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -321,7 +320,7 @@ const Operations = (): JSX.Element => {
 			const voteResult = await vote({ voter: wallet, proposalId, vote: voteOption });
 
 			if (voteResult) {
-				setTxResult({ hash: LumUtils.toHex(voteResult.hash), error: voteResult.error });
+				setTxResult({ hash: voteResult.hash, error: voteResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);

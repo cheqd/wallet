@@ -35,6 +35,7 @@ import GetReward from '../Operations/components/Forms/GetReward';
 import GetAllRewards from '../Operations/components/Forms/GetAllRewards';
 import Redelegate from 'screens/Operations/components/Forms/Redelegate';
 import { CheqBech32PrefixValAddr, CheqDenom, NanoCheqDenom } from 'network';
+import { CHEQ_EXPLORER } from 'constant';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
@@ -268,7 +269,7 @@ const Staking = (): JSX.Element => {
 			});
 
 			if (redelegateResult) {
-				setTxResult({ hash: LumUtils.toHex(redelegateResult.hash), error: redelegateResult.error });
+				setTxResult({ hash: redelegateResult.hash, error: redelegateResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -296,7 +297,10 @@ const Staking = (): JSX.Element => {
 			});
 
 			if (claimResult) {
-				setTxResult({ hash: LumUtils.toHex(claimResult.hash), error: claimResult.error });
+				setTxResult({
+					hash: claimResult.hash,
+					error: JSON.stringify(claimResult.error),
+				});
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -323,7 +327,7 @@ const Staking = (): JSX.Element => {
 			});
 
 			if (getAllRewardsResult) {
-				setTxResult({ hash: LumUtils.toHex(getAllRewardsResult.hash), error: getAllRewardsResult.error });
+				setTxResult({ hash: getAllRewardsResult.hash, error: getAllRewardsResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -423,7 +427,7 @@ const Staking = (): JSX.Element => {
 								amount={stakedCoins}
 								amountVesting={
 									vestings
-										? Number(LumUtils.convertUnit(vestings.lockedDelegatedCoins, CheqDenom))
+										? Number(LumUtils.convertUnit(vestings.lockedDelegatedCoins, NanoCheqDenom))
 										: 0
 								}
 							/>
@@ -488,7 +492,7 @@ const Staking = (): JSX.Element => {
 						<h2 className="text-center">{modalType.name}</h2>
 						{!txResult ? (
 							renderModal()
-						) : txResult.error !== null ? (
+						) : !!txResult.error ? (
 							<>
 								<p className="color-error">{t('common.failure')}</p>
 								<p className="color-error my-5 text-start">
@@ -502,6 +506,9 @@ const Staking = (): JSX.Element => {
 							<>
 								<p className="color-success">{t('common.success')}</p>
 								<Input
+									onClick={() => {
+										window.open(`${CHEQ_EXPLORER}/transactions/${txResult.hash}`);
+									}}
 									readOnly
 									value={txResult.hash}
 									label="Hash"

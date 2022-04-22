@@ -1,5 +1,7 @@
-import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
-import { SignDoc } from '@lum-network/sdk-javascript/build/types';
+import { EncodeObject } from '@cosmjs/proto-signing';
+import { DeliverTxResponse } from '@cosmjs/stargate';
+import { SignMode } from 'cosmjs-types/cosmos/tx/signing/v1beta1/signing';
+import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { Doc } from './types/msg';
 import { SignMsg } from './types/signMsg';
 
@@ -9,7 +11,7 @@ export abstract class CheqWallet {
 
 	/**
 	 * Gets the current wallet address
-	 * @see {@link LumWallet.useAccount}
+	 * @see {@link CheqdWallet.useAccount}
 	 *
 	 * @returns wallet address (Bech32)
 	 */
@@ -22,7 +24,7 @@ export abstract class CheqWallet {
 
 	/**
 	 * Gets the current wallet public key
-	 * @see {@link LumWallet.useAccount}
+	 * @see {@link CheqdWallet.useAccount}
 	 *
 	 * @returns wallet public key (secp256k1)
 	 */
@@ -41,7 +43,7 @@ export abstract class CheqWallet {
 	/**
 	 * Whether or not the wallet support changing account
 	 * Basically only wallet initialized using a private key should not be able to do so
-	 * @see {@link LumWallet.useAccount}
+	 * @see {@link CheqdWallet.useAccount}
 	 */
 	abstract canChangeAccount(): boolean;
 
@@ -62,14 +64,14 @@ export abstract class CheqWallet {
 	abstract sign(data: Uint8Array): Promise<Uint8Array>;
 
 	/**
-	 * Sign a transaction document using a LumWallet
+	 * Sign a transaction document using a CheqdWallet
 	 *
 	 * @param doc document to sign
 	 */
 	abstract signTransaction(doc: Doc): Promise<[SignDoc, Uint8Array]>;
 
 	/**
-	 * Sign a message using a LumWallet
+	 * Sign a message using a CheqdWallet
 	 * Provided for signature generation and verification as signature will depend on the wallet payload implementation
 	 *
 	 * @param msg message to sign

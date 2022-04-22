@@ -10,6 +10,7 @@ import {
 	calculateFee,
 	StdFee,
 } from '@cosmjs/stargate';
+import { toHex } from '@cosmjs/encoding';
 import { LumMessages, LumUtils } from '@lum-network/sdk-javascript';
 import { ProposalStatus, VoteOption } from 'cosmjs-types/cosmos/gov/v1beta1/gov';
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
@@ -45,8 +46,17 @@ import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/sign
 import { Doc } from 'network/types/msg';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { convertCoin } from 'network/util';
-import { MsgDelegate, MsgUndelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx';
-import { MsgDelegateUrl, MsgUndelegateUrl } from '@lum-network/sdk-javascript/build/messages';
+import { MsgBeginRedelegate, MsgDelegate, MsgUndelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx';
+import {
+	MsgBeginRedelegateUrl,
+	MsgDelegateUrl,
+	MsgSendUrl,
+	MsgUndelegateUrl,
+	MsgVoteUrl,
+	MsgWithdrawDelegatorRewardUrl,
+} from '@lum-network/sdk-javascript/build/messages';
+import { MsgWithdrawDelegatorReward } from 'cosmjs-types/cosmos/distribution/v1beta1/tx';
+import { MsgVote } from 'cosmjs-types/cosmos/gov/v1beta1/tx';
 
 export type MnemonicLength = 12 | 24;
 
@@ -216,16 +226,14 @@ export const validateSignMessage = async (msg: SignMsg): Promise<boolean> => {
 };
 
 class WalletClient {
-	cheqClient: CheqClient | null = null;
+	cheqClient!: CheqClient;
 	cheqInfos: CheqInfo | null = null;
-	wallet: DirectSecp256k1HdWallet | undefined;
-	chainId: string | null = null;
-	signinClient: SigningStargateClient | null = null;
-
-	GasPrice: GasPrice | undefined;
+	wallet!: DirectSecp256k1HdWallet;
+	chainId!: string;
+	GasPrice!: GasPrice;
 
 	// Init
-	init = (signinClient?: SigningStargateClient) => {
+	init = () => {
 		CheqClient.connect(process.env.REACT_APP_RPC_URL).then(async (client: CheqClient) => {
 			this.GasPrice = GasPrice.fromString('25' + NanoCheqDenom);
 			this.cheqClient = client;
@@ -239,7 +247,7 @@ class WalletClient {
 	private getCheqInfo = async (): Promise<CheqInfo | null> => {
 		const [cheqInfos, previousDayCheqInfos] = await Promise.all([
 			axios.get(`${OSMOSIS_API_URL}/tokens/v2/CHEQ`).catch(() => null),
-			axios.get(`${OSMOSIS_API_URL}/tokens/v1/historical/CHEQ/chart?range=7d`).catch(() => null),
+			axios.get(`${OSMOSIS_API_URL}/tokens/v2/historical/CHEQ/chart?tf=1440`).catch(() => null),
 		]);
 
 		const cheqInfoData = cheqInfos && cheqInfos.data[0];
@@ -492,47 +500,35 @@ class WalletClient {
 		if (this.cheqClient === null) {
 			return null;
 		}
-		const mn = localStorage.getItem('mn');
-		// @ts-ignore
-		this.setHDWallet(mn);
 
 		const amount = coin(Number(cheqAmount) * 10 ** 9, NanoCheqDenom);
-
-		// Convert Cheq to nCheq
-		// const amount = LumUtils.convertUnit({ denom: CheqDenom, amount: cheqAmount }, NanoCheqDenom);
-		// console.log('trying convertUnit');
-
-		// Build transaction message
-		// const sendMsg = LumMessages.BuildMsgSend(fromWallet.getAddress(), toAddress, [
-		// 	{ denom: NanoCheqDenom, amount: amount.amount },
-		// ]);
-		// Define fees
-		// 2000000000ncheq
-		const defaultGasPrice = GasPrice.fromString('25' + NanoCheqDenom);
-		// const defaultSendFee: StdFee = calculateFee(8000000000, defaultGasPrice);
-		// const fee: Fee = { amount: [ { denom: NanoCheqDenom, amount: amount, }, ], gas: '100000' }
-		const fee = {
-			amount: [{ denom: NanoCheqDenom, amount: '3500000' }],
-			gas: this.GasPrice,
-		};
-		// Fetch account number and sequence and chain id
 		const result = await this.getAccountAndChainId(fromWallet);
 		if (!result) {
 			return null;
 		}
 
-		// @ts-ignore
-		const [account] = await this.wallet.getAccounts();
+		const address = fromWallet.getAddress();
 		const [chainId] = result;
 
-		if (!account || !chainId) {
+		if (!address || !chainId) {
 			return null;
 		}
 
+		const msg = {
+			typeUrl: MsgSendUrl,
+			value: MsgSend.fromPartial({
+				fromAddress: address,
+				toAddress: toAddress,
+				amount: [amount],
+			}),
+		};
+
 		try {
-			const broadcastResult = await this.signinClient?.sendTokens(account.address, toAddress, [amount], 'auto');
+			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, [msg], 'auto', memo);
+			// const broadcastResult = await fromWallet.signAndBroadcastTx(fromWallet, [msg]);
 			// @ts-ignore
 			const broadcasted = assertIsDeliverTxSuccess(broadcastResult);
+			// @ts-ignore
 			return {
 				hash: broadcastResult?.transactionHash,
 			};
@@ -547,47 +543,34 @@ class WalletClient {
 		if (this.cheqClient === null) {
 			return null;
 		}
-		const mn = localStorage.getItem('mn');
-		// @ts-ignore
-		this.setHDWallet(mn);
 
 		// Convert cheq to ncheq
 		const amount = coin(Number(cheqAmount) * 10 ** 9, NanoCheqDenom);
-		//
-		// @ts-ignore
-		const [account] = await this.wallet.getAccounts();
+		const address = fromWallet.getAddress();
 		const msg = {
 			typeUrl: MsgDelegateUrl,
 			value: MsgDelegate.fromJSON({
-				delegatorAddress: account.address,
+				delegatorAddress: address,
 				validatorAddress: validatorAddress,
 				amount: amount,
 			}),
 		};
-		// Define fees
-		const fee = {
-			amount: [{ denom: NanoCheqDenom, amount: '25000' }],
-			gas: '200000',
-		};
 
 		// Fetch account number and sequence and chain id
 		const result = await this.getAccountAndChainId(fromWallet);
-
 		if (!result) {
 			return null;
 		}
 
 		const [chainId] = result;
-
-		if (!account || !chainId) {
+		if (!address || !chainId) {
 			return null;
 		}
 
 		try {
 			// @ts-ignore
-			const broadcastResult = await this.signinClient.signAndBroadcast(account.address, [msg], 'auto', memo);
+			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, [msg], 'auto', memo);
 			// Verify the transaction was successfully broadcasted and made it into a block
-			// const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
 			// @ts-ignore
 			assertIsDeliverTxSuccess(broadcastResult);
 			return {
@@ -618,12 +601,11 @@ class WalletClient {
 		}
 
 		const amount = coin(Number(cheqAmount) * 10 ** 9, NanoCheqDenom);
-		// @ts-ignore
-		const [account] = await this.wallet.getAccounts();
+		const address = fromWallet.getAddress();
 		const msg = {
 			typeUrl: MsgUndelegateUrl,
 			value: MsgUndelegate.fromJSON({
-				delegatorAddress: account.address,
+				delegatorAddress: address,
 				validatorAddress: validatorAddress,
 				amount: amount,
 			}),
@@ -638,13 +620,13 @@ class WalletClient {
 
 		const [chainId] = result;
 
-		if (!account || !chainId) {
+		if (!address || !chainId) {
 			return null;
 		}
 
 		try {
 			// @ts-ignore
-			const broadcastResult = await this.signinClient.signAndBroadcast(account.address, [msg], 'auto', memo);
+			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, [msg], 'auto', memo);
 			// @ts-ignore Verify the transaction was successfully broadcasted and made it into a block
 			assertIsDeliverTxSuccess(broadcastResult);
 			return {
@@ -663,55 +645,52 @@ class WalletClient {
 			return null;
 		}
 
-		const getRewardMsg = LumMessages.BuildMsgWithdrawDelegatorReward(fromWallet.getAddress(), validatorAddress);
-
-		// Define fees
-		const fee = {
-			amount: [{ denom: NanoCheqDenom, amount: '25000' }],
-			gas: '140000',
+		const address = fromWallet.getAddress();
+		const msg = {
+			typeUrl: MsgWithdrawDelegatorRewardUrl,
+			value: MsgWithdrawDelegatorReward.fromJSON({
+				delegatorAddress: address,
+				validatorAddress: validatorAddress,
+			}),
 		};
 
 		// Fetch account number and sequence and chain id
 		const result = await this.getAccountAndChainId(fromWallet);
-
 		if (!result) {
 			return null;
 		}
 
-		const [account, chainId] = result;
-
-		if (!account || !chainId) {
+		const [chainId] = result;
+		if (!address || !chainId) {
 			return null;
 		}
 
-		const { accountNumber, sequence } = account;
-
-		const doc: Doc = {
-			chainId,
-			fee,
-			memo,
-			messages: [getRewardMsg],
-			signers: [
-				{
-					accountNumber,
-					sequence,
-					publicKey: fromWallet.getPublicKey(),
-				},
-			],
-		};
-
-		const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, doc);
-		// Verify the transaction was successfully broadcasted and made it into a block
-		const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
-
-		return {
-			hash: broadcastResult.hash,
-			error: !broadcasted
-				? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-					? broadcastResult.deliverTx.log
-					: broadcastResult.checkTx.log
-				: null,
-		};
+		try {
+			// @ts-ignore
+			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, [msg], 'auto', memo);
+			// Verify the transaction was successfully broadcasted and made it into a block
+			// @ts-ignore
+			assertIsDeliverTxSuccess(broadcastResult);
+			return {
+				hash: broadcastResult.transactionHash,
+				// error: !broadcasted
+				// 	? broadcastResult.deliverTx && broadcastResult.deliverTx.log
+				// 		? broadcastResult.deliverTx.log
+				// 		: broadcastResult.checkTx.log
+				// 	: null,
+			};
+		} catch (err: any) {
+			return {
+				hash: '',
+				error: err,
+				// hash: broadcastResult?.transactionHash,
+				// error: !broadcasted
+				// 	? broadcastResult.deliverTx && broadcastResult.deliverTx.log
+				// 		? broadcastResult.deliverTx.log
+				// 		: broadcastResult.checkTx.log
+				// 	: null,
+			};
+		}
 	};
 
 	getAllRewards = async (fromWallet: Wallet, validatorsAddresses: string[], memo: string) => {
@@ -719,155 +698,113 @@ class WalletClient {
 			return null;
 		}
 
+		const address = fromWallet.getAddress();
 		const messages = [];
 		const limit = fromWallet.isNanoS ? 6 : undefined;
 		let gas = 140000;
 
 		for (const [index, valAdd] of validatorsAddresses.entries()) {
-			messages.push(LumMessages.BuildMsgWithdrawDelegatorReward(fromWallet.getAddress(), valAdd));
+			messages.push({
+				typeUrl: MsgWithdrawDelegatorRewardUrl,
+				value: MsgWithdrawDelegatorReward.fromJSON({
+					delegatorAddress: address,
+					validatorAddress: valAdd,
+				}),
+			});
 			if (index > 0) {
 				gas += 80000;
 			}
 			if (limit && index + 1 === limit) break;
 		}
 
-		// Define fees
-		const fee = {
-			amount: [{ denom: NanoCheqDenom, amount: '25000' }],
-			gas: gas.toString(),
-		};
-
 		// Fetch account number and sequence and chain id
 		const result = await this.getAccountAndChainId(fromWallet);
-
 		if (!result) {
 			return null;
 		}
 
-		const [account, chainId] = result;
-
-		if (!account || !chainId) {
+		const [chainId] = result;
+		if (!address || !chainId) {
 			return null;
 		}
 
-		const { accountNumber, sequence } = account;
-
-		const doc: Doc = {
-			chainId,
-			fee,
-			memo,
-			messages,
-			signers: [
-				{
-					accountNumber,
-					sequence,
-					publicKey: fromWallet.getPublicKey(),
-				},
-			],
-		};
-
-		const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, doc);
-		// Verify the transaction was successfully broadcasted and made it into a block
-		const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
-
-		return {
-			hash: broadcastResult.hash,
-			error: !broadcasted
-				? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-					? broadcastResult.deliverTx.log
-					: broadcastResult.checkTx.log
-				: null,
-		};
+		try {
+			// @ts-ignore
+			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, messages, 'auto', memo);
+			// Verify the transaction was successfully broadcasted and made it into a block
+			// @ts-ignore
+			assertIsDeliverTxSuccess(broadcastResult);
+			return {
+				hash: broadcastResult.transactionHash,
+				// error: !broadcasted
+				// 	? broadcastResult.deliverTx && broadcastResult.deliverTx.log
+				// 		? broadcastResult.deliverTx.log
+				// 		: broadcastResult.checkTx.log
+				// 	: null,
+			};
+		} catch (err: any) {
+			return {
+				hash: '',
+				error: err,
+				// hash: broadcastResult?.transactionHash,
+				// error: !broadcasted
+				// 	? broadcastResult.deliverTx && broadcastResult.deliverTx.log
+				// 		? broadcastResult.deliverTx.log
+				// 		: broadcastResult.checkTx.log
+				// 	: null,
+			};
+		}
 	};
 
 	redelegate = async (
 		fromWallet: Wallet,
-		validatorScrAddress: string,
+		validatorSrcAddress: string,
 		validatorDestAddress: string,
-		lumAmount: string,
+		cheqAmount: string,
 		memo: string,
 	) => {
 		if (this.cheqClient === null) {
 			return null;
 		}
-		const mn = localStorage.getItem('mn');
-		// @ts-ignore
-		this.setHDWallet(mn);
-
-		// Convert Lum to uLum
-		const amount = LumUtils.convertUnit({ denom: CheqDenom, amount: lumAmount }, NanoCheqDenom);
-
-		const redelegateMsg = LumMessages.BuildMsgBeginRedelegate(
-			fromWallet.getAddress(),
-			validatorScrAddress,
-			validatorDestAddress,
-			{
-				amount,
-				denom: NanoCheqDenom,
-			},
-		);
-
-		// Define fees
-		const fee = {
-			amount: [{ denom: NanoCheqDenom, amount: '25000' }],
-			gas: '300000',
+		// Convert cheq to ncheq
+		const amount = coin(Number(cheqAmount) * 10 ** 9, NanoCheqDenom);
+		const address = await fromWallet.getAddress();
+		const msg = {
+			typeUrl: MsgBeginRedelegateUrl,
+			value: MsgBeginRedelegate.fromJSON({
+				delegatorAddress: address,
+				validatorSrcAddress: validatorSrcAddress,
+				validatorDstAddress: validatorDestAddress,
+				amount: amount,
+			}),
 		};
 
 		// Fetch account number and sequence and chain id
 		const result = await this.getAccountAndChainId(fromWallet);
-
 		if (!result) {
 			return null;
 		}
 
-		const [account, chainId] = result;
-
-		if (!account || !chainId) {
+		const [chainId] = result;
+		if (!address || !chainId) {
 			return null;
 		}
 
-		const { accountNumber, sequence } = account;
-
-		const doc: Doc = {
-			chainId,
-			fee,
-			memo,
-			messages: [redelegateMsg],
-			signers: [
-				{
-					accountNumber,
-					sequence,
-					publicKey: fromWallet.getPublicKey(),
-				},
-			],
-		};
-
-		const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, doc);
-		// Verify the transaction was successfully broadcasted and made it into a block
-		const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
-
-		return {
-			hash: broadcastResult.hash,
-			error: !broadcasted
-				? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-					? broadcastResult.deliverTx.log
-					: broadcastResult.checkTx.log
-				: null,
-		};
-	};
-
-	setHDWallet = async (mnemonic: string) => {
-		const w = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
-			prefix: CheqBech32PrefixAccAddr,
-		});
-		this.wallet = w;
-
 		try {
-			this.signinClient = await SigningStargateClient.connectWithSigner(process.env.REACT_APP_RPC_URL, w, {
-				gasPrice: this.GasPrice,
-			});
+			// @ts-ignore
+			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, [msg], 'auto', memo);
+			// const broadcastResult = await this.signinClient.signAndBroadcast(account.address, [msg], 'auto', memo);
+			// Verify the transaction was successfully broadcasted and made it into a block
+			// @ts-ignore
+			assertIsDeliverTxSuccess(broadcastResult);
+			return {
+				hash: broadcastResult.transactionHash,
+			};
 		} catch (err: any) {
-			showErrorToast(i18n.t('wallet.errors.client'));
+			return {
+				hash: '',
+				error: err,
+			};
 		}
 	};
 
@@ -875,63 +812,47 @@ class WalletClient {
 		if (this.cheqClient === null) {
 			return null;
 		}
-		const mn = localStorage.getItem('mn');
-		// @ts-ignore
-		this.setHDWallet(mn);
 
-		// Fixme: Update JS SDK to use right type
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		//@ts-ignore
-		const voteMsg = LumMessages.BuildMsgVote(new Long(Number(proposalId)), fromWallet.getAddress(), Number(vote));
-
-		// Define fees
-		const fee = {
-			amount: [{ denom: NanoCheqDenom, amount: '25000' }],
-			gas: '100000',
+		const address = await fromWallet.getAddress();
+		const msg = {
+			typeUrl: MsgVoteUrl,
+			value: MsgVote.fromJSON({
+				proposalId: proposalId,
+				voter: address,
+				option: vote,
+			}),
 		};
 
 		// Fetch account number and sequence and chain id
 		const result = await this.getAccountAndChainId(fromWallet);
-
 		if (!result) {
 			return null;
 		}
 
-		const [account, chainId] = result;
-
-		if (!account || !chainId) {
+		const [chainId] = result;
+		if (!address || !chainId) {
 			return null;
 		}
 
-		const { accountNumber, sequence } = account;
+		try {
+			// @ts-ignore
+			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, [msg], 'auto', memo);
+			// Verify the transaction was successfully broadcasted and made it into a block
+			// @ts-ignore
+			assertIsDeliverTxSuccess(broadcastResult);
+			return {
+				hash: broadcastResult.transactionHash,
+			};
+		} catch (err: any) {
+			return {
+				hash: '',
+				error: err,
+			};
+		}
+	};
 
-		const doc: Doc = {
-			chainId,
-			fee,
-			messages: [voteMsg],
-			memo: '',
-			signers: [
-				{
-					accountNumber,
-					sequence,
-					publicKey: fromWallet.getPublicKey(),
-				},
-			],
-		};
-
-		// @ts-ignore
-		const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, doc);
-		// Verify the transaction was successfully broadcasted and made it into a block
-		const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
-
-		return {
-			hash: broadcastResult.hash,
-			error: !broadcasted
-				? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-					? broadcastResult.deliverTx.log
-					: broadcastResult.checkTx.log
-				: null,
-		};
+	initialiseClient = (client: SigningStargateClient) => {
+		this.cheqClient.withStargateSigninClient(client);
 	};
 }
 

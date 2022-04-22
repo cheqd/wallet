@@ -37,6 +37,5 @@ export function longify(value: string | number | Long | Uint64): Long {
 export function convertCoin(from: string, to: string) {
 	const amount = Decimal.fromAtomics(from, 9);
 
-	console.log('actual: ', from, 'converted: ', amount.toString());
 	return amount.toFloatApproximation();
 }

@@ -5,12 +5,15 @@ import {
 	TxSearchParams,
 	BroadcastTxCommitResponse,
 	BlockResponse,
+	broadcastTxCommitSuccess,
 } from '@cosmjs/tendermint-rpc';
 import {
 	QueryClient as StargateQueryClient,
 	assertIsDeliverTxSuccess,
 	SigningStargateClient,
 	StargateClient,
+	DeliverTxResponse,
+	StdFee,
 } from '@cosmjs/stargate';
 
 import {
@@ -47,7 +50,10 @@ import {
 	GovExtension,
 	setupGovExtension,
 } from '@cosmjs/stargate/build/modules';
-import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
+import { DirectSecp256k1HdWallet, EncodeObject } from '@cosmjs/proto-signing';
+import { Fee } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import { NanoCheqDenom } from './constants';
+import { Message } from '@lum-network/sdk-javascript/build/messages';
 
 export class CheqClient {
 	readonly tmClient: Tendermint34Client;
@@ -104,7 +110,7 @@ export class CheqClient {
 		return new CheqClient(tmClient);
 	};
 
-	setupStargateSigninClient = (client: SigningStargateClient) => {
+	withStargateSigninClient = (client: SigningStargateClient) => {
 		this.stargateSigninClient = client;
 	};
 
@@ -326,6 +332,7 @@ export class CheqClient {
 		if (!signDoc) {
 			throw new Error('Impossible error to avoid typescript warnings');
 		}
+
 		return LumUtils.generateTxBytes(signDoc, signatures);
 	};
 
@@ -347,8 +354,70 @@ export class CheqClient {
 	 * @param doc document to sign and broadcast as a transaction
 	 */
 	//     const signedTx = await this.signTx(wallet, doc);
-	signAndBroadcastTx = async (wallet: CheqWallet | CheqWallet[], doc: Doc): Promise<BroadcastTxCommitResponse> => {
-		const signedTx = await this.signTx(wallet, doc);
-		return this.broadcastTx(signedTx);
+	signAndBroadcastTx = async (
+		wallet: CheqWallet,
+		txnMsgs: EncodeObject[],
+		fee: number | StdFee | 'auto',
+		memo: string,
+	): Promise<DeliverTxResponse> => {
+		// if stargateSigninClient is present, try with that;
+		if (this.stargateSigninClient) {
+			try {
+				// @ts-ignore
+				const result = await this.stargateSigninClient.signAndBroadcast(
+					wallet.getAddress(),
+					txnMsgs,
+					fee,
+					memo,
+				);
+				return result;
+			} catch (err: any) {
+				throw new Error(err);
+			}
+		}
+
+		const gas = 140000;
+		const result = await this.getAccount(wallet.getAddress());
+		if (!result) {
+			throw new Error('error getting account');
+		}
+
+		const chainId = await this.getChainId();
+
+		const doc: Doc = {
+			messages: [],
+			chainId: chainId,
+			memo: memo,
+			fee: {
+				amount: [{ denom: NanoCheqDenom, amount: '25000' }],
+				gas: gas.toString(),
+			},
+			signers: [
+				{
+					sequence: result.sequence,
+					accountNumber: result.accountNumber,
+					publicKey: wallet.getPublicKey(),
+				},
+			],
+		};
+
+		txnMsgs.forEach(async (tm) => {
+			doc.messages.push(tm);
+		});
+
+		const bz = await this.signTx(wallet, doc);
+		const resp = await this.broadcastTx(bz);
+		broadcastTxCommitSuccess(resp);
+		const buildResp: DeliverTxResponse = {
+			transactionHash: resp.hash.toString(),
+			// @ts-ignore
+			code: resp.deliverTx.code,
+			height: resp.height,
+			// @ts-ignore
+			data: resp.deliverTx?.data,
+			// @ts-ignore
+			rawLog: resp.deliverTx?.log,
+		};
+		return buildResp;
 	};
 }

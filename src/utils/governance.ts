@@ -62,7 +62,6 @@ export const getVoteName = (vote: VoteOption): string => {
 export const sortByDate = (proposals: Proposal[]): Proposal[] =>
 	proposals.sort((propA, propB) => {
 		if (propA.votingEndTime && propB.votingEndTime) {
-			console.log('typeof date: ', typeof propB.votingEndTime);
 			return dateFromTimestamp(propB.votingEndTime).getTime() - dateFromTimestamp(propA.votingEndTime).getTime();
 		}
 		return 0;

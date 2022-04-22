@@ -17,6 +17,7 @@ import { CheqWallet } from 'network/wallet';
 import { SignMsg } from 'network/types/signMsg';
 import { Doc } from 'network/types/msg';
 import { SignDoc } from '@lum-network/sdk-javascript/build/types';
+import { LumTypes } from '@lum-network/sdk-javascript';
 
 export class CheqLedgerWallet extends CheqWallet {
 	cosmosApp: Cosmos;
@@ -88,7 +89,10 @@ export class CheqLedgerWallet extends CheqWallet {
 			throw new Error(`Failed to sign message: error code ${return_code}`);
 		}
 		const sig = ExtendedSecp256k1Signature.fromDer(signature);
-		return [generateSignDoc(doc, signerIndex, this.signingMode()), new Uint8Array([...sig.r(32), ...sig.s(32)])];
+		return [
+			generateSignDoc(doc as LumTypes.Doc, signerIndex, this.signingMode()),
+			new Uint8Array([...sig.r(32), ...sig.s(32)]),
+		];
 	};
 
 	signMessage = async (msg: string): Promise<SignMsg> => {

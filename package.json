@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
+        "@cosmjs/encoding": "^0.28.4",
         "@cosmjs/math": "^0.28.4",
         "@cosmjs/proto-signing": "^0.28.4",
         "@cosmjs/stargate": "^0.28.4",
