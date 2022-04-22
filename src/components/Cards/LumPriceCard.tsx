@@ -30,11 +30,15 @@ const LumPriceCard = ({ balance }: Props): JSX.Element => {
 				value: value.close,
 			}));
 
-			setChartData(chart);
-			setLumPrice(data.price);
-			setPreviousDayPercentage(NumbersUtils.getDifferencePercentage(chart[chart.length - 24].value, data.price));
-		}
-	}, []);
+            setChartData(chart);
+            setLumPrice(data.price);
+            if (chart && chart.length && chart.length - 96 >= 0 && chart[chart.length - 96]) {
+                setPreviousDayPercentage(
+                    NumbersUtils.getDifferencePercentage(chart[chart.length - 96].value, data.price),
+                );
+            }
+        }
+    }, []);
 
 	return (
 		<Card withoutPadding className="h-100 dashboard-card lum-price-card justify-content-start p-4">
