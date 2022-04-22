@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Redirect } from 'react-router';
 
-import { Card } from 'frontend-elements';
-import { Button as CustomButton } from 'components';
+import { Button, Card } from 'frontend-elements';
+import { Button as CustomButton, Input, Modal } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 
 import './styles/Identity.scss';
@@ -15,8 +15,12 @@ import { getCredential } from '../../apis/issuer';
 import { useRematchDispatch } from '../../redux/hooks';
 import { encrypt } from '../../utils/cryptoBox';
 import { backupCryptoBox } from '../../apis/storage';
+import { Credential as VerifiableCredential } from '../../models';
 
 const Identity = (): JSX.Element => {
+	const [selectedCred, setSelectedCred] = useState<VerifiableCredential | null>(null);
+	const modalRef = useRef<HTMLDivElement>(null);
+
 	// Redux hooks
 	const { wallet, identityWallet } = useSelector((state: RootState) => ({
 		wallet: state.wallet.currentWallet,
@@ -139,6 +143,16 @@ const Identity = (): JSX.Element => {
 														<p>Subject: {cred.credentialSubject.id}</p>
 														<p>Twitter: {cred.credentialSubject.twitter_handle}</p>
 													</div>
+													<CustomButton
+														className="mt-5"
+														data-bs-target="modalCredentialDetails"
+														data-bs-dismiss="modal"
+														// data-bs-toggle="cred"
+														// credential={cred}
+														onClick={() => setSelectedCred(cred)}
+													>
+														{t('common.close')}
+													</CustomButton>
 												</Card>
 											</div>
 										);
@@ -164,6 +178,27 @@ const Identity = (): JSX.Element => {
 					</div>
 				</div>
 			</div>
+			<Modal
+				ref={modalRef}
+				id="modalCredentialDetails"
+				withCloseButton={true}
+				dataBsBackdrop="static"
+				dataBsKeyboard={false}
+				bodyClassName="w-100"
+			>
+				{selectedCred && (
+					<div className="d-flex flex-column align-items-center">
+						<h2 className="text-center">Credential</h2>
+						<>
+							<h2>Credential</h2>
+							<p>Id: {selectedCred.id}</p>
+							<p>Issuer: {selectedCred.issuer}</p>
+							<p>Subject: {selectedCred.credentialSubject.id}</p>
+							<p>Twitter: {selectedCred.credentialSubject.twitter_handle}</p>
+						</>
+					</div>
+				)}
+			</Modal>
 		</>
 	);
 };
