@@ -2,8 +2,8 @@ import { createModel } from '@rematch/core';
 import { Credential, IdentityWallet, RootModel } from '../../models';
 import update from 'immutability-helper';
 import { loadCryptoBox } from '../../apis/storage';
-import { decrypt } from '../../utils/cryptoBox';
 import { fromBase64 } from '@lum-network/sdk-javascript/build/utils';
+import { decryptIdentityWallet } from '../../utils/identityWalet';
 
 interface IdentityState {
 	authToken: string | null;
@@ -25,40 +25,17 @@ export const identity = createModel<RootModel>()({
 				authToken,
 			};
 		},
-		setPassphrase(state, passphrase: string) {
+		setPassphrase(state, passphrase: string | null) {
 			return {
 				...state,
 				passphrase,
 			};
 		},
-		setWallet(state, wallet: IdentityWallet) {
+		setWallet(state, wallet: IdentityWallet | null) {
 			return {
 				...state,
 				wallet,
 			};
 		},
-		addCredential(state, credential: Credential) {
-			if (state.wallet == null) {
-				throw Error('wallet must be set');
-			}
-
-			return update(state, { wallet: { credentials: { $push: [credential] } } });
-		},
 	},
-	effects: (dispatch) => ({
-		async createNewWallet() {
-			dispatch.identity.setWallet({
-				credentials: [],
-			});
-		},
-		async loadWallet(accountId: string) {
-			const cryptoBox = await loadCryptoBox<string>(accountId);
-			const decrypted = await decrypt(fromBase64(cryptoBox), 'password');
-
-			const textDecoder = new TextDecoder();
-			const wallet = JSON.parse(textDecoder.decode(decrypted));
-
-			dispatch.identity.setWallet(wallet);
-		},
-	}),
 });

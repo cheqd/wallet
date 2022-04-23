@@ -11,6 +11,7 @@
         "close": "Close",
         "copy": "Copy",
         "print": "Print",
+        "sign": "Sign",
         "qr": "QR Code",
         "values": "Values",
         "copyAddress": "Address copied to clipboard!",
@@ -389,18 +390,34 @@
         "confirmingVote": "Your vote: {{ vote }}",
         "voteSuccess": "You have successfully voted"
     },
-    "credentials": {
+    "identity": {
         "get": {
             "title": "Get a credential",
             "description": "Get a new credential issued by cheqd",
-            "get": "Get",
-            "auth": "Authorize"
+            "get": "Get"
         },
-        "list": {
+        "wallet": {
             "title": "My credentials",
-            "backup": "Backup",
-            "load": "Load",
-            "new": "New"
+            "description": "Manage you credentials",
+
+            "unlock": "Unlock",
+            "lock": "Lock",
+
+            "error": {
+                "locked": "Wallet is locked. Please unlock it first.",
+                "invalidPassphrase": "Invalid passphrase"
+            },
+            "message": {
+                "unlocked": "Wallet unlocked",
+                "locked": "Wallet locked",
+                "created": "Wallet created",
+                "reset": "Wallet reset",
+                "backedUp": "Wallet backed up",
+                "signTxWarning": "To log in you need to sign a transaction with your wallet",
+                "chosePassphrase": "Choose a passphrase to unlock your wallet in future",
+                "enterPassphrase": "Enter your passphrase",
+                "resetConfirmation": "Are you sure you want to reset your wallet? This will delete all your credentials."
+            }
         }
     }
 }
