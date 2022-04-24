@@ -16,8 +16,16 @@ import { useRematchDispatch } from '../../redux/hooks';
 import { encrypt } from '../../utils/cryptoBox';
 import { backupCryptoBox } from '../../apis/storage';
 import { Credential as VerifiableCredential } from '../../models';
+import { LumMessages } from '@lum-network/sdk-javascript';
+import Delegate from '../Operations/components/Forms/Delegate';
+import Redelegate from '../Operations/components/Forms/Redelegate';
+import Undelegate from '../Operations/components/Forms/Undelegate';
+import GetReward from '../Operations/components/Forms/GetReward';
+import GetAllRewards from '../Operations/components/Forms/GetAllRewards';
+import { Modal as BSModal } from 'bootstrap';
 
 const Identity = (): JSX.Element => {
+	const [modal, setModal] = useState<BSModal | null>(null);
 	const [selectedCred, setSelectedCred] = useState<VerifiableCredential | null>(null);
 	const modalRef = useRef<HTMLDivElement>(null);
 
@@ -41,6 +49,11 @@ const Identity = (): JSX.Element => {
 	// useEffect(() => {
 	// 	loadWallet().catch((e) => showErrorToast((e as Error).message));
 	// }, [loadWallet]);
+	useEffect(() => {
+		if (modalRef && modalRef.current) {
+			setModal(BSModal.getOrCreateInstance(modalRef.current));
+		}
+	}, []);
 
 	if (!wallet) {
 		return <Redirect to="/welcome" />;
@@ -103,6 +116,19 @@ const Identity = (): JSX.Element => {
 		}
 	};
 
+	const handleShowCredential = async (cred: React.SetStateAction<VerifiableCredential | null>) => {
+		setSelectedCred(cred);
+		modal?.show();
+	};
+
+	const handleRemoveCredential = async (cred: React.SetStateAction<VerifiableCredential | null>) => {
+		identityWallet?.credentials.forEach((element, index) => {
+			if (element == cred) identityWallet?.credentials.splice(index, 1);
+		});
+		modal?.hide();
+		setSelectedCred(null);
+	};
+
 	return (
 		<>
 			<div className="mt-4">
@@ -136,6 +162,14 @@ const Identity = (): JSX.Element => {
 										return (
 											<div className="col-lg-6 col-12" key={cred.id}>
 												<Card className="d-flex flex-column h-100 justify-content-between">
+													<button
+														type="button"
+														className="close-btn bg-white rounded-circle align-self-center"
+														aria-label="Close"
+														onClick={async () => await handleRemoveCredential(selectedCred)}
+													>
+														<div className="btn-close mx-auto" />
+													</button>
 													<div>
 														<h2>Credential</h2>
 														<p>Id: {cred.id}</p>
@@ -145,13 +179,9 @@ const Identity = (): JSX.Element => {
 													</div>
 													<CustomButton
 														className="mt-5"
-														data-bs-target="modalCredentialDetails"
-														data-bs-dismiss="modal"
-														// data-bs-toggle="cred"
-														// credential={cred}
-														onClick={() => setSelectedCred(cred)}
+														onClick={async () => await handleShowCredential(cred)}
 													>
-														{t('common.close')}
+														{t('credentials.credential.show')}
 													</CustomButton>
 												</Card>
 											</div>
@@ -186,17 +216,52 @@ const Identity = (): JSX.Element => {
 				dataBsKeyboard={false}
 				bodyClassName="w-100"
 			>
-				{selectedCred && (
-					<div className="d-flex flex-column align-items-center">
-						<h2 className="text-center">Credential</h2>
-						<>
-							<h2>Credential</h2>
-							<p>Id: {selectedCred.id}</p>
-							<p>Issuer: {selectedCred.issuer}</p>
-							<p>Subject: {selectedCred.credentialSubject.id}</p>
-							<p>Twitter: {selectedCred.credentialSubject.twitter_handle}</p>
-						</>
-					</div>
+				{selectedCred === null ? (
+					<>
+						<p className="color-error">{t('credentials.credential.notFound')}</p>
+					</>
+				) : (
+					<>
+						<div className="d-flex flex-column align-items-center">
+							<h2 className="text-center">{t('credentials.credential.title')}</h2>
+							<>
+								<table className="table app-table-striped table-borderless my-4">
+									<tbody>
+										<tr>
+											<td>
+												<b>ID</b>
+											</td>
+											<td> {selectedCred.id}</td>
+										</tr>
+										<tr>
+											<td>
+												<b>ISSUER</b>
+											</td>
+											<td> {selectedCred.issuer}</td>
+										</tr>
+										<tr>
+											<td>
+												<b>SUBJECT</b>
+											</td>
+											<td> {selectedCred.credentialSubject.id}</td>
+										</tr>
+										<tr>
+											<td>
+												<b>TWITTER</b>
+											</td>
+											<td> {selectedCred.credentialSubject.twitter_handle}</td>
+										</tr>
+									</tbody>
+								</table>
+							</>
+							<CustomButton
+								className="mt-5"
+								onClick={async () => await handleRemoveCredential(selectedCred)}
+							>
+								{t('credentials.credential.remove')}
+							</CustomButton>
+						</div>
+					</>
 				)}
 			</Modal>
 		</>
