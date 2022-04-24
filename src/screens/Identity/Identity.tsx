@@ -3,14 +3,17 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Redirect } from 'react-router';
 
+import { Card } from 'frontend-elements';
+import { Button, Button as CustomButton, Input, Modal } from 'components';
+import store, { RootDispatch, RootState } from 'redux/store';
 import { Button, Card } from 'frontend-elements';
 import { Button as CustomButton, Input, Modal } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 
 import './styles/Identity.scss';
-import { showErrorToast, showInfoToast, showSuccessToast } from 'utils';
+import { showErrorToast, showInfoToast, showSuccessToast, trunc } from 'utils';
 import { getAuthToken } from '../../utils/walletAuth';
-import { toBase64 } from '@lum-network/sdk-javascript/build/utils';
+import { fromBase64, toBase64 } from '@lum-network/sdk-javascript/build/utils';
 import { getCredential } from '../../apis/issuer';
 import { useRematchDispatch } from '../../redux/hooks';
 import { encrypt } from '../../utils/cryptoBox';
@@ -23,32 +26,44 @@ import Undelegate from '../Operations/components/Forms/Undelegate';
 import GetReward from '../Operations/components/Forms/GetReward';
 import GetAllRewards from '../Operations/components/Forms/GetAllRewards';
 import { Modal as BSModal } from 'bootstrap';
+import { backupCryptoBox, loadCryptoBox } from '../../apis/storage';
+import { decryptIdentityWallet, encryptIdentityWallet, tryDecryptIdentityWallet } from '../../utils/identityWalet';
+import { Modal as BSModal } from 'bootstrap';
+import update from 'immutability-helper';
+import { LOGOUT } from '../../redux/constants';
 
 const Identity = (): JSX.Element => {
+	const [passphraseInput, setPassphraseInput] = useState('');
+
 	const [modal, setModal] = useState<BSModal | null>(null);
 	const [selectedCred, setSelectedCred] = useState<VerifiableCredential | null>(null);
 	const modalRef = useRef<HTMLDivElement>(null);
 
 	// Redux hooks
-	const { wallet, identityWallet } = useSelector((state: RootState) => ({
+	const { wallet, identityWallet, authToken, passphrase } = useSelector((state: RootState) => ({
 		wallet: state.wallet.currentWallet,
 		identityWallet: state.identity.wallet,
+		authToken: state.identity.authToken,
+		passphrase: state.identity.passphrase,
 	}));
 
 	// Dispatch methods
-	const { addCredential, loadWallet, createNewWallet } = useRematchDispatch((dispatch: RootDispatch) => ({
-		addCredential: dispatch.identity.addCredential,
-		loadWallet: dispatch.identity.loadWallet,
-		createNewWallet: dispatch.identity.createNewWallet,
+	const { setAuthToken, setPassphrase, setWallet } = useRematchDispatch((dispatch: RootDispatch) => ({
+		setAuthToken: dispatch.identity.setAuthToken,
+		setPassphrase: dispatch.identity.setPassphrase,
+		setWallet: dispatch.identity.setWallet,
 	}));
 
 	// Utils hooks
 	const { t } = useTranslation();
 
+	// Refs
+	const authTokenRef = useRef<HTMLDivElement>(null);
+	const passphraseRef = useRef<HTMLDivElement>(null);
+	const invalidPassphraseRef = useRef<HTMLDivElement>(null);
+	const resetConfirmationRef = useRef<HTMLDivElement>(null);
+
 	// Effects
-	// useEffect(() => {
-	// 	loadWallet().catch((e) => showErrorToast((e as Error).message));
-	// }, [loadWallet]);
 	useEffect(() => {
 		if (modalRef && modalRef.current) {
 			setModal(BSModal.getOrCreateInstance(modalRef.current));
@@ -60,59 +75,121 @@ const Identity = (): JSX.Element => {
 	}
 
 	// Methods
-	const handleAuth = async () => {
-		try {
-			const authTokenBytes = await getAuthToken(wallet, process.env.REACT_APP_ISSUER_URL);
-			console.log(toBase64(authTokenBytes));
-
-			showInfoToast('Auth token generated');
-		} catch (e) {
-			showErrorToast((e as Error).message);
-		}
-	};
-
 	const handleGetCredential = async () => {
 		try {
-			const cred = await getCredential();
-			addCredential(cred);
+			if (!identityWallet) {
+				showErrorToast(t('identity.wallet.error.locked'));
+				return;
+			}
 
-			console.log('authBytes: ', toBase64(wallet.getPublicKey()));
+			// Get credential
+			const cred = await getCredential();
+
+			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
+
+			// Backup wallet
+			const encrypted = await encryptIdentityWallet(newWallet, passphrase!);
+			await backupCryptoBox(wallet.getAddress(), toBase64(encrypted), authToken!);
+
+			setWallet(newWallet);
 			showSuccessToast('Credential added');
 		} catch (e) {
 			showErrorToast((e as Error).message);
 		}
 	};
 
-	const handleLoadWallet = async () => {
+	const handleUnlock = async () => {
+		if (authToken == null) {
+			showModal('authToken', true);
+			return;
+		}
+
+		await handlePassphrase(authToken);
+	};
+
+	const handleAuthToken = async () => {
 		try {
-			await loadWallet(wallet.getAddress());
-			showSuccessToast('Wallet loaded');
+			showModal('authToken', false);
+
+			const authTokenBytes = await getAuthToken(wallet, process.env.REACT_APP_ISSUER_URL);
+			const authToken = toBase64(authTokenBytes);
+			setAuthToken(authToken);
+
+			await handlePassphrase(authToken);
 		} catch (e) {
 			showErrorToast((e as Error).message);
 		}
 	};
 
-	const handleNewWallet = async () => {
-		try {
-			await createNewWallet();
-			showSuccessToast('New wallet created');
-		} catch (e) {
-			showErrorToast((e as Error).message);
+	const handlePassphrase = async (authToken: string) => {
+		if (passphrase == null) {
+			setPassphraseInput('');
+			showModal('passphrase', true);
+			return;
 		}
+
+		await handleDecryptWallet(authToken, passphrase);
 	};
 
-	const handleBackupWallet = async () => {
+	const handleDecryptWallet = async (authToken: string, passphrase: string) => {
 		try {
-			if (identityWallet == null) {
-				showErrorToast('No wallet to backup');
+			const cryptoBox = await loadCryptoBox<string>(wallet.getAddress(), authToken);
+
+			// Create a new wallet
+			if (cryptoBox == null) {
+				setPassphrase(passphrase);
+				setWallet({
+					credentials: [],
+				});
+				showSuccessToast(t('identity.wallet.message.created'));
 				return;
 			}
 
-			const encrypted = encrypt(JSON.stringify(identityWallet), '');
-			await backupCryptoBox(wallet.getAddress(), encrypted);
-			showSuccessToast('Wallet backed up');
+			const decryptedWallet = await tryDecryptIdentityWallet(fromBase64(cryptoBox), passphrase);
+
+			// Invalid passphrase
+			if (decryptedWallet == null) {
+				showModal('invalidPassphrase', true);
+				return;
+			}
+
+			// Success
+			setPassphrase(passphrase);
+			setWallet(decryptedWallet);
+			showSuccessToast(t('identity.wallet.message.unlocked'));
 		} catch (e) {
 			showErrorToast((e as Error).message);
+		}
+	};
+
+	const handleReset = async () => {
+		setPassphrase(passphraseInput);
+		setWallet({
+			credentials: [],
+		});
+		showSuccessToast(t('identity.wallet.message.reset'));
+	};
+
+	const handleLock = async () => {
+		setPassphrase(null);
+		setWallet(null);
+		setPassphraseInput('');
+		showSuccessToast(t('identity.wallet.message.locked'));
+	};
+
+	const showModal = (id: 'authToken' | 'passphrase' | 'invalidPassphrase' | 'resetConfirmation', toggle: boolean) => {
+		if (id === 'authToken' && authTokenRef.current) {
+			const modal = BSModal.getOrCreateInstance(authTokenRef.current);
+			return toggle ? modal.show() : modal.hide();
+		} else if (id === 'passphrase' && passphraseRef.current) {
+			const modal = BSModal.getOrCreateInstance(passphraseRef.current);
+			return toggle ? modal.show() : modal.hide();
+		} else if (id === 'invalidPassphrase' && invalidPassphraseRef.current) {
+			const modal = BSModal.getOrCreateInstance(invalidPassphraseRef.current);
+			return toggle ? modal.show() : modal.hide();
+		} else if (id === 'resetConfirmation' && resetConfirmationRef.current) {
+			const modal = BSModal.getOrCreateInstance(resetConfirmationRef.current);
+			return toggle ? modal.show() : modal.hide();
 		}
 	};
 
@@ -137,27 +214,23 @@ const Identity = (): JSX.Element => {
 						<div className="col-12">
 							<Card className="d-flex flex-column h-100 justify-content-between">
 								<div>
-									<h2>{t('credentials.get.title')}</h2>
-									<div className="my-4">{t('credentials.get.description')}</div>
+									<h2>{t('identity.get.title')}</h2>
+									<div className="my-4">{t('identity.get.description')}</div>
 								</div>
 								<div className="d-flex flex-row justify-content-start">
-									<CustomButton className="px-5" onClick={handleAuth}>
-										{t('credentials.get.auth')}
+									<CustomButton className="px-5" onClick={handleGetCredential}>
+										{t('identity.get.get')}
 									</CustomButton>
-									<div className="mx-4">
-										<CustomButton className="px-5" onClick={handleGetCredential}>
-											{t('credentials.get.get')}
-										</CustomButton>
-									</div>
 								</div>
 							</Card>
 						</div>
 						<div className="col-12">
 							<Card className="d-flex flex-column h-100 justify-content-between">
 								<div>
-									<h2>{t('credentials.list.title')}</h2>
+									<h2>{t('identity.wallet.title')}</h2>
+									<div className="my-4">{t('identity.wallet.description')}</div>
 								</div>
-								<div className="row gy-4 mt-0">
+								<div className="row gy-4">
 									{identityWallet?.credentials.map((cred) => {
 										return (
 											<div className="col-lg-6 col-12" key={cred.id}>
@@ -172,7 +245,7 @@ const Identity = (): JSX.Element => {
 													</button>
 													<div>
 														<h2>Credential</h2>
-														<p>Id: {cred.id}</p>
+														<p>Id: {trunc(cred.id, 15)}</p>
 														<p>Issuer: {cred.issuer}</p>
 														<p>Subject: {cred.credentialSubject.id}</p>
 														<p>Twitter: {cred.credentialSubject.twitter_handle}</p>
@@ -188,25 +261,138 @@ const Identity = (): JSX.Element => {
 										);
 									})}
 								</div>
-								<div className="d-flex flex-row justify-content-start mt-4">
-									<CustomButton className="px-5" onClick={handleBackupWallet}>
-										{t('credentials.list.backup')}
-									</CustomButton>
-									<div className="mx-4">
-										<CustomButton className="px-5" onClick={handleLoadWallet}>
-											{t('credentials.list.load')}
+								<div className="d-flex flex-row justify-content-start mt-4 gap-4">
+									{identityWallet == null && (
+										<CustomButton className="px-5" onClick={handleUnlock}>
+											{t('identity.wallet.unlock')}
 										</CustomButton>
-									</div>
-									<div>
-										<CustomButton className="px-5" onClick={handleNewWallet}>
-											{t('credentials.list.new')}
+									)}
+									{identityWallet != null && (
+										<CustomButton className="px-5" onClick={handleLock}>
+											{t('identity.wallet.lock')}
 										</CustomButton>
-									</div>
+									)}
 								</div>
 							</Card>
 						</div>
 					</div>
 				</div>
+			</div>
+			<Modal
+				id="authTokenModal"
+				ref={authTokenRef}
+				dataBsBackdrop="static"
+				contentClassName="p-3"
+				withCloseButton={false}
+			>
+				<h1>{t('identity.wallet.message.signTxWarning')}</h1>
+				<div className="d-flex flex-column flex-sm-row  justify-content-around mt-5">
+					<Button
+						className="logout-modal-btn me-sm-4 mb-4 mb-sm-0"
+						data-bs-dismiss="modal"
+						onClick={handleAuthToken}
+					>
+						<div className="px-sm-2">{t('common.sign')}</div>
+					</Button>
+					<Button
+						className="logout-modal-cancel-btn me-sm-4 mb-4 mb-sm-0"
+						data-bs-dismiss="modal"
+						onClick={() => showModal('authToken', false)}
+					>
+						<div className="px-sm-2">{t('common.cancel')}</div>
+					</Button>
+				</div>
+			</Modal>
+			<Modal
+				id="passphraseModal"
+				ref={passphraseRef}
+				dataBsBackdrop="static"
+				contentClassName="p-3"
+				withCloseButton={false}
+			>
+				<h1 className="logout-modal-title">{t('identity.wallet.message.enterPassphrase')}</h1>
+				<div className="col-12 mt-4">
+					<Input
+						type="password"
+						value={passphraseInput}
+						onChange={(event) => setPassphraseInput(event.target.value)}
+						autoComplete="off"
+					/>
+				</div>
+				<div className="d-flex flex-column flex-sm-row  justify-content-around mt-4">
+					<Button
+						className="logout-modal-btn me-sm-4 mb-4 mb-sm-0"
+						data-bs-dismiss="modal"
+						onClick={() => handleDecryptWallet(authToken!, passphraseInput)}
+					>
+						<div className="px-sm-2">{t('common.confirm')}</div>
+					</Button>
+					<Button
+						className="logout-modal-cancel-btn me-sm-4 mb-4 mb-sm-0"
+						data-bs-dismiss="modal"
+						onClick={() => showModal('passphrase', false)}
+					>
+						<div className="px-sm-2">{t('common.cancel')}</div>
+					</Button>
+				</div>
+			</Modal>
+			<Modal
+				id="invalidPassphraseModal"
+				ref={invalidPassphraseRef}
+				dataBsBackdrop="static"
+				contentClassName="p-3"
+				withCloseButton={false}
+			>
+				<h1 className="logout-modal-title">{t('identity.wallet.error.invalidPassphrase')}</h1>
+				<div className="d-flex flex-column flex-sm-row  justify-content-around mt-4">
+					<Button
+						className="logout-modal-btn me-sm-3 mb-4 mb-sm-0"
+						data-bs-dismiss="modal"
+						onClick={() => handlePassphrase(authToken!)}
+					>
+						<div className="text-nowrap">{t('common.retry')}</div>
+					</Button>
+					<Button
+						className="logout-modal-cancel-btn me-sm-3 mb-4 mb-sm-0"
+						data-bs-dismiss="modal"
+						onClick={() => showModal('resetConfirmation', true)}
+					>
+						<div>{t('common.reset')}</div>
+					</Button>
+					<Button
+						className="logout-modal-cancel-btn me-sm-3 mb-4 mb-sm-0"
+						data-bs-dismiss="modal"
+						onClick={() => showModal('invalidPassphrase', false)}
+					>
+						<div>{t('common.cancel')}</div>
+					</Button>
+				</div>
+			</Modal>
+			<Modal
+				id="resetConfirmationModal"
+				ref={resetConfirmationRef}
+				dataBsBackdrop="static"
+				contentClassName="p-3"
+				withCloseButton={false}
+			>
+				<h1 className="logout-modal-title">{t('identity.wallet.message.resetConfirmation')}</h1>
+				<div className="d-flex flex-column flex-sm-row  justify-content-around mt-4">
+					<Button
+						className="logout-modal-cancel-btn me-sm-4 mb-4 mb-sm-0"
+						data-bs-dismiss="modal"
+						onClick={() => showModal('invalidPassphrase', true)}
+					>
+						<div className="px-sm-2">{t('common.cancel')}</div>
+					</Button>
+					<Button
+						className="logout-modal-logout-btn text-white"
+						data-bs-dismiss="modal"
+						onClick={handleReset}
+					>
+						<div className="px-sm-2">{t('common.reset')}</div>
+					</Button>
+				</div>
+			</Modal>
 			</div>
 			<Modal
 				ref={modalRef}
