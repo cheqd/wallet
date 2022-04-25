@@ -503,21 +503,29 @@ const Staking = (): JSX.Element => {
 							<>
 								<p className="color-success">{t('common.success')}</p>
 								<Input
-									onClick={() => {
-										window.open(`${CHEQ_EXPLORER}/transactions/${txResult.hash}`);
-									}}
 									readOnly
 									value={txResult.hash}
 									label="Hash"
 									className="text-start align-self-stretch mb-5"
 								/>
-								<Button
-									className="mt-5"
-									data-bs-dismiss="modal"
-									onClick={() => getWalletInfos(wallet.getAddress())}
-								>
-									{t('common.close')}
-								</Button>
+								<div className="d-flex flex-row justify-content-center align-items-center gap-4">
+									<Button
+										className="mt-5"
+										data-bs-dismiss="modal"
+										onClick={() => {
+											window.open(`${CHEQ_EXPLORER}/transactions/${txResult.hash}`);
+										}}
+									>
+										Open in Explorer
+									</Button>
+									<Button
+										className="mt-5"
+										data-bs-dismiss="modal"
+										onClick={() => getWalletInfos(wallet.getAddress())}
+									>
+										{t('common.close')}
+									</Button>
+								</div>
 							</>
 						)}
 					</div>

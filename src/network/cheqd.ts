@@ -353,6 +353,7 @@ export class CheqClient {
 					fee,
 					memo,
 				);
+
 				return result;
 				// eslint-disable-next-line
 			} catch (err: any) {
@@ -391,6 +392,7 @@ export class CheqClient {
 
 		const bz = await this.signTx(wallet, doc);
 		const resp = await this.broadcastTx(bz);
+		console.log('result from txn: ', resp);
 		broadcastTxCommitSuccess(resp);
 		const buildResp: DeliverTxResponse = {
 			transactionHash: toHex(Uint8Array.from(resp.hash)),

@@ -24,7 +24,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
 	return (
 		<tr>
 			<td data-label={headers[0]}>
-				<a href={`${CHEQ_EXPLORER}/txs/${row.hash}`} target="_blank" rel="noreferrer">
+				<a href={`${CHEQ_EXPLORER}/transactions/${row.hash}`} target="_blank" rel="noreferrer">
 					{trunc(row.hash)}
 				</a>
 			</td>

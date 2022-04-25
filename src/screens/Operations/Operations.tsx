@@ -426,26 +426,31 @@ const Operations = (): JSX.Element => {
 							<>
 								<p className="color-success">{t('common.success')}</p>
 								<Input
-									onClick={() => {
-										window.open(
-											`${CHEQ_EXPLORER}/transactions/${new Buffer(txResult.hash).toString(
-												'hex',
-											)}`,
-										);
-									}}
 									readOnly
-									value={txResult.hash}
+									value={txResult.hash.toUpperCase()}
 									label="Hash"
 									className="text-start align-self-stretch mb-5"
 								/>
-								<CustomButton
-									className="mt-5"
-									data-bs-target="modalSendTxs"
-									data-bs-dismiss="modal"
-									onClick={() => getWalletInfos(wallet.getAddress())}
-								>
-									{t('common.close')}
-								</CustomButton>
+								<div className="d-flex flex-row justify-content-center align-items-center gap-4">
+									<CustomButton
+										className="mt-5"
+										data-bs-target="modalSendTxs"
+										data-bs-dismiss="modal"
+										onClick={() => {
+											window.open(`${CHEQ_EXPLORER}/transactions/${txResult.hash.toUpperCase()}`);
+										}}
+									>
+										Open in Explorer
+									</CustomButton>
+									<CustomButton
+										className="mt-5"
+										data-bs-target="modalSendTxs"
+										data-bs-dismiss="modal"
+										onClick={() => getWalletInfos(wallet.getAddress())}
+									>
+										{t('common.close')}
+									</CustomButton>
+								</div>
 							</>
 						)}
 					</div>
