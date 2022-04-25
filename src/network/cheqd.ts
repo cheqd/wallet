@@ -367,7 +367,7 @@ export class CheqClient {
 
 		const chainId = await this.getChainId();
 
-		const gas = 180000;
+		const gas = 400000;
 		const doc: Doc = {
 			messages: [],
 			chainId: chainId,

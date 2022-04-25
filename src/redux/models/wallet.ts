@@ -257,9 +257,9 @@ export const wallet = createModel<RootModel>()({
 						],
 						coinType,
 						gasPriceStep: {
-							low: 0.0000025,
-							average: 0.000005,
-							high: 0.00001,
+							low: 25,
+							average: 30,
+							high: 50,
 						},
 						beta: chainId.includes('testnet'),
 					});
