@@ -132,12 +132,16 @@ export interface IdentityWallet {
 }
 
 export interface Credential {
-	id: string;
-	issuer: string;
+	type: string[];
+	issuer: Issuer;
 	credentialSubject: CredentialSubject;
+	issuanceDate: string;
+}
+
+export interface Issuer {
+	id: string;
 }
 
 export interface CredentialSubject {
 	id: string;
-	twitter_handle: string;
 }

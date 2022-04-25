@@ -197,7 +197,7 @@ const Identity = (): JSX.Element => {
 		showSuccessToast('Credential removed');
 		// Backup wallet
 		const newWallet = update(identityWallet!, {
-			credentials: (arr) => arr.filter((item) => item.id != cred.id),
+			credentials: (arr) => arr.filter((item) => item.issuanceDate != cred.issuanceDate),
 		});
 		const encrypted = await encryptIdentityWallet(newWallet, passphrase!);
 		await backupCryptoBox(wallet.getAddress(), toBase64(encrypted), authToken!);
@@ -231,7 +231,7 @@ const Identity = (): JSX.Element => {
 									<div className="row gy-4">
 										{identityWallet?.credentials.map((cred) => {
 											return (
-												<div className="col-lg-6 col-12" key={cred.id}>
+												<div className="col-lg-6 col-12" key={cred.issuanceDate}>
 													<Card className="d-flex flex-column h-100 justify-content-between message-button-container">
 														<div onClick={async () => await handleShowCredential(cred)}>
 															<div className="d-flex flex-row justify-content-between mb-2">
@@ -265,16 +265,16 @@ const Identity = (): JSX.Element => {
 																</div>
 															</div>
 															<p>
-																<b>Id:</b> {trunc(cred.id, 15)}
+																<b>Type:</b> {cred.type.join(', ')}
 															</p>
 															<p>
-																<b>Issuer:</b> {cred.issuer}
+																<b>Issuance Date:</b> {cred.issuanceDate}
+															</p>
+															<p>
+																<b>Issuer:</b> {cred.issuer.id}
 															</p>
 															<p>
 																<b>Subject:</b> {cred.credentialSubject.id}
-															</p>
-															<p>
-																<b>Twitter:</b> {cred.credentialSubject.twitter_handle}
 															</p>
 														</div>
 													</Card>
@@ -456,27 +456,27 @@ const Identity = (): JSX.Element => {
 												<tbody>
 													<tr>
 														<td>
-															<b>ID</b>
+															<b>TYPE</b>
 														</td>
-														<td> {selectedCred.id}</td>
+														<td> {selectedCred.type.join(', ')}</td>
+													</tr>
+													<tr>
+														<td>
+															<b>ISSUANCE DATE</b>
+														</td>
+														<td> {selectedCred.issuanceDate}</td>
 													</tr>
 													<tr>
 														<td>
 															<b>ISSUER</b>
 														</td>
-														<td> {selectedCred.issuer}</td>
+														<td> {selectedCred.issuer.id}</td>
 													</tr>
 													<tr>
 														<td>
 															<b>SUBJECT</b>
 														</td>
 														<td> {selectedCred.credentialSubject.id}</td>
-													</tr>
-													<tr>
-														<td>
-															<b>TWITTER</b>
-														</td>
-														<td> {selectedCred.credentialSubject.twitter_handle}</td>
 													</tr>
 												</tbody>
 											</table>
