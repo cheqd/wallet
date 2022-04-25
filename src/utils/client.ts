@@ -349,7 +349,6 @@ class WalletClient {
 
 		try {
 			const account = await this.cheqClient.getAccount(address);
-
 			if (account) {
 				const { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt } =
 					LumUtils.estimatedVesting(account);

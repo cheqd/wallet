@@ -336,7 +336,7 @@ export class CheqClient {
 	 * @param wallet signing wallet or wallets for multi signature
 	 * @param doc document to sign and broadcast as a transaction
 	 */
-	//     const signedTx = await this.signTx(wallet, doc);
+	// const signedTx = await this.signTx(wallet, doc);
 	signAndBroadcastTx = async (
 		wallet: CheqWallet,
 		txnMsgs: EncodeObject[],

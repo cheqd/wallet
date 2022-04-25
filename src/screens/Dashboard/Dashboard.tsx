@@ -79,7 +79,7 @@ const Dashboard = (): JSX.Element => {
 						<>
 							<div className="col-md-6 col-12">
 								<StakedCoinsCard
-									amount={stakedCoins}
+									amount={convertCoin(stakedCoins.toFixed(), NanoCheqDenom)}
 									amountVesting={
 										vestings ? convertCoin(vestings.lockedDelegatedCoins.amount, NanoCheqDenom) : 0
 									}

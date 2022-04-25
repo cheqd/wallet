@@ -7,6 +7,8 @@ import { Rewards } from 'models';
 import { useTranslation } from 'react-i18next';
 import { NumbersUtils } from 'utils';
 import { SmallerDecimal } from 'components';
+import { convertCoin } from 'network/util';
+import { NanoCheqDenom } from 'network';
 
 interface Props {
 	rewards: Rewards;
@@ -27,7 +29,7 @@ const RewardsCard = ({ rewards, onClaim, isLoading }: Props): JSX.Element => {
 							<SmallerDecimal
 								nb={NumbersUtils.formatTo6digit(
 									rewards.total && rewards.total.length > 0
-										? NumbersUtils.convertUnitNumber(rewards.total[0].amount) / CLIENT_PRECISION
+										? convertCoin(rewards.total[0].amount, NanoCheqDenom) / CLIENT_PRECISION
 										: 0,
 								)}
 								big

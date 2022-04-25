@@ -36,6 +36,7 @@ import GetAllRewards from '../Operations/components/Forms/GetAllRewards';
 import Redelegate from 'screens/Operations/components/Forms/Redelegate';
 import { CheqBech32PrefixValAddr, NanoCheqDenom } from 'network';
 import { CHEQ_EXPLORER } from 'constant';
+import { convertCoin } from 'network/util';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
@@ -422,11 +423,9 @@ const Staking = (): JSX.Element => {
 						) : null}
 						<div className="col-lg-6">
 							<StakedCoinsCard
-								amount={stakedCoins}
+								amount={convertCoin(stakedCoins.toFixed(), NanoCheqDenom)}
 								amountVesting={
-									vestings
-										? Number(LumUtils.convertUnit(vestings.lockedDelegatedCoins, NanoCheqDenom))
-										: 0
+									vestings ? convertCoin(vestings.lockedDelegatedCoins.amount, NanoCheqDenom) : 0
 								}
 							/>
 						</div>
