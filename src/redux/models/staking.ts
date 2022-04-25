@@ -1,10 +1,6 @@
 import { createModel } from '@rematch/core';
 import { RootModel } from '../../models';
-import {
-	DelegationResponse,
-	UnbondingDelegation,
-	Validator,
-} from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import { DelegationResponse, UnbondingDelegation, Validator } from 'cosmjs-types/cosmos/staking/v1beta1/staking';
 import { WalletClient } from 'utils';
 
 interface StakingState {

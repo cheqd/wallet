@@ -66,7 +66,7 @@ class MainLayout extends PureComponent<Props> {
 						<ul className="navbar-nav lum-logo">
 							<li>
 								<NavLink to="/home" className="navbar-item me-lg-5 ms-2 ms-lg-4 selected-navbar-item">
-									<img src={assets.images.lumWallet} width="117" height="38" className="lum-logo" />
+									<img src={assets.images.cheqdLogo} width="117" height="38" className="lum-logo" />
 								</NavLink>
 							</li>
 						</ul>

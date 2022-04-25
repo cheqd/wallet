@@ -1,5 +1,14 @@
 import { Registry, GeneratedType } from '@cosmjs/proto-signing';
-import { AminoTypes } from '@cosmjs/stargate';
+import { AminoConverters, AminoTypes } from '@cosmjs/stargate';
+import {
+	createAuthzAminoConverters,
+	createBankAminoConverters,
+	createDistributionAminoConverters,
+	createFreegrantAminoConverters,
+	createGovAminoConverters,
+	createIbcAminoConverters,
+	createStakingAminoConverters,
+} from '@cosmjs/stargate/build/modules';
 
 import { Tx } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/v1beta1/tx';
 import { PubKey } from '@lum-network/sdk-javascript/build/codec/cosmos/crypto/secp256k1/keys';
@@ -48,6 +57,7 @@ import {
 } from '@lum-network/sdk-javascript/build/codec/cosmos/vesting/v1beta1/vesting';
 import { MsgCreateVestingAccount } from '@lum-network/sdk-javascript/build/codec/cosmos/vesting/v1beta1/tx';
 import { MsgCreateDid } from 'network/cheqd/v1/tx';
+import { CheqDenom } from 'network/constants';
 
 const registryTypes: Iterable<[string, GeneratedType]> = [
 	['/cosmos.auth.v1beta1.BaseAccount', BaseAccount],
@@ -100,5 +110,17 @@ class ExtendedRegistry extends Registry {
 	};
 }
 
-export const CheqAminoRegistry = new AminoTypes();
+function createDefaultTypes(prefix: string): AminoConverters {
+	return {
+		...createAuthzAminoConverters(),
+		...createBankAminoConverters(),
+		...createDistributionAminoConverters(),
+		...createGovAminoConverters(),
+		...createStakingAminoConverters(prefix),
+		...createIbcAminoConverters(),
+		...createFreegrantAminoConverters(),
+	};
+}
+
+export const CheqAminoRegistry = new AminoTypes(createDefaultTypes(CheqDenom));
 export const CheqRegistry = new ExtendedRegistry(registryTypes);

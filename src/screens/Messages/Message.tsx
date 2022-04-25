@@ -4,7 +4,7 @@ import { Redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import ClipboardJS from 'clipboard';
 import { Modal as BSModal } from 'bootstrap';
-import { LumUtils, LumTypes, LumConstants } from '@lum-network/sdk-javascript';
+import { LumUtils } from '@lum-network/sdk-javascript';
 
 import { AddressCard, BalanceCard, Input, Modal, Tooltip } from 'components';
 import { RootState } from 'redux/store';
@@ -15,6 +15,7 @@ import { showErrorToast, showSuccessToast, WalletUtils } from 'utils';
 import './styles/Messages.scss';
 import { SignMsg } from 'network/types/signMsg';
 import { validateSignMessage } from 'utils/client';
+import { CheqDenom } from 'network';
 
 interface VerifyMessageResult {
 	result: boolean;
@@ -34,12 +35,12 @@ const isMessageToVerify = (msg: {
 };
 
 const verifyPlaceholder = `{
-	"address": "lum968b882bf30932bebc7b440cc50e489438c4cce",
+	"address": "cheqd1ed04uq0x3lfc8mhyau209pfgua2r4vhw5yygcn",
 	"msg": "Hello World!",
-	"publicKey": "a968b882bf30932bebc7b440cc50e489438c4cce82zcidns82ns9sx92sqaa212id",
+	"publicKey": "a968b882b9jkdnckbebc7b440cc50edkeh38c4cce82zcidns8kd8dcx92sqaa212id",
 	"sig": "a0feb1d1d026e2431b437ef7a9a190dc3edacea5de6ef41490212867643c19754424ff7c4ca62ee41cbd6a15d437754887f65c7ff113e3ea2264a4d8911a727b1c",
 	"version": "1",
-	"signer": "lum-sdk/paper"
+	"signer": "cheqd-sdk/paper"
 }`;
 
 const Message = (): JSX.Element => {
@@ -165,9 +166,9 @@ const Message = (): JSX.Element => {
 							<BalanceCard
 								balance={
 									vestings
-										? currentBalance.lum -
-										  Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
-										: currentBalance.lum
+										? currentBalance.cheq -
+										  Number(LumUtils.convertUnit(vestings.lockedBankCoins, CheqDenom))
+										: currentBalance.cheq
 								}
 								address={wallet.getAddress()}
 							/>

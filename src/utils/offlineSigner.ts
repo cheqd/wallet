@@ -2,13 +2,16 @@ import Long from 'long';
 import { OfflineAminoSigner } from '@cosmjs/amino';
 import { OfflineSigner, OfflineDirectSigner } from '@cosmjs/proto-signing';
 import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
-import { LumUtils } from '@lum-network/sdk-javascript';
+import { LumTypes, LumUtils } from '@lum-network/sdk-javascript';
 import { SignDoc } from '@lum-network/sdk-javascript/build/types';
 import { CheqWallet } from '../network/wallet';
 import { CheqMessageSigner, CheqSignOnlyChainId, CheqWalletSigningVersion } from 'network';
 import { CheqAminoRegistry } from 'network/modules';
 import { SignMsg } from 'network/types/signMsg';
-import { Doc } from 'network/types/msg';
+import { Doc, DocSigner } from 'network/types/msg';
+import { generateSignDoc } from '@lum-network/sdk-javascript/build/utils';
+import { StdFee } from '@cosmjs/stargate';
+import { Message } from '@lum-network/sdk-javascript/build/messages';
 
 export class CheqOfflineSignerWallet extends CheqWallet {
 	private readonly offlineSigner: OfflineSigner;
@@ -44,6 +47,7 @@ export class CheqOfflineSignerWallet extends CheqWallet {
 		if (accounts.length === 0) {
 			throw new Error('No account available.');
 		}
+
 		this.publicKey = accounts[0].pubkey;
 		this.address = accounts[0].address;
 		return true;
@@ -58,23 +62,23 @@ export class CheqOfflineSignerWallet extends CheqWallet {
 			throw new Error('No account selected.');
 		}
 		const signerIndex = LumUtils.uint8IndexOf(
-			doc.signers.map((signer: any) => signer.publicKey),
+			doc.signers.map((signer: DocSigner) => signer.publicKey),
 			this.publicKey as Uint8Array,
 		);
 		if (signerIndex === -1) {
 			throw new Error('Signer not found in document');
 		}
 		if (this.signingMode() === SignMode.SIGN_MODE_DIRECT) {
-			const signDoc = LumUtils.generateSignDoc(doc, signerIndex, this.signingMode());
+			const signDoc = generateSignDoc(doc as LumTypes.Doc, signerIndex, this.signingMode());
 			const response = await (this.offlineSigner as OfflineDirectSigner).signDirect(this.address, signDoc);
 			return [response.signed, LumUtils.fromBase64(response.signature.signature)];
 		} else if (this.signingMode() === SignMode.SIGN_MODE_LEGACY_AMINO_JSON) {
 			const response = await (this.offlineSigner as OfflineAminoSigner).signAmino(this.address, {
 				account_number: doc.signers[signerIndex].accountNumber.toString(),
 				chain_id: doc.chainId,
-				fee: doc.fee,
+				fee: doc.fee as StdFee,
 				memo: doc.memo || '',
-				msgs: doc.messages.map((msg: any) => CheqAminoRegistry.toAmino(msg)),
+				msgs: doc.messages.map((msg: Message) => CheqAminoRegistry.toAmino(msg)),
 				sequence: doc.signers[signerIndex].sequence.toString(),
 			});
 			if (response.signed) {
@@ -83,7 +87,7 @@ export class CheqOfflineSignerWallet extends CheqWallet {
 				doc.memo = response.signed.memo;
 			}
 			return [
-				LumUtils.generateSignDoc(doc, signerIndex, this.signingMode()),
+				LumUtils.generateSignDoc(doc as LumTypes.Doc, signerIndex, this.signingMode()),
 				LumUtils.fromBase64(response.signature.signature),
 			];
 		}
@@ -94,6 +98,7 @@ export class CheqOfflineSignerWallet extends CheqWallet {
 		if (!this.address || !this.publicKey) {
 			throw new Error('No account selected.');
 		}
+
 		const signDoc = {
 			bodyBytes: LumUtils.toAscii(msg),
 			authInfoBytes: LumUtils.generateAuthInfoBytes(
@@ -104,6 +109,7 @@ export class CheqOfflineSignerWallet extends CheqWallet {
 			chainId: CheqSignOnlyChainId,
 			accountNumber: Long.fromNumber(0),
 		};
+
 		if (this.signingMode() === SignMode.SIGN_MODE_DIRECT) {
 			const response = await (this.offlineSigner as OfflineDirectSigner).signDirect(this.address, signDoc);
 			return {
@@ -117,6 +123,7 @@ export class CheqOfflineSignerWallet extends CheqWallet {
 		} else if (typeof (this.offlineSigner as OfflineAminoSigner).signAmino === 'function') {
 			throw 'Feature not available for amino signers';
 		}
+
 		throw 'Unknown offline signer mode';
 	};
 }

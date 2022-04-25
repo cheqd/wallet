@@ -16,6 +16,7 @@ import {
 	getCheqHdPath,
 } from '../../network';
 
+import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 import { DeviceModelId } from '@ledgerhq/devices';
 
@@ -28,6 +29,7 @@ import { Airdrop, HardwareMethod, Rewards, RootModel, Transaction, Vestings, Wal
 import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import { CheqWallet } from 'network/wallet';
 import { CheqWalletFactory } from 'utils/walletFactory';
+import { GasPrice, SigningStargateClient } from '@cosmjs/stargate';
 
 interface SendPayload {
 	to: string;
@@ -72,7 +74,7 @@ interface SetWalletDataPayload {
 	transactions?: Transaction[];
 	currentBalance?: {
 		fiat: number;
-		lum: number;
+		cheq: number;
 	};
 	rewards?: Rewards;
 	vestings?: Vestings;
@@ -89,7 +91,7 @@ interface WalletState {
 	currentWallet: Wallet | null;
 	currentBalance: {
 		fiat: number;
-		lum: number;
+		cheq: number;
 	};
 	transactions: Transaction[];
 	rewards: Rewards;
@@ -103,7 +105,7 @@ export const wallet = createModel<RootModel>()({
 		currentWallet: null,
 		currentBalance: {
 			fiat: 0,
-			lum: 0,
+			cheq: 0,
 		},
 		transactions: [],
 		rewards: {
@@ -255,9 +257,9 @@ export const wallet = createModel<RootModel>()({
 						],
 						coinType,
 						gasPriceStep: {
-							low: 0.01,
-							average: 0.025,
-							high: 0.04,
+							low: 25,
+							average: 30,
+							high: 50,
 						},
 						beta: chainId.includes('testnet'),
 					});
@@ -288,7 +290,7 @@ export const wallet = createModel<RootModel>()({
 		},
 		async signInWithLedgerAsync(payload: { app: string; customHdPath?: string }) {
 			try {
-				const wallet: null | CheqWallet = null;
+				let wallet: null | CheqWallet = null;
 				let breakLoop = false;
 				let userCancelled = false;
 				let isNanoS = false;
@@ -304,15 +306,14 @@ export const wallet = createModel<RootModel>()({
 					try {
 						const transport = await TransportWebUsb.create();
 						isNanoS = transport.deviceModel?.id === DeviceModelId.nanoS;
-
 						//FIXME: Remove ts-ignore
-						// wallet = await LumWalletFactory.fromLedgerTransport(
-						//     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-						//     // @ts-ignore
-						//     transport,
-						//     HDPath,
-						//     CheqBech32PrefixAccAddr,
-						// );
+						wallet = await CheqWalletFactory.fromLedgerTransport(
+							// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+							// @ts-ignore
+							transport,
+							HDPath,
+							CheqBech32PrefixAccAddr,
+						);
 					} catch (e) {
 						if ((e as Error).name === 'TransportOpenUserCancelled') {
 							breakLoop = true;
@@ -342,7 +343,24 @@ export const wallet = createModel<RootModel>()({
 		signInWithMnemonicAsync(payload: { mnemonic: string; customHdPath?: string }) {
 			CheqWalletFactory.fromMnemonic(payload.mnemonic)
 				.then((wallet) => {
+					// localStorage.setItem('mn', payload.mnemonic);
 					// @ts-ignore
+
+					DirectSecp256k1HdWallet.fromMnemonic(payload.mnemonic, { prefix: CheqBech32PrefixAccAddr })
+						.then((w) => {
+							SigningStargateClient.connectWithSigner(process.env.REACT_APP_RPC_URL, w, {
+								gasPrice: GasPrice.fromString('25' + NanoCheqDenom),
+							})
+								.then((signingClient) => {
+									WalletClient.cheqClient.withStargateSigninClient(signingClient);
+								})
+								.catch(() => {
+									showErrorToast(i18n.t('wallet.errors.client'));
+								});
+						})
+						.catch(() => {
+							showErrorToast(i18n.t('wallet.errors.client'));
+						});
 					dispatch.wallet.signIn(wallet);
 					if (payload.customHdPath) {
 						wallet.useAccount(payload.customHdPath, CheqBech32PrefixAccAddr);

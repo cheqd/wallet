@@ -11,22 +11,21 @@ import { RootDispatch, RootState } from 'redux/store';
 import './styles/Dashboard.scss';
 import { usePrevious } from 'utils';
 import { useRematchDispatch } from 'redux/hooks';
-import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
-import AirdropCard from 'components/Cards/AirdropCard';
+import { LumUtils } from '@lum-network/sdk-javascript';
 import StakedCoinsCard from 'screens/Staking/components/Cards/StakedCoinsCard';
 import VestingTokensCard from 'screens/Staking/components/Cards/VestingTokensCard';
-import { CheqDenom } from 'network';
+import { NanoCheqDenom } from 'network';
+import { convertCoin } from 'network/util';
 
 const Dashboard = (): JSX.Element => {
 	// Redux hooks
-	const { transactions, balance, wallet, vestings, airdrop, stakedCoins } = useSelector((state: RootState) => ({
+	const { transactions, balance, wallet, vestings, stakedCoins } = useSelector((state: RootState) => ({
 		loading: state.loading.global.loading,
 		transactions: state.wallet.transactions,
 		balance: state.wallet.currentBalance,
 		wallet: state.wallet.currentWallet,
 		stakedCoins: state.staking.stakedCoins,
 		vestings: state.wallet.vestings,
-		airdrop: state.wallet.airdrop,
 	}));
 
 	const { getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
@@ -61,8 +60,9 @@ const Dashboard = (): JSX.Element => {
 						<BalanceCard
 							balance={
 								vestings
-									? balance.lum - Number(LumUtils.convertUnit(vestings.lockedBankCoins, CheqDenom))
-									: balance.lum
+									? balance.cheq -
+									  Number(LumUtils.convertUnit(vestings.lockedBankCoins, NanoCheqDenom))
+									: balance.cheq
 							}
 							address={wallet.getAddress()}
 						/>
@@ -79,16 +79,9 @@ const Dashboard = (): JSX.Element => {
 						<>
 							<div className="col-md-6 col-12">
 								<StakedCoinsCard
-									amount={stakedCoins}
+									amount={convertCoin(stakedCoins.toFixed(), NanoCheqDenom)}
 									amountVesting={
-										vestings
-											? Number(
-													LumUtils.convertUnit(
-														vestings.lockedDelegatedCoins,
-														LumConstants.LumDenom,
-													),
-											  )
-											: 0
+										vestings ? convertCoin(vestings.lockedDelegatedCoins.amount, NanoCheqDenom) : 0
 									}
 								/>
 							</div>

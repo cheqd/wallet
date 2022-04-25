@@ -20,7 +20,7 @@ const KeystoreFileSave = (props: { data: LumUtils.KeyStore; password: string }):
 		const element = document.createElement('a');
 		const jsonText = JSON.stringify(data);
 		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jsonText));
-		element.setAttribute('download', 'lum-keystore.json');
+		element.setAttribute('download', 'cheq-keystore.json');
 
 		element.style.display = 'none';
 		document.body.appendChild(element);
