@@ -22,7 +22,7 @@ import Assets from '../../assets';
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
 	const [selectedCred, setSelectedCred] = useState<VerifiableCredential | null>(null);
-	const modalRef = useRef<HTMLDivElement>(null);
+	const credentialDetailedRef = useRef<HTMLDivElement>(null);
 
 	// Redux hooks
 	const { wallet, identityWallet, authToken, passphrase } = useSelector((state: RootState) => ({
@@ -171,13 +171,13 @@ const Identity = (): JSX.Element => {
 		} else if (id === 'resetConfirmation' && resetConfirmationRef.current) {
 			const modal = BSModal.getOrCreateInstance(resetConfirmationRef.current);
 			return toggle ? modal.show() : modal.hide();
-		} else if (id === 'credentialDetails' && modalRef.current) {
-			const modal = BSModal.getOrCreateInstance(modalRef.current);
+		} else if (id === 'credentialDetails' && credentialDetailedRef.current) {
+			const modal = BSModal.getOrCreateInstance(credentialDetailedRef.current);
 			return toggle ? modal.show() : modal.hide();
 		}
 	};
 
-	const handleShowCredential = async (cred: React.SetStateAction<VerifiableCredential | null>) => {
+	const handleShowCredential = async (cred: VerifiableCredential) => {
 		if (cred == null || !identityWallet?.credentials.includes(cred as VerifiableCredential)) return;
 		setSelectedCred(cred);
 		showModal('credentialDetails', true);
@@ -189,18 +189,15 @@ const Identity = (): JSX.Element => {
 		identityWallet?.credentials.forEach((element, index) => {
 			if (element == cred) identityWallet?.credentials.splice(index, 1);
 		});
-		if (modalRef.current) {
+		setWallet(identityWallet);
+		if (credentialDetailedRef.current) {
 			showModal('credentialDetails', false);
 			setSelectedCred(null);
 		}
-		setWallet(identityWallet);
-		showSuccessToast('Credential removed');
 		// Backup wallet
-		const newWallet = update(identityWallet!, {
-			credentials: (arr) => arr.filter((item) => item.id != cred.id),
-		});
-		const encrypted = await encryptIdentityWallet(newWallet, passphrase!);
+		const encrypted = await encryptIdentityWallet(identityWallet!, passphrase!);
 		await backupCryptoBox(wallet.getAddress(), toBase64(encrypted), authToken!);
+		showSuccessToast('Credential removed');
 	};
 
 	return (
@@ -243,39 +240,56 @@ const Identity = (): JSX.Element => {
 																	/>
 																	Credential
 																</h2>
-																<div className="d-flex flex-row align-items-center">
+																<div className="btn btn-outline-success p-0 me-4 h-auto">
+																	Verify
+																	<svg
+																		xmlns="http://www.w3.org/2000/svg"
+																		width="16"
+																		height="16"
+																		fill="currentColor"
+																		className="bi bi-check"
+																		viewBox="0 0 16 16"
+																	>
+																		<path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
+																	</svg>
+																</div>
+															</div>
+															<>
+																<p>
+																	<b>Id:</b> {trunc(cred.id, 15)}
+																</p>
+																<p>
+																	<b>Issuer:</b> {cred.issuer}
+																</p>
+																<p>
+																	<b>Subject:</b> {cred.credentialSubject.id}
+																</p>
+																<p>
+																	<b>Twitter:</b>{' '}
+																	{cred.credentialSubject.twitter_handle}
+																</p>
+															</>
+
+															<div className="d-flex flex-row align-items-right mt-4 mx-0">
+																<div
+																	className="app-btn  app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+																	onClick={async () =>
+																		await handleShowCredential(cred)
+																	}
+																>
+																	{t('identity.credential.show')}
+																</div>
+																<div className="wrapper undefined">
 																	<div
-																		className="app-btn  app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+																		className="scale-anim undefined bg-transparent text-btn p-0 h-auto"
 																		onClick={async () =>
-																			await handleShowCredential(cred)
+																			await handleRemoveCredential(cred)
 																		}
 																	>
-																		{t('identity.credential.show')}
-																	</div>
-																	<div className="wrapper undefined">
-																		<div
-																			className="scale-anim undefined bg-transparent text-btn p-0 h-auto"
-																			onClick={async () =>
-																				await handleRemoveCredential(cred)
-																			}
-																		>
-																			{t('identity.credential.remove')}
-																		</div>
+																		{t('identity.credential.remove')}
 																	</div>
 																</div>
 															</div>
-															<p>
-																<b>Id:</b> {trunc(cred.id, 15)}
-															</p>
-															<p>
-																<b>Issuer:</b> {cred.issuer}
-															</p>
-															<p>
-																<b>Subject:</b> {cred.credentialSubject.id}
-															</p>
-															<p>
-																<b>Twitter:</b> {cred.credentialSubject.twitter_handle}
-															</p>
 														</div>
 													</Card>
 												</div>
@@ -415,7 +429,7 @@ const Identity = (): JSX.Element => {
 					</div>
 				</Modal>
 				<Modal
-					ref={modalRef}
+					ref={credentialDetailedRef}
 					id="credentialDetails"
 					withCloseButton={true}
 					dataBsBackdrop="static"
@@ -433,7 +447,7 @@ const Identity = (): JSX.Element => {
 									<img src={Assets.images.cheqdRoundLogo} height="28" className="me-3" />
 									{t('identity.credential.title')}
 								</h2>
-								<div className="d-flex flex-row align-items-left tabs mb-2">
+								<div className="d-flex flex-row align-items-left tabs my-3">
 									<a
 										href="#formatted"
 										className="app-btn app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
@@ -452,7 +466,7 @@ const Identity = (): JSX.Element => {
 								<div className="tabs-content">
 									<ul>
 										<li id="formatted">
-											<table className="table app-table-striped table-borderless my-4">
+											<table className="table app-table-striped table-borderless">
 												<tbody>
 													<tr>
 														<td>
@@ -481,7 +495,7 @@ const Identity = (): JSX.Element => {
 												</tbody>
 											</table>
 										</li>
-										<li id="json">
+										<li id="json" className="container tab-pane">
 											<textarea
 												readOnly
 												className="w-100 p-2"
