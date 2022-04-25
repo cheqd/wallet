@@ -21,7 +21,7 @@ import { CheqBech32PrefixAccAddr, getCheqHdPath, PrivateKeyLength } from './cons
  * @param publicKey public key to derive the address from
  * @param prefix address prefix to use (ex: lum)
  */
-export const getAddressFromPublicKey = (publicKey: Uint8Array, prefix = CheqBech32PrefixAccAddr) => {
+export const getAddressFromPublicKey = (publicKey: Uint8Array, prefix = CheqBech32PrefixAccAddr): string => {
 	if (publicKey.length !== 33) {
 		throw new Error(`Invalid Secp256k1 pubkey length (compressed): ${publicKey.length}`);
 	}

@@ -8,9 +8,10 @@ import { CheqWallet } from '../network/wallet';
 import { CheqMessageSigner, CheqSignOnlyChainId, CheqWalletSigningVersion } from 'network';
 import { CheqAminoRegistry } from 'network/modules';
 import { SignMsg } from 'network/types/signMsg';
-import { Doc } from 'network/types/msg';
+import { Doc, DocSigner } from 'network/types/msg';
 import { generateSignDoc } from '@lum-network/sdk-javascript/build/utils';
 import { StdFee } from '@cosmjs/stargate';
+import { Message } from '@lum-network/sdk-javascript/build/messages';
 
 export class CheqOfflineSignerWallet extends CheqWallet {
 	private readonly offlineSigner: OfflineSigner;
@@ -61,7 +62,7 @@ export class CheqOfflineSignerWallet extends CheqWallet {
 			throw new Error('No account selected.');
 		}
 		const signerIndex = LumUtils.uint8IndexOf(
-			doc.signers.map((signer: any) => signer.publicKey),
+			doc.signers.map((signer: DocSigner) => signer.publicKey),
 			this.publicKey as Uint8Array,
 		);
 		if (signerIndex === -1) {
@@ -77,7 +78,7 @@ export class CheqOfflineSignerWallet extends CheqWallet {
 				chain_id: doc.chainId,
 				fee: doc.fee as StdFee,
 				memo: doc.memo || '',
-				msgs: doc.messages.map((msg: any) => CheqAminoRegistry.toAmino(msg)),
+				msgs: doc.messages.map((msg: Message) => CheqAminoRegistry.toAmino(msg)),
 				sequence: doc.signers[signerIndex].sequence.toString(),
 			});
 			if (response.signed) {

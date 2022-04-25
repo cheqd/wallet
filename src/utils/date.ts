@@ -18,7 +18,7 @@ export const dateToNow = (date: dayjs.ConfigType, withoutSuffix = false): string
 	return dayjs.utc(date).toNow(withoutSuffix);
 };
 
-export const dateFromTimestamp = (ts: Timestamp | undefined) => {
+export const dateFromTimestamp = (ts: Timestamp | undefined): Date => {
 	// @ts-ignore
 	return new Date(ts?.seconds.low);
 };

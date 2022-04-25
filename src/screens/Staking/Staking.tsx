@@ -11,7 +11,7 @@ import * as yup from 'yup';
 import { Card } from 'frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
-import { AirdropCard, BalanceCard, Button, Input, Modal } from 'components';
+import { BalanceCard, Button, Input, Modal } from 'components';
 import {
 	calculateTotalVotingPower,
 	getUserValidators,
@@ -34,7 +34,7 @@ import Undelegate from '../Operations/components/Forms/Undelegate';
 import GetReward from '../Operations/components/Forms/GetReward';
 import GetAllRewards from '../Operations/components/Forms/GetAllRewards';
 import Redelegate from 'screens/Operations/components/Forms/Redelegate';
-import { CheqBech32PrefixValAddr, CheqDenom, NanoCheqDenom } from 'network';
+import { CheqBech32PrefixValAddr, NanoCheqDenom } from 'network';
 import { CHEQ_EXPLORER } from 'constant';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -64,7 +64,6 @@ const Staking = (): JSX.Element => {
 
 	// Redux state values
 	const {
-		airdrop,
 		bondedValidators,
 		unbondedValidators,
 		stakedCoins,
@@ -82,7 +81,6 @@ const Staking = (): JSX.Element => {
 		loadingClaimAll,
 	} = useSelector((state: RootState) => ({
 		wallet: state.wallet.currentWallet,
-		airdrop: state.wallet.airdrop,
 		vestings: state.wallet.vestings,
 		balance: state.wallet.currentBalance,
 		rewards: state.wallet.rewards,

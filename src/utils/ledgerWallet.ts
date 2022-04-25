@@ -3,21 +3,15 @@ import Cosmos from '@ledgerhq/hw-app-cosmos';
 import { ExtendedSecp256k1Signature } from '@cosmjs/crypto';
 
 import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
-import {
-	isUint8Array,
-	generateSignDoc,
-	sortJSON,
-	uint8IndexOf,
-	fromHex,
-} from '@lum-network/sdk-javascript/build/utils';
+import { generateSignDoc, sortJSON, uint8IndexOf, fromHex } from '@lum-network/sdk-javascript/build/utils';
 
 import { CheqAminoRegistry } from '../network/modules/registry';
 import { CheqMessageSigner, CheqSignOnlyChainId, CheqWalletSigningVersion } from '../network/constants';
 import { CheqWallet } from 'network/wallet';
 import { SignMsg } from 'network/types/signMsg';
-import { Doc } from 'network/types/msg';
+import { Doc, DocSigner } from 'network/types/msg';
 import { SignDoc } from '@lum-network/sdk-javascript/build/types';
-import { LumTypes } from '@lum-network/sdk-javascript';
+import { Message } from '@lum-network/sdk-javascript/build/messages';
 
 export class CheqLedgerWallet extends CheqWallet {
 	cosmosApp: Cosmos;
@@ -32,7 +26,7 @@ export class CheqLedgerWallet extends CheqWallet {
 		return SignMode.SIGN_MODE_LEGACY_AMINO_JSON;
 	};
 
-	canChangeAccount = () => {
+	canChangeAccount = (): boolean => {
 		return true;
 	};
 
@@ -70,7 +64,7 @@ export class CheqLedgerWallet extends CheqWallet {
 		// sign call: https://github.com/LedgerHQ/ledgerjs/blob/master/packages/hw-app-cosmos/src/Cosmos.js
 		// Expected tx format: https://github.com/cosmos/ledger-cosmos/blob/master/docs/TXSPEC.md
 		const signerIndex = uint8IndexOf(
-			doc.signers.map((signer: any) => signer.publicKey),
+			doc.signers.map((signer: DocSigner) => signer.publicKey),
 			this.publicKey as Uint8Array,
 		);
 		if (signerIndex === -1) {
@@ -81,7 +75,7 @@ export class CheqLedgerWallet extends CheqWallet {
 			chain_id: doc.chainId,
 			fee: doc.fee,
 			memo: doc.memo,
-			msgs: doc.messages.map((msg: any) => CheqAminoRegistry.toAmino(msg)),
+			msgs: doc.messages.map((msg: Message) => CheqAminoRegistry.toAmino(msg)),
 			sequence: doc.signers[signerIndex].sequence.toString(),
 		};
 		const { signature, return_code } = await this.cosmosApp.sign(this.hdPath, JSON.stringify(sortJSON(msg)));

@@ -4,7 +4,7 @@ import { Redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import ClipboardJS from 'clipboard';
 import { Modal as BSModal } from 'bootstrap';
-import { LumUtils, LumTypes, LumConstants } from '@lum-network/sdk-javascript';
+import { LumUtils, LumConstants } from '@lum-network/sdk-javascript';
 
 import { AddressCard, BalanceCard, Input, Modal, Tooltip } from 'components';
 import { RootState } from 'redux/store';

@@ -6,7 +6,6 @@ import { governance } from '../redux/models/governance';
 import { staking } from '../redux/models/staking';
 import { wallet } from '../redux/models/wallet';
 import { Coin } from '@lum-network/sdk-javascript/build/types';
-import { SigningStargateClient } from '@cosmjs/stargate';
 
 export interface RootModel extends Models<RootModel> {
 	wallet: typeof wallet;

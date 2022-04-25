@@ -1,5 +1,3 @@
-import { EncodeObject } from '@cosmjs/proto-signing';
-import { DeliverTxResponse } from '@cosmjs/stargate';
 import { SignMode } from 'cosmjs-types/cosmos/tx/signing/v1beta1/signing';
 import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { Doc } from './types/msg';

@@ -11,23 +11,21 @@ import { RootDispatch, RootState } from 'redux/store';
 import './styles/Dashboard.scss';
 import { usePrevious } from 'utils';
 import { useRematchDispatch } from 'redux/hooks';
-import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
-import AirdropCard from 'components/Cards/AirdropCard';
+import { LumUtils } from '@lum-network/sdk-javascript';
 import StakedCoinsCard from 'screens/Staking/components/Cards/StakedCoinsCard';
 import VestingTokensCard from 'screens/Staking/components/Cards/VestingTokensCard';
-import { CheqDenom, NanoCheqDenom } from 'network';
+import { NanoCheqDenom } from 'network';
 import { convertCoin } from 'network/util';
 
 const Dashboard = (): JSX.Element => {
 	// Redux hooks
-	const { transactions, balance, wallet, vestings, airdrop, stakedCoins } = useSelector((state: RootState) => ({
+	const { transactions, balance, wallet, vestings, stakedCoins } = useSelector((state: RootState) => ({
 		loading: state.loading.global.loading,
 		transactions: state.wallet.transactions,
 		balance: state.wallet.currentBalance,
 		wallet: state.wallet.currentWallet,
 		stakedCoins: state.staking.stakedCoins,
 		vestings: state.wallet.vestings,
-		airdrop: state.wallet.airdrop,
 	}));
 
 	const { getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({

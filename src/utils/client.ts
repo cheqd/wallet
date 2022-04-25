@@ -1,40 +1,21 @@
 import axios from 'axios';
-import { broadcastTxCommitSuccess, TxResponse } from '@cosmjs/tendermint-rpc';
+import { TxResponse } from '@cosmjs/tendermint-rpc';
 import { Secp256k1, Secp256k1Signature } from '@cosmjs/crypto';
-import {
-	assertIsDeliverTxSuccess,
-	SigningStargateClient,
-	StargateClient,
-	coin,
-	GasPrice,
-	calculateFee,
-	StdFee,
-} from '@cosmjs/stargate';
-import { toHex } from '@cosmjs/encoding';
-import { LumMessages, LumUtils } from '@lum-network/sdk-javascript';
+import { assertIsDeliverTxSuccess, SigningStargateClient, coin, GasPrice } from '@cosmjs/stargate';
+import { LumUtils } from '@lum-network/sdk-javascript';
 import { ProposalStatus, VoteOption } from 'cosmjs-types/cosmos/gov/v1beta1/gov';
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
-import { Coin, Fee } from '@lum-network/sdk-javascript/build/types';
+import { Coin } from '@lum-network/sdk-javascript/build/types';
 import { OSMOSIS_API_URL } from 'constant';
-import i18n from 'locales';
 import Long from 'long';
 import { CheqInfo, PasswordStrength, PasswordStrengthType, Proposal, Transaction, Wallet } from 'models';
 import { CheqClient } from 'network/cheqd';
 import { CheqRegistry } from 'network/modules/registry';
 import { SignMsg } from 'network/types/signMsg';
-import { showErrorToast } from 'utils';
-import {
-	CheqBech32PrefixAccAddr,
-	CheqDenom,
-	CheqExponent,
-	CheqMessageSigner,
-	CheqSignOnlyChainId,
-	NanoCheqDenom,
-} from '../network/constants';
+import { CheqDenom, CheqMessageSigner, CheqSignOnlyChainId, NanoCheqDenom } from '../network/constants';
 import { sortByBlockHeight } from './transactions';
 import {
 	Bech32,
-	convertUnit,
 	generateAuthInfoBytes,
 	generateSignDocBytes,
 	getAddressFromPublicKey,
@@ -43,7 +24,6 @@ import {
 	toAscii,
 } from '@lum-network/sdk-javascript/build/utils';
 import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
-import { Doc } from 'network/types/msg';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { convertCoin } from 'network/util';
 import { MsgBeginRedelegate, MsgDelegate, MsgUndelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx';
@@ -383,6 +363,7 @@ class WalletClient {
 		}
 	};
 
+	// eslint-disable-next-line
 	getAirdropInfos = async (address: string) => {
 		if (this.cheqClient === null) {
 			return null;
@@ -463,6 +444,7 @@ class WalletClient {
 			'',
 		);
 
+		// eslint-disable-next-line
 		return result.proposals.map((proposal: any) => ({
 			...proposal,
 			content: proposal.content ? CheqRegistry.decode(proposal.content) : proposal.content,
@@ -526,7 +508,7 @@ class WalletClient {
 		try {
 			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, [msg], 'auto', memo);
 			// @ts-ignore
-			const broadcasted = assertIsDeliverTxSuccess(broadcastResult);
+			assertIsDeliverTxSuccess(broadcastResult);
 			// @ts-ignore
 			return {
 				hash: broadcastResult?.transactionHash,
@@ -581,6 +563,7 @@ class WalletClient {
 				// 		: broadcastResult.checkTx.log
 				// 	: null,
 			};
+			// eslint-disable-next-line
 		} catch (err: any) {
 			return {
 				hash: '',
@@ -632,6 +615,7 @@ class WalletClient {
 			return {
 				hash: broadcastResult.transactionHash,
 			};
+			// eslint-disable-next-line
 		} catch (err: any) {
 			return {
 				hash: '',
@@ -679,6 +663,7 @@ class WalletClient {
 				// 		: broadcastResult.checkTx.log
 				// 	: null,
 			};
+			// eslint-disable-next-line
 		} catch (err: any) {
 			return {
 				hash: '',
@@ -701,7 +686,6 @@ class WalletClient {
 		const address = fromWallet.getAddress();
 		const messages = [];
 		const limit = fromWallet.isNanoS ? 6 : undefined;
-		let gas = 140000;
 
 		for (const [index, valAdd] of validatorsAddresses.entries()) {
 			messages.push({
@@ -711,9 +695,6 @@ class WalletClient {
 					validatorAddress: valAdd,
 				}),
 			});
-			if (index > 0) {
-				gas += 80000;
-			}
 			if (limit && index + 1 === limit) break;
 		}
 
@@ -742,6 +723,7 @@ class WalletClient {
 				// 		: broadcastResult.checkTx.log
 				// 	: null,
 			};
+			// eslint-disable-next-line
 		} catch (err: any) {
 			return {
 				hash: '',
@@ -800,6 +782,7 @@ class WalletClient {
 			return {
 				hash: broadcastResult.transactionHash,
 			};
+			// eslint-disable-next-line
 		} catch (err: any) {
 			return {
 				hash: '',
@@ -843,6 +826,7 @@ class WalletClient {
 			return {
 				hash: broadcastResult.transactionHash,
 			};
+			// eslint-disable-next-line
 		} catch (err: any) {
 			return {
 				hash: '',
@@ -868,6 +852,7 @@ export const verifySignature = async (
 	signedBytes: Uint8Array,
 	publicKey: Uint8Array,
 ): Promise<boolean> => {
+	// eslint-disable-next-line
 	const valid = await Secp256k1.verifySignature(
 		Secp256k1Signature.fromFixedLength(signature),
 		sha256(signedBytes),

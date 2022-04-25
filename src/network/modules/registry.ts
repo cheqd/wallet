@@ -1,5 +1,5 @@
 import { Registry, GeneratedType } from '@cosmjs/proto-signing';
-import { AminoConverters, AminoTypes, StdFee } from '@cosmjs/stargate';
+import { AminoConverters, AminoTypes } from '@cosmjs/stargate';
 import {
 	createAuthzAminoConverters,
 	createBankAminoConverters,
@@ -58,11 +58,6 @@ import {
 import { MsgCreateVestingAccount } from '@lum-network/sdk-javascript/build/codec/cosmos/vesting/v1beta1/tx';
 import { MsgCreateDid } from 'network/cheqd/v1/tx';
 import { CheqDenom } from 'network/constants';
-import { Doc, DocSigner } from 'network/types/msg';
-import { SignMode } from 'cosmjs-types/cosmos/tx/signing/v1beta1/signing';
-import { AuthInfo, SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import Long from 'long';
-import { publicKeyToProto } from 'network/keys';
 
 const registryTypes: Iterable<[string, GeneratedType]> = [
 	['/cosmos.auth.v1beta1.BaseAccount', BaseAccount],

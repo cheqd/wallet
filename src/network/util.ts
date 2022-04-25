@@ -1,6 +1,6 @@
 import Long from 'long';
 import { Decimal, Uint64 } from '@cosmjs/math';
-import { Coin, QueryClient } from '@cosmjs/stargate';
+import { QueryClient } from '@cosmjs/stargate';
 
 import { PageRequest } from '@lum-network/sdk-javascript/build/codec/cosmos/base/query/v1beta1/pagination';
 
@@ -34,8 +34,8 @@ export function longify(value: string | number | Long | Uint64): Long {
 	return Long.fromBytesBE([...checkedValue.toBytesBigEndian()], true);
 }
 
-export function convertCoin(from: string, to: string) {
+// eslint-disable-next-line
+export const convertCoin = (from: string, to: string): number => {
 	const amount = Decimal.fromAtomics(from, 9);
-
 	return amount.toFloatApproximation();
-}
+};

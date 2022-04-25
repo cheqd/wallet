@@ -7,15 +7,7 @@ import {
 	BlockResponse,
 	broadcastTxCommitSuccess,
 } from '@cosmjs/tendermint-rpc';
-import {
-	QueryClient as StargateQueryClient,
-	assertIsDeliverTxSuccess,
-	SigningStargateClient,
-	StargateClient,
-	DeliverTxResponse,
-	StdFee,
-	calculateFee,
-} from '@cosmjs/stargate';
+import { QueryClient as StargateQueryClient, SigningStargateClient, DeliverTxResponse, StdFee } from '@cosmjs/stargate';
 
 import {
 	Coin,
@@ -27,17 +19,8 @@ import {
 	// TxSearchParams,
 } from '@lum-network/sdk-javascript/build/types';
 
-import { Doc, DocSigner } from './types/msg';
-import {
-	// AuthExtension,
-	// setupAuthExtension,
-	BankExtension,
-	setupBankExtension,
-	TxExtension,
-	setupTxExtension,
-	// GovExtension,
-	// setupGovExtension,
-} from './modules';
+import { Doc } from './types/msg';
+import { BankExtension, setupBankExtension, TxExtension, setupTxExtension } from './modules';
 import { LumUtils } from '@lum-network/sdk-javascript';
 import { CheqWallet } from './wallet';
 
@@ -51,10 +34,8 @@ import {
 	GovExtension,
 	setupGovExtension,
 } from '@cosmjs/stargate/build/modules';
-import { DirectSecp256k1HdWallet, EncodeObject } from '@cosmjs/proto-signing';
-import { Fee } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import { EncodeObject } from '@cosmjs/proto-signing';
 import { NanoCheqDenom } from './constants';
-import { Message } from '@lum-network/sdk-javascript/build/messages';
 import { toHex } from '@cosmjs/encoding';
 
 export class CheqClient {
@@ -112,14 +93,14 @@ export class CheqClient {
 		return new CheqClient(tmClient);
 	};
 
-	withStargateSigninClient = (client: SigningStargateClient) => {
+	withStargateSigninClient = (client: SigningStargateClient): void => {
 		this.stargateSigninClient = client;
 	};
 
 	/**
 	 * Disconnect the underlying tendermint client
 	 */
-	disconnect() {
+	disconnect(): void {
 		// Temporary fix missing stop calls from the cosmjs socket implementation
 		// @ts-ignore
 		this.tmClient.client &&
@@ -373,6 +354,7 @@ export class CheqClient {
 					memo,
 				);
 				return result;
+				// eslint-disable-next-line
 			} catch (err: any) {
 				throw new Error(err);
 			}

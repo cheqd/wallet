@@ -16,7 +16,7 @@ import {
 	getCheqHdPath,
 } from '../../network';
 
-import { DirectSecp256k1HdWallet, OfflineDirectSigner } from '@cosmjs/proto-signing';
+import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 import { DeviceModelId } from '@ledgerhq/devices';
 
@@ -354,11 +354,11 @@ export const wallet = createModel<RootModel>()({
 								.then((signingClient) => {
 									WalletClient.cheqClient.withStargateSigninClient(signingClient);
 								})
-								.catch((err) => {
+								.catch(() => {
 									showErrorToast(i18n.t('wallet.errors.client'));
 								});
 						})
-						.catch((err) => {
+						.catch(() => {
 							showErrorToast(i18n.t('wallet.errors.client'));
 						});
 					dispatch.wallet.signIn(wallet);
