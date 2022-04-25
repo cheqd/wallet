@@ -3,6 +3,7 @@ import operations from './images/navbarIcons/operations.svg';
 import staking from './images/navbarIcons/staking.svg';
 import messages from './images/navbarIcons/messages.svg';
 import governance from './images/navbarIcons/governance.svg';
+import identity from './images/navbarIcons/identity.svg';
 import logout from './images/navbarIcons/logout.svg';
 import delegate from './images/messageTypes/delegate.svg';
 import createValidator from './images/messageTypes/createValidator.svg';
@@ -30,6 +31,7 @@ import keplrIcon from './images/keplr.svg';
 import telegramIcon from './images/telegram.png';
 import ledgerIcon from './images/ledger.svg';
 import cheqdLogo from './images/cheqd_logo.png';
+import cheqdRoundLogo from './images/cheqd_round_logo.png';
 import cheqdTicker from './images/cheqd_ticker.png';
 import lumWallet from './images/lum_wallet.svg';
 import syncIcon from './images/sync.png';
@@ -70,6 +72,7 @@ export default {
 		keplrIcon,
 		ledgerIcon,
 		cheqdLogo,
+		cheqdRoundLogo,
 		cheqdTicker,
 		lumWallet,
 		syncIcon,
@@ -111,6 +114,7 @@ export default {
 			staking,
 			messages,
 			governance,
+			identity,
 			logout,
 		},
 	},

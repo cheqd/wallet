@@ -1,0 +1,21 @@
+@import 'src/styles/main';
+
+.tabs-content {
+  width:auto;
+  height:auto;
+  overflow:hidden;
+}
+.tabs-content ul {
+  list-style: none;
+  height: 320px;
+  overflow: scroll;
+  overflow-y: hidden;
+}
+.tabs-content ul li {
+  width:auto;
+  height:300px;
+}
+
+.tabs a {
+
+}
