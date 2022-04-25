@@ -31,6 +31,7 @@ import keplrIcon from './images/keplr.svg';
 import telegramIcon from './images/telegram.png';
 import ledgerIcon from './images/ledger.svg';
 import cheqdLogo from './images/cheqd_logo.png';
+import cheqdRoundLogo from './images/cheqd_round_logo.png';
 import cheqdTicker from './images/cheqd_ticker.png';
 import lumWallet from './images/lum_wallet.svg';
 import syncIcon from './images/sync.png';
@@ -71,6 +72,7 @@ export default {
 		keplrIcon,
 		ledgerIcon,
 		cheqdLogo,
+		cheqdRoundLogo,
 		cheqdTicker,
 		lumWallet,
 		syncIcon,

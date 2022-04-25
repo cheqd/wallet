@@ -418,6 +418,12 @@
                 "enterPassphrase": "Enter your passphrase",
                 "resetConfirmation": "Are you sure you want to reset your wallet? This will delete all your credentials."
             }
+        },
+        "credential": {
+            "title": "Credential",
+            "remove": "Remove",
+            "show": "Show",
+            "notFound": "Credential is not found"
         }
     }
 }
