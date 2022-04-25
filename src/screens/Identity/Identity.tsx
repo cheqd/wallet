@@ -17,11 +17,10 @@ import { Modal as BSModal } from 'bootstrap';
 import { backupCryptoBox, loadCryptoBox } from '../../apis/storage';
 import { encryptIdentityWallet, tryDecryptIdentityWallet } from '../../utils/identityWalet';
 import update from 'immutability-helper';
+import Assets from '../../assets';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
-
-	const [modal, setModal] = useState<BSModal | null>(null);
 	const [selectedCred, setSelectedCred] = useState<VerifiableCredential | null>(null);
 	const modalRef = useRef<HTMLDivElement>(null);
 
@@ -48,13 +47,6 @@ const Identity = (): JSX.Element => {
 	const passphraseRef = useRef<HTMLDivElement>(null);
 	const invalidPassphraseRef = useRef<HTMLDivElement>(null);
 	const resetConfirmationRef = useRef<HTMLDivElement>(null);
-
-	// Effects
-	useEffect(() => {
-		if (modalRef && modalRef.current) {
-			setModal(BSModal.getOrCreateInstance(modalRef.current));
-		}
-	}, []);
 
 	if (!wallet) {
 		return <Redirect to="/welcome" />;
@@ -163,7 +155,10 @@ const Identity = (): JSX.Element => {
 		showSuccessToast(t('identity.wallet.message.locked'));
 	};
 
-	const showModal = (id: 'authToken' | 'passphrase' | 'invalidPassphrase' | 'resetConfirmation', toggle: boolean) => {
+	const showModal = (
+		id: 'authToken' | 'passphrase' | 'invalidPassphrase' | 'resetConfirmation' | 'credentialDetails',
+		toggle: boolean,
+	) => {
 		if (id === 'authToken' && authTokenRef.current) {
 			const modal = BSModal.getOrCreateInstance(authTokenRef.current);
 			return toggle ? modal.show() : modal.hide();
@@ -176,20 +171,36 @@ const Identity = (): JSX.Element => {
 		} else if (id === 'resetConfirmation' && resetConfirmationRef.current) {
 			const modal = BSModal.getOrCreateInstance(resetConfirmationRef.current);
 			return toggle ? modal.show() : modal.hide();
+		} else if (id === 'credentialDetails' && modalRef.current) {
+			const modal = BSModal.getOrCreateInstance(modalRef.current);
+			return toggle ? modal.show() : modal.hide();
 		}
 	};
 
 	const handleShowCredential = async (cred: React.SetStateAction<VerifiableCredential | null>) => {
+		if (cred == null || !identityWallet?.credentials.includes(cred as VerifiableCredential)) return;
 		setSelectedCred(cred);
-		modal?.show();
+		showModal('credentialDetails', true);
 	};
 
-	const handleRemoveCredential = async (cred: React.SetStateAction<VerifiableCredential | null>) => {
+	const handleRemoveCredential = async (cred: VerifiableCredential) => {
+		if (cred == null) return;
+
 		identityWallet?.credentials.forEach((element, index) => {
 			if (element == cred) identityWallet?.credentials.splice(index, 1);
 		});
-		modal?.hide();
-		setSelectedCred(null);
+		if (modalRef.current) {
+			showModal('credentialDetails', false);
+			setSelectedCred(null);
+		}
+		setWallet(identityWallet);
+		showSuccessToast('Credential removed');
+		// Backup wallet
+		const newWallet = update(identityWallet!, {
+			credentials: (arr) => arr.filter((item) => item.id != cred.id),
+		});
+		const encrypted = await encryptIdentityWallet(newWallet, passphrase!);
+		await backupCryptoBox(wallet.getAddress(), toBase64(encrypted), authToken!);
 	};
 
 	return (
@@ -221,30 +232,51 @@ const Identity = (): JSX.Element => {
 										{identityWallet?.credentials.map((cred) => {
 											return (
 												<div className="col-lg-6 col-12" key={cred.id}>
-													<Card className="d-flex flex-column h-100 justify-content-between">
-														<button
-															type="button"
-															className="close-btn bg-white rounded-circle align-self-center"
-															aria-label="Close"
-															onClick={async () =>
-																await handleRemoveCredential(selectedCred)
-															}
-														>
-															<div className="btn-close mx-auto" />
-														</button>
-														<div>
-															<h2>Credential</h2>
-															<p>Id: {trunc(cred.id, 15)}</p>
-															<p>Issuer: {cred.issuer}</p>
-															<p>Subject: {cred.credentialSubject.id}</p>
-															<p>Twitter: {cred.credentialSubject.twitter_handle}</p>
+													<Card className="d-flex flex-column h-100 justify-content-between message-button-container">
+														<div onClick={async () => await handleShowCredential(cred)}>
+															<div className="d-flex flex-row justify-content-between mb-2">
+																<h2>
+																	<img
+																		src={Assets.images.cheqdRoundLogo}
+																		height="28"
+																		className="me-3"
+																	/>
+																	Credential
+																</h2>
+																<div className="d-flex flex-row align-items-center">
+																	<div
+																		className="app-btn  app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+																		onClick={async () =>
+																			await handleShowCredential(cred)
+																		}
+																	>
+																		{t('identity.credential.show')}
+																	</div>
+																	<div className="wrapper undefined">
+																		<div
+																			className="scale-anim undefined bg-transparent text-btn p-0 h-auto"
+																			onClick={async () =>
+																				await handleRemoveCredential(cred)
+																			}
+																		>
+																			{t('identity.credential.remove')}
+																		</div>
+																	</div>
+																</div>
+															</div>
+															<p>
+																<b>Id:</b> {trunc(cred.id, 15)}
+															</p>
+															<p>
+																<b>Issuer:</b> {cred.issuer}
+															</p>
+															<p>
+																<b>Subject:</b> {cred.credentialSubject.id}
+															</p>
+															<p>
+																<b>Twitter:</b> {cred.credentialSubject.twitter_handle}
+															</p>
 														</div>
-														<CustomButton
-															className="mt-5"
-															onClick={async () => await handleShowCredential(cred)}
-														>
-															{t('identity.credential.show')}
-														</CustomButton>
 													</Card>
 												</div>
 											);
@@ -384,11 +416,11 @@ const Identity = (): JSX.Element => {
 				</Modal>
 				<Modal
 					ref={modalRef}
-					id="modalCredentialDetails"
+					id="credentialDetails"
 					withCloseButton={true}
 					dataBsBackdrop="static"
 					dataBsKeyboard={false}
-					bodyClassName="w-100"
+					contentClassName="p-3 w-auto"
 				>
 					{selectedCred === null ? (
 						<>
@@ -397,37 +429,69 @@ const Identity = (): JSX.Element => {
 					) : (
 						<>
 							<div className="d-flex flex-column align-items-center">
-								<h2 className="text-center">{t('identity.credential.title')}</h2>
-								<>
-									<table className="table app-table-striped table-borderless my-4">
-										<tbody>
-											<tr>
-												<td>
-													<b>ID</b>
-												</td>
-												<td> {selectedCred.id}</td>
-											</tr>
-											<tr>
-												<td>
-													<b>ISSUER</b>
-												</td>
-												<td> {selectedCred.issuer}</td>
-											</tr>
-											<tr>
-												<td>
-													<b>SUBJECT</b>
-												</td>
-												<td> {selectedCred.credentialSubject.id}</td>
-											</tr>
-											<tr>
-												<td>
-													<b>TWITTER</b>
-												</td>
-												<td> {selectedCred.credentialSubject.twitter_handle}</td>
-											</tr>
-										</tbody>
-									</table>
-								</>
+								<h2 className="text-center">
+									<img src={Assets.images.cheqdRoundLogo} height="28" className="me-3" />
+									{t('identity.credential.title')}
+								</h2>
+								<div className="d-flex flex-row align-items-left tabs mb-2">
+									<a
+										href="#formatted"
+										className="app-btn app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+									>
+										formatted
+										{/*{t('identity.credential.show')}*/}
+									</a>
+									<a
+										href="#json"
+										className="app-btn  app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+									>
+										json
+										{/*{t('identity.credential.show')}*/}
+									</a>
+								</div>
+								<div className="tabs-content">
+									<ul>
+										<li id="formatted">
+											<table className="table app-table-striped table-borderless my-4">
+												<tbody>
+													<tr>
+														<td>
+															<b>ID</b>
+														</td>
+														<td> {selectedCred.id}</td>
+													</tr>
+													<tr>
+														<td>
+															<b>ISSUER</b>
+														</td>
+														<td> {selectedCred.issuer}</td>
+													</tr>
+													<tr>
+														<td>
+															<b>SUBJECT</b>
+														</td>
+														<td> {selectedCred.credentialSubject.id}</td>
+													</tr>
+													<tr>
+														<td>
+															<b>TWITTER</b>
+														</td>
+														<td> {selectedCred.credentialSubject.twitter_handle}</td>
+													</tr>
+												</tbody>
+											</table>
+										</li>
+										<li id="json">
+											<textarea
+												readOnly
+												className="w-100 p-2"
+												value={JSON.stringify(selectedCred, null, 2)}
+												rows={15}
+											/>
+										</li>
+									</ul>
+								</div>
+
 								<CustomButton
 									className="mt-5"
 									onClick={async () => await handleRemoveCredential(selectedCred)}
