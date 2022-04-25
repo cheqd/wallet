@@ -108,6 +108,7 @@ export class CheqOfflineSignerWallet extends CheqWallet {
 			chainId: CheqSignOnlyChainId,
 			accountNumber: Long.fromNumber(0),
 		};
+
 		if (this.signingMode() === SignMode.SIGN_MODE_DIRECT) {
 			const response = await (this.offlineSigner as OfflineDirectSigner).signDirect(this.address, signDoc);
 			return {
@@ -121,6 +122,7 @@ export class CheqOfflineSignerWallet extends CheqWallet {
 		} else if (typeof (this.offlineSigner as OfflineAminoSigner).signAmino === 'function') {
 			throw 'Feature not available for amino signers';
 		}
+
 		throw 'Unknown offline signer mode';
 	};
 }

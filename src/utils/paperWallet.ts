@@ -124,6 +124,7 @@ export class CheqPaperWallet extends CheqWallet {
 		if (signerIndex === -1) {
 			throw new Error('signTransaction: Signer not found in document');
 		}
+
 		const signDoc = generateSignDoc(doc, signerIndex, this.signingMode());
 		const signBytes = generateSignDocBytes(signDoc);
 		const hashedMessage = sha256(signBytes);

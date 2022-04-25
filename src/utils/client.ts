@@ -525,7 +525,6 @@ class WalletClient {
 
 		try {
 			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, [msg], 'auto', memo);
-			// const broadcastResult = await fromWallet.signAndBroadcastTx(fromWallet, [msg]);
 			// @ts-ignore
 			const broadcasted = assertIsDeliverTxSuccess(broadcastResult);
 			// @ts-ignore
@@ -534,7 +533,8 @@ class WalletClient {
 			};
 		} catch (err) {
 			return {
-				error: err,
+				// when we reject keplr txn, it throws an empty 'object' i.e. {} as error
+				error: !err || typeof err === 'object' ? 'Unhandled exception occured' : err,
 			};
 		}
 	};

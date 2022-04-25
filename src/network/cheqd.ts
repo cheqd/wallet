@@ -14,6 +14,7 @@ import {
 	StargateClient,
 	DeliverTxResponse,
 	StdFee,
+	calculateFee,
 } from '@cosmjs/stargate';
 
 import {
@@ -54,6 +55,7 @@ import { DirectSecp256k1HdWallet, EncodeObject } from '@cosmjs/proto-signing';
 import { Fee } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { NanoCheqDenom } from './constants';
 import { Message } from '@lum-network/sdk-javascript/build/messages';
+import { toHex } from '@cosmjs/encoding';
 
 export class CheqClient {
 	readonly tmClient: Tendermint34Client;
@@ -376,7 +378,6 @@ export class CheqClient {
 			}
 		}
 
-		const gas = 140000;
 		const result = await this.getAccount(wallet.getAddress());
 		if (!result) {
 			throw new Error('error getting account');
@@ -384,12 +385,13 @@ export class CheqClient {
 
 		const chainId = await this.getChainId();
 
+		const gas = 180000;
 		const doc: Doc = {
 			messages: [],
 			chainId: chainId,
 			memo: memo,
 			fee: {
-				amount: [{ denom: NanoCheqDenom, amount: '25000' }],
+				amount: [{ denom: NanoCheqDenom, amount: '2000000' }],
 				gas: gas.toString(),
 			},
 			signers: [
@@ -409,7 +411,7 @@ export class CheqClient {
 		const resp = await this.broadcastTx(bz);
 		broadcastTxCommitSuccess(resp);
 		const buildResp: DeliverTxResponse = {
-			transactionHash: resp.hash.toString(),
+			transactionHash: toHex(Uint8Array.from(resp.hash)),
 			// @ts-ignore
 			code: resp.deliverTx.code,
 			height: resp.height,

@@ -89,10 +89,7 @@ export class CheqLedgerWallet extends CheqWallet {
 			throw new Error(`Failed to sign message: error code ${return_code}`);
 		}
 		const sig = ExtendedSecp256k1Signature.fromDer(signature);
-		return [
-			generateSignDoc(doc as LumTypes.Doc, signerIndex, this.signingMode()),
-			new Uint8Array([...sig.r(32), ...sig.s(32)]),
-		];
+		return [generateSignDoc(doc, signerIndex, this.signingMode()), new Uint8Array([...sig.r(32), ...sig.s(32)])];
 	};
 
 	signMessage = async (msg: string): Promise<SignMsg> => {
