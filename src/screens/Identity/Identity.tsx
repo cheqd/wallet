@@ -201,11 +201,8 @@ const Identity = (): JSX.Element => {
 	};
 
 	function changeActiveTab(activeTab: string) {
-		console.log('change to');
-		console.log(activeTab);
 		const tabs = ['tab-formatted', 'tab-json'];
 		tabs.forEach((tab) => {
-			console.log(tab);
 			const tabObj = document.getElementById(tab);
 			if (tab === activeTab) {
 				tabObj?.classList.add('active');
@@ -213,8 +210,6 @@ const Identity = (): JSX.Element => {
 				tabObj?.classList.remove('active');
 			}
 		});
-		// document.getElementById(activeTab)?.classList.add('active');
-		console.log('finished');
 	}
 
 	return (
