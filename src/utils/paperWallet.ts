@@ -1,5 +1,5 @@
 import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
-import { sha256, ripemd160 } from '@cosmjs/crypto';
+import { sha256, ripemd160, Ed25519Keypair } from '@cosmjs/crypto';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { Bech32 } from '@cosmjs/encoding';
 import {
@@ -10,7 +10,7 @@ import {
 	generateSignDocBytes,
 	toAscii,
 } from '@lum-network/sdk-javascript/build/utils';
-import { getPublicKeyFromPrivateKey, getAddressFromPublicKey } from '../network/keys';
+import { getPublicKeyFromPrivateKey, getAddressFromPublicKey, getPrivateKeyFromMnemonic } from '../network/keys';
 import { SignDoc } from '@lum-network/sdk-javascript/build/types';
 import { CheqWallet } from '../network/wallet';
 import {
@@ -48,17 +48,14 @@ export class CheqPaperWallet extends CheqWallet {
 			// @ts-ignore
 			this.mnemonic = mnemonicOrPrivateKey;
 			DirectSecp256k1HdWallet.fromMnemonic(mnemonicOrPrivateKey, { prefix: CheqBech32PrefixAccAddr })
-				.then((wallet) => {
+				.then(async (wallet) => {
 					this.directWallet = wallet;
-					SigningStargateClient.connectWithSigner(process.env.REACT_APP_RPC_URL, wallet, {
-						gasPrice: GasPrice.fromString('25' + NanoCheqDenom),
-					})
-						.then((signingClient) => {
-							this.signingStargateClient = signingClient;
-						})
-						.catch(() => {
-							showErrorToast(i18n.t('wallet.errors.client'));
-						});
+					const signingClient = await SigningStargateClient.connectWithSigner(
+						process.env.REACT_APP_RPC_URL,
+						wallet,
+						{ gasPrice: GasPrice.fromString('25' + NanoCheqDenom) },
+					);
+					this.signingStargateClient = signingClient;
 				})
 				.catch(() => {
 					showErrorToast(i18n.t('wallet.errors.client'));
@@ -77,6 +74,7 @@ export class CheqPaperWallet extends CheqWallet {
 	// eslint-disable-next-line
 	useAccount = async (hdPath = getCheqHdPath(0, 0), addressPrefix = CheqBech32PrefixAccAddr): Promise<boolean> => {
 		if (this.mnemonic) {
+			this.privateKey = await getPrivateKeyFromMnemonic(this.mnemonic);
 			this.directWallet = await DirectSecp256k1HdWallet.fromMnemonic(this.mnemonic, {
 				prefix: CheqBech32PrefixAccAddr,
 			});
@@ -119,6 +117,7 @@ export class CheqPaperWallet extends CheqWallet {
 		if (!this.privateKey || !this.publicKey) {
 			throw new Error('signTransaction: No account selected.');
 		}
+
 		const signerIndex = uint8IndexOf(
 			doc.signers.map((signer: DocSigner) => signer.publicKey),
 			this.publicKey as Uint8Array,
@@ -139,6 +138,7 @@ export class CheqPaperWallet extends CheqWallet {
 		if (!this.privateKey || !this.publicKey) {
 			throw new Error('signMessage: No account selected.');
 		}
+
 		const signature = await generateSignature(sha256(toAscii(msg)), this.privateKey);
 		return {
 			address: this.getAddress(),

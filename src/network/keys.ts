@@ -1,5 +1,5 @@
-import { PubKey } from '@lum-network/sdk-javascript/build/codec/cosmos/crypto/secp256k1/keys';
-import { Any } from './google/protobuf/any';
+import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys';
+import { Any } from 'cosmjs-types/google/protobuf/any';
 import {
 	Secp256k1,
 	sha256,

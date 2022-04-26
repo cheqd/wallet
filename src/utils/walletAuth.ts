@@ -1,7 +1,7 @@
 // Helpers to authenticate with wallet
 
 import { NanoCheqDenom } from '../network';
-import { WalletClient } from './index';
+import { WalletClient, WalletUtils } from './index';
 import { Doc } from '../network/types/msg';
 import { LumAminoRegistry, LumRegistry, LumUtils } from '@lum-network/sdk-javascript';
 import { Wallet } from '../models';
@@ -11,7 +11,7 @@ import { CheqRegistry } from '../network/modules';
 
 import { fromBase64, generateSignDocBytes, toBase64 } from '@lum-network/sdk-javascript/build/utils';
 import { longify } from '@lum-network/sdk-javascript/build/extensions/utils';
-import { decodeTxRaw, Registry, decodePubkey } from '@cosmjs/proto-signing';
+import { decodeTxRaw, Registry, decodePubkey, makeSignDoc } from '@cosmjs/proto-signing';
 import Long from 'long';
 import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
 import { serializeSignDoc } from '@cosmjs/amino';
@@ -44,13 +44,26 @@ export const getAuthToken = async (wallet: Wallet, uri: string): Promise<Uint8Ar
 		},
 	};
 
+	const chainId = await WalletClient.cheqClient.getChainId();
+
+	const keplr = new KeplrHelper();
+	let optionsBak: KeplrIntereactionOptions;
+
+	if (keplr.isInstalled) {
+		optionsBak = keplr.defaultOptions;
+		keplr.defaultOptions = {
+			sign: {
+				preferNoSetFee: true,
+				preferNoSetMemo: true,
+			},
+		};
+	}
 	const fee = {
 		amount: [{ denom: NanoCheqDenom, amount: '0' }],
 		gas: '1', // Keplr requires positive number
 	};
 
 	const memo = '';
-	const chainId = WalletClient.chainId || '';
 
 	const accountNumber = 0;
 	const sequence = 0;
@@ -69,20 +82,10 @@ export const getAuthToken = async (wallet: Wallet, uri: string): Promise<Uint8Ar
 		],
 	};
 
-	const keplr = new KeplrHelper();
-	let optionsBak: KeplrIntereactionOptions;
-
-	if (keplr.isInstalled) {
-		optionsBak = keplr.defaultOptions;
-		keplr.defaultOptions = {
-			sign: {
-				preferNoSetFee: true,
-				preferNoSetMemo: true,
-			},
-		};
-	}
-
-	console.log('Doc is: ', JSON.stringify(doc));
+	// if (WalletClient.cheqClient) {
+	// 	const bz = await WalletClient.cheqClient.signTxWithStargateSigningClient(wallet, [msg]);
+	// 	return bz;
+	// }
 
 	const [signDoc, signature] = await wallet.signTransaction(doc);
 

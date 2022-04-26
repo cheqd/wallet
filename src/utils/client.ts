@@ -24,7 +24,7 @@ import {
 	toAscii,
 } from '@lum-network/sdk-javascript/build/utils';
 import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
-import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
+import { DirectSecp256k1HdWallet, EncodeObject } from '@cosmjs/proto-signing';
 import { convertCoin } from 'network/util';
 import { MsgBeginRedelegate, MsgDelegate, MsgUndelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx';
 import {
