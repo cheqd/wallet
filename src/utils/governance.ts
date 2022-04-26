@@ -1,6 +1,7 @@
 import { Proposal, VotesResult } from 'models';
 import i18n from 'locales';
-import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import { VoteOption } from 'cosmjs-types/cosmos/gov/v1beta1/gov';
+import { dateFromTimestamp } from './date';
 
 export const sumOfVotes = (results: VotesResult): number => {
 	if (!results) {
@@ -61,7 +62,7 @@ export const getVoteName = (vote: VoteOption): string => {
 export const sortByDate = (proposals: Proposal[]): Proposal[] =>
 	proposals.sort((propA, propB) => {
 		if (propA.votingEndTime && propB.votingEndTime) {
-			return propB.votingEndTime.getTime() - propA.votingEndTime.getTime();
+			return dateFromTimestamp(propB.votingEndTime).getTime() - dateFromTimestamp(propA.votingEndTime).getTime();
 		}
 		return 0;
 	});

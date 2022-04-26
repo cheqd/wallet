@@ -9,6 +9,7 @@ import { Input, SwitchInput, Button, HdPathInput, HoverTooltip } from 'component
 
 import { MnemonicLength, WalletUtils } from 'utils';
 import assets from 'assets';
+import { getCheqHdPath } from 'network';
 
 const defaultMnemonicState: { length: MnemonicLength; values: string[] } = {
 	length: 12,
@@ -144,7 +145,7 @@ const ImportMnemonicModal = (): JSX.Element => {
 						<h4>{t('welcome.hardwareModal.advanced.title')}</h4>
 						<FEButton
 							onPress={() => {
-								setCustomHdPath(LumConstants.getLumHdPath());
+								setCustomHdPath(getCheqHdPath());
 							}}
 							className="bg-transparent text-btn p-0 me-2 h-auto"
 						>

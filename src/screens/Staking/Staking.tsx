@@ -3,15 +3,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
-import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript';
+import { Validator } from 'cosmjs-types/cosmos/staking/v1beta1/staking';
+import { LumMessages, LumUtils } from '@lum-network/sdk-javascript';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
 import { Card } from 'frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
-import { AirdropCard, BalanceCard, Button, Input, Modal } from 'components';
+import { BalanceCard, Button, Input, Modal } from 'components';
 import {
 	calculateTotalVotingPower,
 	getUserValidators,
@@ -34,6 +34,9 @@ import Undelegate from '../Operations/components/Forms/Undelegate';
 import GetReward from '../Operations/components/Forms/GetReward';
 import GetAllRewards from '../Operations/components/Forms/GetAllRewards';
 import Redelegate from 'screens/Operations/components/Forms/Redelegate';
+import { CheqBech32PrefixValAddr, NanoCheqDenom } from 'network';
+import { CHEQ_EXPLORER } from 'constant';
+import { convertCoin } from 'network/util';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
@@ -62,7 +65,6 @@ const Staking = (): JSX.Element => {
 
 	// Redux state values
 	const {
-		airdrop,
 		bondedValidators,
 		unbondedValidators,
 		stakedCoins,
@@ -80,7 +82,6 @@ const Staking = (): JSX.Element => {
 		loadingClaimAll,
 	} = useSelector((state: RootState) => ({
 		wallet: state.wallet.currentWallet,
-		airdrop: state.wallet.airdrop,
 		vestings: state.wallet.vestings,
 		balance: state.wallet.currentBalance,
 		rewards: state.wallet.rewards,
@@ -111,7 +112,7 @@ const Staking = (): JSX.Element => {
 			address: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`), {
 					message: t('operations.errors.address'),
 				}),
 			amount: yup.string().required(t('common.required')),
@@ -126,13 +127,13 @@ const Staking = (): JSX.Element => {
 			fromAddress: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`), {
 					message: t('operations.errors.address'),
 				}),
 			toAddress: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`), {
 					message: t('operations.errors.address'),
 				}),
 			amount: yup.string().required(t('common.required')),
@@ -147,7 +148,7 @@ const Staking = (): JSX.Element => {
 			address: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`), {
 					message: t('operations.errors.address'),
 				}),
 			amount: yup.string().required(t('common.required')),
@@ -162,7 +163,7 @@ const Staking = (): JSX.Element => {
 			address: yup
 				.string()
 				.required(t('common.required'))
-				.matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`)),
+				.matches(new RegExp(`^${CheqBech32PrefixValAddr}`)),
 		}),
 		onSubmit: (values) => onSubmitClaim(values.address, values.memo),
 	});
@@ -244,7 +245,7 @@ const Staking = (): JSX.Element => {
 			const delegateResult = await delegate({ validatorAddress, amount, memo, from: wallet });
 
 			if (delegateResult) {
-				setTxResult({ hash: LumUtils.toHex(delegateResult.hash), error: delegateResult.error });
+				setTxResult({ hash: delegateResult.hash, error: delegateResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -267,7 +268,7 @@ const Staking = (): JSX.Element => {
 			});
 
 			if (redelegateResult) {
-				setTxResult({ hash: LumUtils.toHex(redelegateResult.hash), error: redelegateResult.error });
+				setTxResult({ hash: redelegateResult.hash, error: redelegateResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -279,7 +280,7 @@ const Staking = (): JSX.Element => {
 			const undelegateResult = await undelegate({ validatorAddress, amount, memo, from: wallet });
 
 			if (undelegateResult) {
-				setTxResult({ hash: LumUtils.toHex(undelegateResult.hash), error: undelegateResult.error });
+				setTxResult({ hash: undelegateResult.hash, error: undelegateResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -295,7 +296,10 @@ const Staking = (): JSX.Element => {
 			});
 
 			if (claimResult) {
-				setTxResult({ hash: LumUtils.toHex(claimResult.hash), error: claimResult.error });
+				setTxResult({
+					hash: claimResult.hash,
+					error: JSON.stringify(claimResult.error),
+				});
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -322,7 +326,7 @@ const Staking = (): JSX.Element => {
 			});
 
 			if (getAllRewardsResult) {
-				setTxResult({ hash: LumUtils.toHex(getAllRewardsResult.hash), error: getAllRewardsResult.error });
+				setTxResult({ hash: getAllRewardsResult.hash, error: getAllRewardsResult.error });
 			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -412,11 +416,6 @@ const Staking = (): JSX.Element => {
 			<div className="mt-4">
 				<div className="container">
 					<div className="row gy-4">
-						{airdrop && airdrop.amount > 0 ? (
-							<div className="col-12">
-								<AirdropCard airdrop={airdrop} />
-							</div>
-						) : null}
 						{vestings ? (
 							<div className="col-12">
 								<RewardsCard rewards={rewards} onClaim={onClaimAll} isLoading={!!loadingClaimAll} />
@@ -424,16 +423,9 @@ const Staking = (): JSX.Element => {
 						) : null}
 						<div className="col-lg-6">
 							<StakedCoinsCard
-								amount={stakedCoins}
+								amount={convertCoin(stakedCoins.toFixed(), NanoCheqDenom)}
 								amountVesting={
-									vestings
-										? Number(
-												LumUtils.convertUnit(
-													vestings.lockedDelegatedCoins,
-													LumConstants.LumDenom,
-												),
-										  )
-										: 0
+									vestings ? convertCoin(vestings.lockedDelegatedCoins.amount, NanoCheqDenom) : 0
 								}
 							/>
 						</div>
@@ -441,9 +433,9 @@ const Staking = (): JSX.Element => {
 							<BalanceCard
 								balance={
 									vestings
-										? balance.lum -
-										  Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
-										: balance.lum
+										? balance.cheq -
+										  Number(LumUtils.convertUnit(vestings.lockedBankCoins, NanoCheqDenom))
+										: balance.cheq
 								}
 								address={wallet.getAddress()}
 							/>
@@ -497,7 +489,7 @@ const Staking = (): JSX.Element => {
 						<h2 className="text-center">{modalType.name}</h2>
 						{!txResult ? (
 							renderModal()
-						) : txResult.error !== null ? (
+						) : !!txResult.error ? (
 							<>
 								<p className="color-error">{t('common.failure')}</p>
 								<p className="color-error my-5 text-start">
@@ -516,13 +508,24 @@ const Staking = (): JSX.Element => {
 									label="Hash"
 									className="text-start align-self-stretch mb-5"
 								/>
-								<Button
-									className="mt-5"
-									data-bs-dismiss="modal"
-									onClick={() => getWalletInfos(wallet.getAddress())}
-								>
-									{t('common.close')}
-								</Button>
+								<div className="d-flex flex-row justify-content-center align-items-center gap-4">
+									<Button
+										className="mt-5"
+										data-bs-dismiss="modal"
+										onClick={() => {
+											window.open(`${CHEQ_EXPLORER}/transactions/${txResult.hash}`);
+										}}
+									>
+										Open in Explorer
+									</Button>
+									<Button
+										className="mt-5"
+										data-bs-dismiss="modal"
+										onClick={() => getWalletInfos(wallet.getAddress())}
+									>
+										{t('common.close')}
+									</Button>
+								</div>
 							</>
 						)}
 					</div>

@@ -1,11 +1,12 @@
 import assets from 'assets';
 import { SmallerDecimal } from 'components';
+import { Timestamp } from 'cosmjs-types/google/protobuf/timestamp';
 import { Card } from 'frontend-elements';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { NumbersUtils, dateToNow } from 'utils';
+import { NumbersUtils } from 'utils';
 
-const UnbondingTokensCard = ({ amount, endsAt }: { amount: number; endsAt?: Date }): JSX.Element => {
+const UnbondingTokensCard = ({ amount, endsAt }: { amount: number; endsAt?: Timestamp }): JSX.Element => {
 	const { t } = useTranslation();
 
 	return (
@@ -18,9 +19,7 @@ const UnbondingTokensCard = ({ amount, endsAt }: { amount: number; endsAt?: Date
 				<img src={assets.images.cheqdTicker} className="ticker" />
 			</div>
 			{endsAt ? (
-				<p className="align-self-end text-white">
-					{t('staking.timeRemaining', { time: dateToNow(endsAt, true) })}
-				</p>
+				<p className="align-self-end text-white">{t('staking.timeRemaining', { time: endsAt })}</p>
 			) : null}
 		</Card>
 	);

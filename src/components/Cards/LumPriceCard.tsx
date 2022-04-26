@@ -43,7 +43,7 @@ const LumPriceCard = ({ balance }: Props): JSX.Element => {
 				<SmallerDecimal
 					big
 					className="align-bottom align-self-lg-end"
-					nb={numeral(balance).format('$0,0.00')}
+					nb={numeral(balance).format('$0,0.00a')}
 				/>
 				<div className="chart">
 					<Chart

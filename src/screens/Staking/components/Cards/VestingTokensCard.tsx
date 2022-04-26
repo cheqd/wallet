@@ -6,6 +6,7 @@ import { Card } from 'frontend-elements';
 import { Vestings } from 'models';
 import { dateToNow, NumbersUtils } from 'utils';
 import { SmallerDecimal } from 'components';
+import { CheqDenom } from 'network';
 
 const VestingTokensCard = ({ vestings }: { vestings: Vestings | null }): JSX.Element => {
 	const { t } = useTranslation();
@@ -17,7 +18,7 @@ const VestingTokensCard = ({ vestings }: { vestings: Vestings | null }): JSX.Ele
 				<div className="me-2 me-sm-3 text-white text-truncate">
 					<SmallerDecimal
 						nb={NumbersUtils.formatUnit(
-							vestings ? vestings.lockedBankCoins : { amount: '0', denom: 'lum' },
+							vestings ? vestings.lockedBankCoins : { amount: '0', denom: CheqDenom },
 							true,
 						)}
 						big
