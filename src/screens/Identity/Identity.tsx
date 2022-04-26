@@ -200,6 +200,23 @@ const Identity = (): JSX.Element => {
 		await backupCryptoBox(wallet.getAddress(), toBase64(encrypted), authToken!);
 	};
 
+	function changeActiveTab(activeTab: string) {
+		console.log('change to');
+		console.log(activeTab);
+		const tabs = ['tab-formatted', 'tab-json'];
+		tabs.forEach((tab) => {
+			console.log(tab);
+			const tabObj = document.getElementById(tab);
+			if (tab === activeTab) {
+				tabObj?.classList.add('active');
+			} else {
+				tabObj?.classList.remove('active');
+			}
+		});
+		// document.getElementById(activeTab)?.classList.add('active');
+		console.log('finished');
+	}
+
 	return (
 		<>
 			<>
@@ -240,7 +257,7 @@ const Identity = (): JSX.Element => {
 																	/>
 																	Credential
 																</h2>
-																<div className="btn btn-outline-success p-0 me-4 h-auto">
+																<div className="btn btn-outline-success p-2 h-auto">
 																	Verify
 																	<svg
 																		xmlns="http://www.w3.org/2000/svg"
@@ -262,10 +279,10 @@ const Identity = (): JSX.Element => {
 																	<b>Issuance Date:</b> {cred.issuanceDate}
 																</p>
 																<p>
-																	<b>Issuer:</b> {cred.issuer.id}
+																	<b>Issuer: </b> {trunc(cred.issuer.id, 17)}
 																</p>
 																<p>
-																	<b>Subject:</b> {cred.credentialSubject.id}
+																	<b>Name:</b> {cred.name}
 																</p>
 															</>
 
@@ -450,6 +467,8 @@ const Identity = (): JSX.Element => {
 									<a
 										href="#formatted"
 										className="app-btn app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+										id="tab-formatted"
+										onClick={() => changeActiveTab('tab-formatted')}
 									>
 										formatted
 										{/*{t('identity.credential.show')}*/}
@@ -457,6 +476,8 @@ const Identity = (): JSX.Element => {
 									<a
 										href="#json"
 										className="app-btn  app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+										id="tab-json"
+										onClick={() => changeActiveTab('tab-json')}
 									>
 										json
 										{/*{t('identity.credential.show')}*/}
@@ -487,9 +508,9 @@ const Identity = (): JSX.Element => {
 													</tr>
 													<tr>
 														<td>
-															<b>SUBJECT</b>
+															<b>NAME</b>
 														</td>
-														<td> {selectedCred.credentialSubject.id}</td>
+														<td> {selectedCred.name}</td>
 													</tr>
 												</tbody>
 											</table>
@@ -497,9 +518,9 @@ const Identity = (): JSX.Element => {
 										<li id="json" className="container tab-pane">
 											<textarea
 												readOnly
-												className="w-100 p-2"
+												className="w-100 p-2 h-100"
 												value={JSON.stringify(selectedCred, null, 2)}
-												rows={15}
+												rows={25}
 											/>
 										</li>
 									</ul>
