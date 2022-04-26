@@ -18,6 +18,7 @@ import { backupCryptoBox, loadCryptoBox } from '../../apis/storage';
 import { encryptIdentityWallet, tryDecryptIdentityWallet } from '../../utils/identityWalet';
 import update from 'immutability-helper';
 import Assets from '../../assets';
+import { QRCodeSVG } from 'qrcode.react';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
@@ -201,7 +202,7 @@ const Identity = (): JSX.Element => {
 	};
 
 	function changeActiveTab(activeTab: string) {
-		const tabs = ['tab-formatted', 'tab-json'];
+		const tabs = ['tab-formatted', 'tab-json', 'tab-qr'];
 		tabs.forEach((tab) => {
 			const tabObj = document.getElementById(tab);
 			if (tab === activeTab) {
@@ -252,26 +253,27 @@ const Identity = (): JSX.Element => {
 																	/>
 																	Credential
 																</h2>
-																<div className="btn btn-outline-success p-2 h-auto">
-																	Verify
-																	<svg
-																		xmlns="http://www.w3.org/2000/svg"
-																		width="16"
-																		height="16"
-																		fill="currentColor"
-																		className="bi bi-check"
-																		viewBox="0 0 16 16"
-																	>
-																		<path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
-																	</svg>
-																</div>
+																{/*<div className="btn btn-outline-success p-2 h-auto">*/}
+																{/*	Verify*/}
+																{/*	<svg*/}
+																{/*		xmlns="http://www.w3.org/2000/svg"*/}
+																{/*		width="16"*/}
+																{/*		height="16"*/}
+																{/*		fill="currentColor"*/}
+																{/*		className="bi bi-check"*/}
+																{/*		viewBox="0 0 16 16"*/}
+																{/*	>*/}
+																{/*		<path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>*/}
+																{/*	</svg>*/}
+																{/*</div>*/}
 															</div>
 															<>
 																<p>
 																	<b>Type:</b> {cred.type.join(', ')}
 																</p>
 																<p>
-																	<b>Issuance Date:</b> {cred.issuanceDate}
+																	<b>Issuance Date: </b>
+																	{new Date(cred.issuanceDate).toUTCString()}
 																</p>
 																<p>
 																	<b>Issuer: </b> {trunc(cred.issuer.id, 17)}
@@ -461,7 +463,7 @@ const Identity = (): JSX.Element => {
 								<div className="d-flex flex-row align-items-left tabs my-3">
 									<a
 										href="#formatted"
-										className="app-btn app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+										className="app-btn app-btn-plain bg-transparent text-btn p-0 me-4 h-auto active"
 										id="tab-formatted"
 										onClick={() => changeActiveTab('tab-formatted')}
 									>
@@ -475,6 +477,15 @@ const Identity = (): JSX.Element => {
 										onClick={() => changeActiveTab('tab-json')}
 									>
 										json
+										{/*{t('identity.credential.show')}*/}
+									</a>
+									<a
+										href="#qr-code"
+										className="app-btn  app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+										id="tab-qr"
+										onClick={() => changeActiveTab('tab-qr')}
+									>
+										qr-code
 										{/*{t('identity.credential.show')}*/}
 									</a>
 								</div>
@@ -493,7 +504,7 @@ const Identity = (): JSX.Element => {
 														<td>
 															<b>ISSUANCE DATE</b>
 														</td>
-														<td> {selectedCred.issuanceDate}</td>
+														<td> {new Date(selectedCred.issuanceDate).toUTCString()}</td>
 													</tr>
 													<tr>
 														<td>
@@ -513,9 +524,25 @@ const Identity = (): JSX.Element => {
 										<li id="json" className="container tab-pane">
 											<textarea
 												readOnly
-												className="w-100 p-2 h-100"
+												className="w-100 p-2"
 												value={JSON.stringify(selectedCred, null, 2)}
 												rows={25}
+											/>
+										</li>
+										<li id="qr-code" className="container tab-pane">
+											<QRCodeSVG
+												value={JSON.stringify(selectedCred, null, 1)}
+												size={300}
+												bgColor="#ffffff"
+												fgColor="#000000"
+												level="L"
+												includeMargin={false}
+												imageSettings={{
+													src: Assets.images.cheqdRoundLogo,
+													height: 30,
+													width: 30,
+													excavate: true,
+												}}
 											/>
 										</li>
 									</ul>
