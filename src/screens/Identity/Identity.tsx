@@ -63,11 +63,23 @@ const Identity = (): JSX.Element => {
 				return;
 			}
 
+			const pair = await window.crypto.subtle.generateKey(
+				{
+					name: 'ECDSA',
+					namedCurve: 'P-256',
+				},
+				true,
+				['sign', 'verify'],
+			);
+
+			const publicKey = await window.crypto.subtle.exportKey('spki', pair.publicKey!);
+			const privateKey = await window.crypto.subtle.exportKey('pkcs8', pair.privateKey!);
+
+			console.log(publicKey);
+			console.log(privateKey);
+
 			const identifier = Buffer.from(
-				Multibase.encode(
-					'base58btc',
-					Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey().toString(), 'hex')),
-				),
+				Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey()))),
 			).toString();
 			const subjectId = 'did:key:' + identifier;
 			// Get credential
