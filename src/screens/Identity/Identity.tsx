@@ -20,6 +20,8 @@ import update from 'immutability-helper';
 import Assets from '../../assets';
 import { QRCodeSVG } from 'qrcode.react';
 
+// import { driver } from 'did-method-key';
+
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
 	const [selectedCred, setSelectedCred] = useState<VerifiableCredential | null>(null);
@@ -61,8 +63,14 @@ const Identity = (): JSX.Element => {
 				return;
 			}
 
+			// const didKeyDriver = driver();
+			//
+			// const didDocument = await didKeyDriver.generate(); // Ed25519 key type by default
+
+			// const subjectId = didDocument.id;
+			const subjectId = 'did:key:z6Mkhox8UJXSDJkyBmHaCeTbdVkpXPFyyZ5pWPDdQpNsh5M3';
 			// Get credential
-			const cred = await getCredential();
+			const cred = await getCredential(subjectId);
 
 			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
 
