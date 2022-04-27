@@ -19,8 +19,8 @@ import { encryptIdentityWallet, tryDecryptIdentityWallet } from '../../utils/ide
 import update from 'immutability-helper';
 import Assets from '../../assets';
 import { QRCodeSVG } from 'qrcode.react';
-
-// import { driver } from 'did-method-key';
+import Multibase from 'multibase';
+import Multicodec from 'multicodec';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
@@ -63,7 +63,13 @@ const Identity = (): JSX.Element => {
 				return;
 			}
 
-			const subjectId = 'did:key:zQ3s' + wallet.getPublicKey().toString();
+			const identifier = Buffer.from(
+				Multibase.encode(
+					'base58btc',
+					Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey().toString(), 'hex')),
+				),
+			).toString();
+			const subjectId = 'did:key:' + identifier;
 			// Get credential
 			const cred = await getCredential(subjectId);
 
