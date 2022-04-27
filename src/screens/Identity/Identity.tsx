@@ -63,12 +63,7 @@ const Identity = (): JSX.Element => {
 				return;
 			}
 
-			// const didKeyDriver = driver();
-			//
-			// const didDocument = await didKeyDriver.generate(); // Ed25519 key type by default
-
-			// const subjectId = didDocument.id;
-			const subjectId = 'did:key:z6Mkhox8UJXSDJkyBmHaCeTbdVkpXPFyyZ5pWPDdQpNsh5M3';
+			const subjectId = 'did:key:zQ3s' + wallet.getPublicKey().toString();
 			// Get credential
 			const cred = await getCredential(subjectId);
 
