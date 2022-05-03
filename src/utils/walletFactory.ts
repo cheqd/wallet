@@ -1,5 +1,5 @@
 import Transport from '@ledgerhq/hw-transport';
-import { OfflineSigner } from '@cosmjs/proto-signing';
+import { DirectSecp256k1HdWallet, DirectSecp256k1Wallet, OfflineSigner } from '@cosmjs/proto-signing';
 
 import { CheqWallet } from '../network/wallet';
 // import { CheqLedgerWallet } from './LumLedgerWallet';

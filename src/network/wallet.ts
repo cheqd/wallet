@@ -1,5 +1,5 @@
 import { SignMode } from 'cosmjs-types/cosmos/tx/signing/v1beta1/signing';
-import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import { SignDoc, TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { Doc } from './types/msg';
 import { SignMsg } from './types/signMsg';
 
@@ -67,6 +67,7 @@ export abstract class CheqWallet {
 	 * @param doc document to sign
 	 */
 	abstract signTransaction(doc: Doc): Promise<[SignDoc, Uint8Array]>;
+	// abstract signRawTransaction(doc: Doc): Promise<[TxRaw, Uint8Array]>;
 
 	/**
 	 * Sign a message using a CheqdWallet

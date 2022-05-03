@@ -398,7 +398,7 @@
         },
         "wallet": {
             "title": "My credentials",
-            "description": "Manage you credentials",
+            "description": "Manage your credentials",
 
             "unlock": "Unlock",
             "lock": "Lock",
