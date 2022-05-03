@@ -441,7 +441,10 @@ const Staking = (): JSX.Element => {
 							/>
 						</div>
 						<div className="col-lg-6">
-							<UnbondingTokensCard amount={unbondedTokens} endsAt={unbondingsTimeRemaining(unbondings)} />
+							<UnbondingTokensCard
+								amount={convertCoin(unbondedTokens.toFixed(), NanoCheqDenom)}
+								endsAt={unbondingsTimeRemaining(unbondings)}
+							/>
 						</div>
 						<div className="col-lg-6">
 							{vestings ? (

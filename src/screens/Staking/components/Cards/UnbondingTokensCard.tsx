@@ -4,7 +4,7 @@ import { Timestamp } from 'cosmjs-types/google/protobuf/timestamp';
 import { Card } from 'frontend-elements';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { NumbersUtils } from 'utils';
+import { dateFromNow, dateFromTimestamp, NumbersUtils } from 'utils';
 
 const UnbondingTokensCard = ({ amount, endsAt }: { amount: number; endsAt?: Timestamp }): JSX.Element => {
 	const { t } = useTranslation();
@@ -19,7 +19,9 @@ const UnbondingTokensCard = ({ amount, endsAt }: { amount: number; endsAt?: Time
 				<img src={assets.images.cheqdTicker} className="ticker" />
 			</div>
 			{endsAt ? (
-				<p className="align-self-end text-white">{t('staking.timeRemaining', { time: endsAt })}</p>
+				<p className="align-self-end text-white">
+					{t('staking.timeRemaining', { time: dateFromNow(dateFromTimestamp(endsAt)) })}
+				</p>
 			) : null}
 		</Card>
 	);
