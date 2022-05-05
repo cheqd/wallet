@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Redirect } from 'react-router';
-import { Button, Card } from 'frontend-elements';
+import { Card } from 'frontend-elements';
 import { Button as CustomButton, Input, Modal } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 
 import './styles/Identity.scss';
-import { showErrorToast, showInfoToast, showSuccessToast, trunc } from 'utils';
+import { showErrorToast, showSuccessToast } from 'utils';
 import { getAuthToken } from '../../utils/walletAuth';
 import { fromBase64, toBase64 } from '@lum-network/sdk-javascript/build/utils';
 import { getCredential } from '../../apis/issuer';

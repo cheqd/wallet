@@ -1,5 +1,5 @@
 import { SignMode } from 'cosmjs-types/cosmos/tx/signing/v1beta1/signing';
-import { SignDoc, TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { Doc } from './types/msg';
 import { SignMsg } from './types/signMsg';
 

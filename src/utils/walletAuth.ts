@@ -1,20 +1,13 @@
 // Helpers to authenticate with wallet
 
 import { NanoCheqDenom } from '../network';
-import { WalletClient, WalletUtils } from './index';
+import { WalletClient } from './index';
 import { Doc } from '../network/types/msg';
-import { LumAminoRegistry, LumRegistry, LumUtils } from '@lum-network/sdk-javascript';
+import { LumUtils } from '@lum-network/sdk-javascript';
 import { Wallet } from '../models';
 import { KeplrHelper } from 'utils/keplrHelper';
 import { KeplrIntereactionOptions } from '@keplr-wallet/types';
 import { CheqRegistry } from '../network/modules';
-
-import { fromBase64, generateSignDocBytes, toBase64 } from '@lum-network/sdk-javascript/build/utils';
-import { longify } from '@lum-network/sdk-javascript/build/extensions/utils';
-import { decodeTxRaw, Registry, decodePubkey, makeSignDoc } from '@cosmjs/proto-signing';
-import Long from 'long';
-import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
-import { serializeSignDoc } from '@cosmjs/amino';
 
 // Builds submit text proposal transaction with specific title and description
 export const getAuthToken = async (wallet: Wallet, uri: string): Promise<Uint8Array> => {

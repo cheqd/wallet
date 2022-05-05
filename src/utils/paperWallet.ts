@@ -1,8 +1,7 @@
 import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
-import { sha256, ripemd160, Ed25519Keypair } from '@cosmjs/crypto';
-import { DirectSecp256k1HdWallet, EncodeObject, makeSignBytes, makeSignDoc } from '@cosmjs/proto-signing';
+import { sha256, ripemd160 } from '@cosmjs/crypto';
+import { DirectSecp256k1HdWallet, EncodeObject, makeSignBytes } from '@cosmjs/proto-signing';
 import { Bech32 } from '@cosmjs/encoding';
-import { SigningCosmosClient } from '@cosmjs/launchpad';
 import { isUint8Array, generateSignature, uint8IndexOf, toAscii } from '@lum-network/sdk-javascript/build/utils';
 import {
 	getPublicKeyFromPrivateKey,
@@ -22,7 +21,7 @@ import {
 import { SignMsg } from '../network/types/signMsg';
 import { Doc, DocSigner } from '../network/types/msg';
 import { GasPrice, SigningStargateClient, StdFee } from '@cosmjs/stargate';
-import { showErrorToast, WalletClient } from 'utils';
+import { showErrorToast } from 'utils';
 import i18n from 'locales';
 import Long from 'long';
 import { Int53 } from '@cosmjs/math';

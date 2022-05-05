@@ -37,7 +37,6 @@ import {
 import { EncodeObject, makeSignBytes, makeSignDoc } from '@cosmjs/proto-signing';
 import { NanoCheqDenom } from './constants';
 import { toHex } from '@cosmjs/encoding';
-import { validateSignMessage } from 'utils/client';
 
 export class CheqClient {
 	readonly tmClient: Tendermint34Client;
