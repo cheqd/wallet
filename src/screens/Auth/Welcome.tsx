@@ -523,10 +523,10 @@ const Welcome = (): JSX.Element => {
 						<div className="col-12 col-lg-3">
 							<ImportButton
 								method="hardware"
-								disabled={keplrState.loading || ledgerState.loading}
+								disabled={true}
 								title={t('welcome.hardware.title')}
 								description={t('welcome.hardware.description')}
-								note={t('welcome.extensionModal.info')}
+								note={t('welcome.softwareModal.notRecommended')}
 								icon={Assets.images.hardwareIcon}
 								onClick={() => {
 									showImportModal();
@@ -537,7 +537,7 @@ const Welcome = (): JSX.Element => {
 						<div className="col-12 col-lg-3">
 							<ImportButton
 								method="software"
-								disabled={keplrState.loading || ledgerState.loading}
+								disabled={true}
 								title={t('welcome.software.title')}
 								description={t('welcome.software.description')}
 								note={t('welcome.softwareModal.notRecommended')}
@@ -550,7 +550,7 @@ const Welcome = (): JSX.Element => {
 								}}
 							/>
 						</div>
-						<div className="col-12 col-lg-3">
+						<div className="col-12 col-lg-3" hidden>
 							<Link to="/create" className="text-reset text-decoration-none">
 								<div className="scale-anim btn-padding h-100 w-100 text-center d-flex align-items-center flex-column justify-content-evenly">
 									<div className="create-btn rounded-circle mb-4 mb-lg-0 d-flex justify-content-center align-items-center">

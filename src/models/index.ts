@@ -132,6 +132,7 @@ export interface IdentityWallet {
 }
 
 export interface Credential {
+	name: string;
 	type: string[];
 	issuer: Issuer;
 	credentialSubject: CredentialSubject;

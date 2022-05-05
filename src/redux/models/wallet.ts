@@ -219,7 +219,7 @@ export const wallet = createModel<RootModel>()({
 						chainId: chainId,
 						chainName: chainId.includes('testnet') ? 'Cheq Testnet' : 'Cheq Network',
 						rpc: process.env.REACT_APP_RPC_URL,
-						rest: process.env.REACT_APP_RPC_URL.replace('rpc', 'api'),
+						rest: process.env.REACT_APP_API_URL,
 						stakeCurrency: {
 							coinDenom: CheqDenom.toUpperCase(),
 							coinMinimalDenom: NanoCheqDenom,

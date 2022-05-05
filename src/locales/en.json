@@ -87,7 +87,7 @@
         "softwareModal": {
             "title": "About your Wallet",
             "description": "Acquire a hardware wallet for the highest security when accessing your crypto.",
-            "notRecommended": "EXPERIENCED USERS",
+            "notRecommended": "IN DEVELOPMENT",
             "notRecommendedDescription": "This is not a recommended way to access your wallet.\nDue to the sensitivity of the information involved, these options should only be used in offline settings by experienced users.",
             "types": {
                 "mnemonic": "Mnemonic phrase",

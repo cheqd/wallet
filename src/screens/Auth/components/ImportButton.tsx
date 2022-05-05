@@ -47,9 +47,7 @@ const ImportButton = ({
 				<h3 className="mt-4">{title}</h3>
 				<p className="auth-paragraph">{description}</p>
 				<br />
-				<p className={method === 'extension' || method === 'hardware' ? 'recommended' : 'not-recommended'}>
-					{note}
-				</p>
+				<p className={method === 'extension' ? 'recommended' : 'not-recommended'}>{note}</p>
 			</Card>
 		</Button>
 	);
