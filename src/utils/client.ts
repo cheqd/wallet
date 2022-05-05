@@ -216,6 +216,7 @@ class WalletClient {
 	init = () => {
 		CheqClient.connect(process.env.REACT_APP_RPC_URL).then(async (client: CheqClient) => {
 			this.GasPrice = GasPrice.fromString('25' + NanoCheqDenom);
+			const status = await client.status();
 			this.cheqClient = client;
 			this.chainId = await client.getChainId();
 			this.cheqInfos = await this.getCheqInfo();
@@ -556,23 +557,12 @@ class WalletClient {
 			assertIsDeliverTxSuccess(broadcastResult);
 			return {
 				hash: broadcastResult.transactionHash,
-				// error: !broadcasted
-				// 	? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-				// 		? broadcastResult.deliverTx.log
-				// 		: broadcastResult.checkTx.log
-				// 	: null,
 			};
 			// eslint-disable-next-line
 		} catch (err: any) {
 			return {
 				hash: '',
 				error: err,
-				// hash: broadcastResult?.transactionHash,
-				// error: !broadcasted
-				// 	? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-				// 		? broadcastResult.deliverTx.log
-				// 		: broadcastResult.checkTx.log
-				// 	: null,
 			};
 		}
 	};
@@ -656,23 +646,12 @@ class WalletClient {
 			assertIsDeliverTxSuccess(broadcastResult);
 			return {
 				hash: broadcastResult.transactionHash,
-				// error: !broadcasted
-				// 	? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-				// 		? broadcastResult.deliverTx.log
-				// 		: broadcastResult.checkTx.log
-				// 	: null,
 			};
 			// eslint-disable-next-line
 		} catch (err: any) {
 			return {
 				hash: '',
 				error: err,
-				// hash: broadcastResult?.transactionHash,
-				// error: !broadcasted
-				// 	? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-				// 		? broadcastResult.deliverTx.log
-				// 		: broadcastResult.checkTx.log
-				// 	: null,
 			};
 		}
 	};
@@ -716,23 +695,12 @@ class WalletClient {
 			assertIsDeliverTxSuccess(broadcastResult);
 			return {
 				hash: broadcastResult.transactionHash,
-				// error: !broadcasted
-				// 	? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-				// 		? broadcastResult.deliverTx.log
-				// 		: broadcastResult.checkTx.log
-				// 	: null,
 			};
 			// eslint-disable-next-line
 		} catch (err: any) {
 			return {
 				hash: '',
 				error: err,
-				// hash: broadcastResult?.transactionHash,
-				// error: !broadcasted
-				// 	? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-				// 		? broadcastResult.deliverTx.log
-				// 		: broadcastResult.checkTx.log
-				// 	: null,
 			};
 		}
 	};
@@ -774,7 +742,6 @@ class WalletClient {
 		try {
 			// @ts-ignore
 			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, [msg], 'auto', memo);
-			// const broadcastResult = await this.signinClient.signAndBroadcast(account.address, [msg], 'auto', memo);
 			// Verify the transaction was successfully broadcasted and made it into a block
 			// @ts-ignore
 			assertIsDeliverTxSuccess(broadcastResult);

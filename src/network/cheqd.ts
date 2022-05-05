@@ -34,7 +34,7 @@ import {
 	GovExtension,
 	setupGovExtension,
 } from '@cosmjs/stargate/build/modules';
-import { EncodeObject, makeSignBytes, makeSignDoc } from '@cosmjs/proto-signing';
+import { EncodeObject } from '@cosmjs/proto-signing';
 import { NanoCheqDenom } from './constants';
 import { toHex } from '@cosmjs/encoding';
 
@@ -279,25 +279,6 @@ export class CheqClient {
 		return results.txs;
 	};
 
-	signTxWithStargateSigningClient = async (wallet: CheqWallet, msgs: EncodeObject[]): Promise<Uint8Array> => {
-		const result = await this.getAccount(wallet.getAddress());
-		if (!result) {
-			throw new Error('error getting account');
-		}
-
-		const rawTxn = await this.stargateSigninClient?.sign(
-			wallet.getAddress(),
-			msgs,
-			{ amount: [{ denom: NanoCheqDenom, amount: '12000' }], gas: '1' },
-			'',
-		);
-
-		// @ts-ignore
-		const signDoc = makeSignDoc(rawTxn.bodyBytes, rawTxn?.authInfoBytes, this.chainId, result.sequence);
-		const signBytes = makeSignBytes(signDoc);
-		return signBytes;
-	};
-
 	/**
 	 * Signs the messages using the provided wallet and builds the transaction
 	 *
@@ -329,7 +310,7 @@ export class CheqClient {
 			if (i === 0) {
 				signDoc = walletSignedDoc;
 			}
-			// @ts-ignore
+
 			signatures.push(signature);
 		}
 		if (!signDoc) {

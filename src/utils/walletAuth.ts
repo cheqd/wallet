@@ -75,11 +75,6 @@ export const getAuthToken = async (wallet: Wallet, uri: string): Promise<Uint8Ar
 		],
 	};
 
-	// if (WalletClient.cheqClient) {
-	// 	const bz = await WalletClient.cheqClient.signTxWithStargateSigningClient(wallet, [msg]);
-	// 	return bz;
-	// }
-
 	const [signDoc, signature] = await wallet.signTransaction(doc);
 
 	if (keplr.isInstalled) {

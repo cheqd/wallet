@@ -1,5 +1,4 @@
 export { default as Dashboard } from './Dashboard/Dashboard';
-export { default as Message } from './Messages/Message';
 export { default as Operations } from './Operations/Operations';
 export { default as Governance } from './Governance/Governance';
 export { default as Identity } from './Identity/Identity';

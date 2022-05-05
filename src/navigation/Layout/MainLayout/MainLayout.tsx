@@ -119,21 +119,6 @@ class MainLayout extends PureComponent<Props> {
 						</li>
 						<li>
 							<NavLink
-								to="/message"
-								className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-								activeClassName="selected-navbar-item"
-							>
-								<img
-									src={assets.images.navbarIcons.messages}
-									width="20"
-									height="20"
-									className="me-md-2 nav-icon"
-								/>
-								<span className="d-none d-sm-block">{t('navbar.message')}</span>
-							</NavLink>
-						</li>
-						<li>
-							<NavLink
 								to="/governance"
 								className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
 								activeClassName="selected-navbar-item"

@@ -59,9 +59,6 @@ export class CheqPaperWallet extends CheqWallet {
 						{ gasPrice: GasPrice.fromString('25' + NanoCheqDenom) },
 					);
 					this.signingStargateClient = signingClient;
-					// const [{address}] = await wallet.getAccounts();
-					// ts-ignore
-					// this.signingCosmosClient = new SigningCosmosClient(process.env.REACT_APP_RPC_URL, address, this.directWallet);
 				})
 				.catch(() => {
 					showErrorToast(i18n.t('wallet.errors.client'));
