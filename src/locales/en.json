@@ -41,7 +41,7 @@
         },
         "errors": {
             "keplr": {
-                "notInstalled": "Please install keplr extension",
+                "notInstalled": "Please install Keplr extension",
                 "notLatest": "Please use an up to date version of the Keplr extension",
                 "network": "Failed to connect to the network",
                 "networkAdd": "Failed to add network to Keplr",
@@ -62,8 +62,8 @@
         "keplrKeystoreChange": "Keplr Key store/account has changed"
     },
     "dashboard": {
-        "cheqPrice": "Cheq Value",
-        "getCheq": "Buy Cheq",
+        "cheqPrice": "CHEQ value",
+        "getCheq": "Get CHEQ",
         "latestTx": "Latest Transactions",
         "currentBalance": "Current balance",
         "followTwitter": "Follow us on Twitter",
@@ -103,7 +103,7 @@
         },
         "extensionModal": {
             "title": "Access by an extension",
-            "description": "Keplr is a chrome extension to allow you to handle a wallet on multiple chain on the Cosmos environment including the Cheq Network",
+            "description": "Keplr is a chrome extension to allow you to handle a wallet on multiple chain on the Cosmos environment including the cheqd Network",
             "info": "RECOMMENDED",
             "types": {
                 "keplr": {
@@ -126,7 +126,7 @@
             "note": "Only Ledger dongles are compatible right now",
             "types": {
                 "cosmos": "Cosmos app",
-                "cheq": "Cheq app"
+                "cheq": "cheqd app"
             },
             "advanced": {
                 "title": "HD Derivation Path",
@@ -204,23 +204,23 @@
         "types": {
             "send": {
                 "name": "Send",
-                "description": "Send Cheq directly to another wallet address"
+                "description": "Send CHEQ directly to another wallet address"
             },
             "delegate": {
                 "name": "Delegate",
-                "description": "Delegate Cheq to a network validator address"
+                "description": "Delegate CHEQ to a network validator address"
             },
             "undelegate": {
                 "name": "Undelegate",
-                "description": "Undelegate Cheq from a network validator address"
+                "description": "Undelegate CHEQ from a network validator address"
             },
             "getRewards": {
                 "name": "Get Rewards",
-                "description": "Get Cheq rewards from a network validator you delegated to"
+                "description": "Get CHEQ rewards from a network validator you delegated to"
             },
             "redelegate": {
                 "name": "Redelegate",
-                "description": "Redelegate Cheq from one network validator to another"
+                "description": "Redelegate CHEQ from one network validator to another"
             },
             "getAllRewards": {
                 "name": "Get All Rewards"
@@ -313,8 +313,8 @@
             "go": "Delegate anyway"
         },
         "warning": {
-            "title": "Staking will lock your funds for 21+ days",
-            "description": "You will need to undelegate in order for your staked assets to be liquid again. This process will take 21 days to complete."
+            "title": "Staking will lock your funds for 14+ days",
+            "description": "You will need to undelegate in order for your staked assets to be liquid again. This process will take 14 days to complete."
         }
     },
     "messages": {
