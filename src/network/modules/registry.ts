@@ -58,8 +58,10 @@ import {
 import { MsgCreateVestingAccount } from '@lum-network/sdk-javascript/build/codec/cosmos/vesting/v1beta1/tx';
 import { MsgCreateDid } from 'network/cheqd/v1/tx';
 import { CheqDenom } from 'network/constants';
+import { TxBody } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 
 const registryTypes: Iterable<[string, GeneratedType]> = [
+	['/cosmos.tx.v1beta1.TxBody', TxBody],
 	['/cosmos.auth.v1beta1.BaseAccount', BaseAccount],
 	['/cosmos.auth.v1beta1.ModuleAccount', ModuleAccount],
 	['/cosmos.auth.v1beta1.Params', AuthParams],

@@ -2,17 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch, Route, BrowserRouter, Redirect } from 'react-router-dom';
 import { RootState } from 'redux/store';
-import {
-	CreateWallet,
-	Dashboard,
-	Message,
-	Staking,
-	Operations,
-	Welcome,
-	Governance,
-	Identity,
-	Error404,
-} from 'screens';
+import { CreateWallet, Dashboard, Staking, Operations, Welcome, Governance, Identity, Error404 } from 'screens';
 import MainLayout from './Layout/MainLayout/MainLayout';
 
 const RootNavigator = (): JSX.Element => {
@@ -28,9 +18,6 @@ const RootNavigator = (): JSX.Element => {
 					</Route>
 					<PrivateRoute exact path={['/home', '/']}>
 						<Dashboard />
-					</PrivateRoute>
-					<PrivateRoute exact path="/message">
-						<Message />
 					</PrivateRoute>
 					<PrivateRoute exact path="/operations">
 						<Operations />

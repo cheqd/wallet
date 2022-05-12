@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Redirect } from 'react-router';
-import { Button, Card } from 'frontend-elements';
+import { Card } from 'frontend-elements';
 import { Button as CustomButton, Input, Modal } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 
 import './styles/Identity.scss';
-import { showErrorToast, showInfoToast, showSuccessToast, trunc } from 'utils';
+import { showErrorToast, showSuccessToast, trunc } from 'utils';
 import { getAuthToken } from '../../utils/walletAuth';
 import { fromBase64, toBase64 } from '@lum-network/sdk-javascript/build/utils';
 import { getCredential } from '../../apis/issuer';
@@ -361,7 +361,7 @@ const Identity = (): JSX.Element => {
 							data-bs-dismiss="modal"
 							onClick={handleAuthToken}
 						>
-							<div className="px-sm-2">{t('common.sign')}</div>
+							{t('common.sign')}
 						</CustomButton>
 						<CustomButton
 							className="logout-modal-cancel-btn me-sm-4 mb-4 mb-sm-0"
@@ -394,7 +394,7 @@ const Identity = (): JSX.Element => {
 							data-bs-dismiss="modal"
 							onClick={() => handleDecryptWallet(authToken!, passphraseInput)}
 						>
-							<div className="px-sm-2">{t('common.confirm')}</div>
+							{t('common.confirm')}
 						</CustomButton>
 						<CustomButton
 							className="logout-modal-cancel-btn me-sm-4 mb-4 mb-sm-0"

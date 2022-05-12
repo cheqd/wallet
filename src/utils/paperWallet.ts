@@ -1,17 +1,15 @@
 import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
 import { sha256, ripemd160 } from '@cosmjs/crypto';
-import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
+import { DirectSecp256k1HdWallet, EncodeObject, makeSignBytes } from '@cosmjs/proto-signing';
 import { Bech32 } from '@cosmjs/encoding';
+import { isUint8Array, generateSignature, uint8IndexOf, toAscii } from '@lum-network/sdk-javascript/build/utils';
 import {
-	isUint8Array,
-	generateSignature,
-	uint8IndexOf,
-	generateSignDoc,
-	generateSignDocBytes,
-	toAscii,
-} from '@lum-network/sdk-javascript/build/utils';
-import { getPublicKeyFromPrivateKey, getAddressFromPublicKey } from '../network/keys';
-import { SignDoc } from '@lum-network/sdk-javascript/build/types';
+	getPublicKeyFromPrivateKey,
+	getAddressFromPublicKey,
+	getPrivateKeyFromMnemonic,
+	publicKeyToProto,
+} from '../network/keys';
+import { Fee, SignDoc } from '@lum-network/sdk-javascript/build/types';
 import { CheqWallet } from '../network/wallet';
 import {
 	CheqBech32PrefixAccAddr,
@@ -22,13 +20,18 @@ import {
 } from '../network/constants';
 import { SignMsg } from '../network/types/signMsg';
 import { Doc, DocSigner } from '../network/types/msg';
-import { GasPrice, SigningStargateClient } from '@cosmjs/stargate';
+import { GasPrice, SigningStargateClient, StdFee } from '@cosmjs/stargate';
 import { showErrorToast } from 'utils';
 import i18n from 'locales';
+import Long from 'long';
+import { Int53 } from '@cosmjs/math';
+import { AuthInfo, TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import { CheqRegistry } from 'network/modules';
 
 export class CheqPaperWallet extends CheqWallet {
 	private directWallet!: DirectSecp256k1HdWallet;
 	private signingStargateClient!: SigningStargateClient;
+	// private signingCosmosClient!: SigningCosmosClient;
 	private readonly mnemonic?: string;
 	private privateKey?: Uint8Array;
 
@@ -48,17 +51,14 @@ export class CheqPaperWallet extends CheqWallet {
 			// @ts-ignore
 			this.mnemonic = mnemonicOrPrivateKey;
 			DirectSecp256k1HdWallet.fromMnemonic(mnemonicOrPrivateKey, { prefix: CheqBech32PrefixAccAddr })
-				.then((wallet) => {
+				.then(async (wallet) => {
 					this.directWallet = wallet;
-					SigningStargateClient.connectWithSigner(process.env.REACT_APP_RPC_URL, wallet, {
-						gasPrice: GasPrice.fromString('25' + NanoCheqDenom),
-					})
-						.then((signingClient) => {
-							this.signingStargateClient = signingClient;
-						})
-						.catch(() => {
-							showErrorToast(i18n.t('wallet.errors.client'));
-						});
+					const signingClient = await SigningStargateClient.connectWithSigner(
+						process.env.REACT_APP_RPC_URL,
+						wallet,
+						{ gasPrice: GasPrice.fromString('25' + NanoCheqDenom) },
+					);
+					this.signingStargateClient = signingClient;
 				})
 				.catch(() => {
 					showErrorToast(i18n.t('wallet.errors.client'));
@@ -77,6 +77,7 @@ export class CheqPaperWallet extends CheqWallet {
 	// eslint-disable-next-line
 	useAccount = async (hdPath = getCheqHdPath(0, 0), addressPrefix = CheqBech32PrefixAccAddr): Promise<boolean> => {
 		if (this.mnemonic) {
+			this.privateKey = await getPrivateKeyFromMnemonic(this.mnemonic);
 			this.directWallet = await DirectSecp256k1HdWallet.fromMnemonic(this.mnemonic, {
 				prefix: CheqBech32PrefixAccAddr,
 			});
@@ -115,6 +116,11 @@ export class CheqPaperWallet extends CheqWallet {
 		return signature;
 	};
 
+	signRawTransaction = async (msgs: EncodeObject[], fee: StdFee, memo: string): Promise<Uint8Array> => {
+		const rawTxn = await this.signingStargateClient.sign(this.getAddress(), msgs, fee, memo);
+		return Uint8Array.from(TxRaw.encode(rawTxn).finish());
+	};
+
 	signTransaction = async (doc: Doc): Promise<[SignDoc, Uint8Array]> => {
 		if (!this.privateKey || !this.publicKey) {
 			throw new Error('signTransaction: No account selected.');
@@ -127,8 +133,8 @@ export class CheqPaperWallet extends CheqWallet {
 			throw new Error('signTransaction: Signer not found in document');
 		}
 
-		const signDoc = generateSignDoc(doc, signerIndex, this.signingMode());
-		const signBytes = generateSignDocBytes(signDoc);
+		const signDoc = this.generateSignDoc(doc, signerIndex, this.signingMode());
+		const signBytes = makeSignBytes(signDoc);
 		const hashedMessage = sha256(signBytes);
 		const signature = await generateSignature(hashedMessage, this.privateKey);
 
@@ -139,6 +145,7 @@ export class CheqPaperWallet extends CheqWallet {
 		if (!this.privateKey || !this.publicKey) {
 			throw new Error('signMessage: No account selected.');
 		}
+
 		const signature = await generateSignature(sha256(toAscii(msg)), this.privateKey);
 		return {
 			address: this.getAddress(),
@@ -147,6 +154,51 @@ export class CheqPaperWallet extends CheqWallet {
 			sig: signature,
 			version: CheqWalletSigningVersion,
 			signer: CheqMessageSigner.PAPER,
+		};
+	};
+
+	generateAuthInfoBytes = (docSigners: DocSigner[], fee: Fee, signMode: SignMode): Uint8Array => {
+		const authInfo = {
+			signerInfos: docSigners.map((signer: DocSigner) => ({
+				publicKey: publicKeyToProto(signer.publicKey),
+				modeInfo: {
+					single: { mode: signMode },
+				},
+				sequence: Long.fromNumber(signer.sequence),
+			})),
+			fee: {
+				amount: [...fee.amount],
+				gasLimit: Long.fromNumber(Int53.fromString(fee.gas).toNumber()),
+			},
+		};
+		return AuthInfo.encode(AuthInfo.fromPartial(authInfo)).finish();
+	};
+
+	/**
+	 * Generate transaction doc to be signed
+	 *
+	 * @param doc document to create the sign version
+	 * @param signerIdx index of the signer in the signers field used to specify the accountNumber for signature purpose
+	 * @param signMode signing mode for the transaction
+	 */
+	generateSignDoc = (doc: Doc, signerIdx: number, signMode: SignMode): SignDoc => {
+		if (signerIdx < 0 || signerIdx > doc.signers.length) {
+			throw new Error('Invalid doc signer index');
+		}
+		const txBody = {
+			messages: doc.messages,
+			memo: doc.memo,
+		};
+		const bodyBytes = CheqRegistry.encode({
+			typeUrl: '/cosmos.tx.v1beta1.TxBody',
+			value: txBody,
+		});
+
+		return {
+			bodyBytes,
+			authInfoBytes: this.generateAuthInfoBytes(doc.signers, doc.fee, signMode),
+			chainId: doc.chainId,
+			accountNumber: Long.fromNumber(doc.signers[signerIdx].accountNumber),
 		};
 	};
 }

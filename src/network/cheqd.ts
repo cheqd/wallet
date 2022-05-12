@@ -310,6 +310,7 @@ export class CheqClient {
 			if (i === 0) {
 				signDoc = walletSignedDoc;
 			}
+
 			signatures.push(signature);
 		}
 		if (!signDoc) {
@@ -392,7 +393,6 @@ export class CheqClient {
 
 		const bz = await this.signTx(wallet, doc);
 		const resp = await this.broadcastTx(bz);
-		console.log('result from txn: ', resp);
 		broadcastTxCommitSuccess(resp);
 		const buildResp: DeliverTxResponse = {
 			transactionHash: toHex(Uint8Array.from(resp.hash)),

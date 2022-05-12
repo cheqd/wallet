@@ -20,7 +20,7 @@ export const dateToNow = (date: dayjs.ConfigType, withoutSuffix = false): string
 
 export const dateFromTimestamp = (ts: Timestamp | undefined): Date => {
 	// @ts-ignore
-	return new Date(ts?.seconds.low);
+	return new Date(ts?.seconds.low * 1000);
 };
 
 export const toLocaleDateFormat = (date: dayjs.ConfigType): string => dayjs.utc(date).format('lll');

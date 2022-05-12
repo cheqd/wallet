@@ -3,6 +3,8 @@ import { CLIENT_PRECISION } from 'constant';
 import { FormikContextType } from 'formik';
 import { Button } from 'frontend-elements';
 import { Rewards } from 'models';
+import { NanoCheqDenom } from 'network';
+import { convertCoin } from 'network/util';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NumbersUtils } from 'utils';
@@ -28,7 +30,7 @@ const GetAllRewards = ({ form, isLoading, rewards }: Props): JSX.Element => {
 					<Input
 						value={NumbersUtils.formatTo6digit(
 							rewards.total && rewards.total.length > 0
-								? NumbersUtils.convertUnitNumber(rewards.total[0].amount) / CLIENT_PRECISION
+								? convertCoin(rewards.total[0].amount, NanoCheqDenom) / CLIENT_PRECISION
 								: 0,
 						)}
 						readOnly

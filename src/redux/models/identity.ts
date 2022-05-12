@@ -1,9 +1,5 @@
 import { createModel } from '@rematch/core';
-import { Credential, IdentityWallet, RootModel } from '../../models';
-import update from 'immutability-helper';
-import { loadCryptoBox } from '../../apis/storage';
-import { fromBase64 } from '@lum-network/sdk-javascript/build/utils';
-import { decryptIdentityWallet } from '../../utils/identityWalet';
+import { IdentityWallet, RootModel } from '../../models';
 
 interface IdentityState {
 	authToken: string | null;

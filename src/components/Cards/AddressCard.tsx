@@ -32,7 +32,7 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
 	const printAddress = () => {
 		printJS({
 			printable: [{ address }],
-			properties: [{ field: 'address', displayName: 'Cheqd Network - Wallet address' }],
+			properties: [{ field: 'address', displayName: 'cheqd Wallet address' }],
 			type: 'json',
 		});
 	};

@@ -67,6 +67,7 @@ export abstract class CheqWallet {
 	 * @param doc document to sign
 	 */
 	abstract signTransaction(doc: Doc): Promise<[SignDoc, Uint8Array]>;
+	// abstract signRawTransaction(doc: Doc): Promise<[TxRaw, Uint8Array]>;
 
 	/**
 	 * Sign a message using a CheqdWallet

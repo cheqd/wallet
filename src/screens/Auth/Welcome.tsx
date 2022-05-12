@@ -537,7 +537,7 @@ const Welcome = (): JSX.Element => {
 						<div className="col-12 col-lg-3">
 							<ImportButton
 								method="software"
-								disabled={true}
+								disabled={keplrState.loading || ledgerState.loading}
 								title={t('welcome.software.title')}
 								description={t('welcome.software.description')}
 								note={t('welcome.softwareModal.notRecommended')}
