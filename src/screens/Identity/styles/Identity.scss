@@ -1,0 +1,30 @@
+@import 'src/styles/main';
+
+.tabs-content {
+  width:auto;
+  height:auto;
+  overflow:hidden;
+}
+.tabs-content ul {
+  list-style: none;
+  height: 300px;
+}
+.tabs-content ul li {
+  width:auto;
+  height:1300px;
+}
+.tabs-content ul li textarea {
+  height:300px;
+}
+
+.tabs-content ul li table td {
+  min-width: 200px;
+  max-width: 400px;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  word-wrap: break-word;
+}
+
+.active {
+  font-weight: bold;
+}
