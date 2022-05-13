@@ -5,14 +5,13 @@ import { assertIsDeliverTxSuccess, SigningStargateClient, coin, GasPrice } from 
 import { LumUtils } from '@lum-network/sdk-javascript';
 import { ProposalStatus, VoteOption } from 'cosmjs-types/cosmos/gov/v1beta1/gov';
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
-import { Coin } from '@lum-network/sdk-javascript/build/types';
 import { OSMOSIS_API_URL } from 'constant';
 import Long from 'long';
 import { CheqInfo, PasswordStrength, PasswordStrengthType, Proposal, Transaction, Wallet } from 'models';
 import { CheqClient } from 'network/cheqd';
 import { CheqRegistry } from 'network/modules/registry';
 import { SignMsg } from 'network/types/signMsg';
-import { CheqDenom, CheqMessageSigner, CheqSignOnlyChainId, NanoCheqDenom } from '../network/constants';
+import { CheqDenom, CheqMessageSigner, CheqSignOnlyChainId, NanoCheqDenom } from 'network/constants';
 import { sortByBlockHeight } from './transactions';
 import {
 	Bech32,
@@ -23,7 +22,6 @@ import {
 	sortJSON,
 	toAscii,
 } from '@lum-network/sdk-javascript/build/utils';
-import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { convertCoin } from 'network/util';
 import { MsgBeginRedelegate, MsgDelegate, MsgUndelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx';
@@ -37,6 +35,9 @@ import {
 } from '@lum-network/sdk-javascript/build/messages';
 import { MsgWithdrawDelegatorReward } from 'cosmjs-types/cosmos/distribution/v1beta1/tx';
 import { MsgVote } from 'cosmjs-types/cosmos/gov/v1beta1/tx';
+import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
+import { SignMode } from 'cosmjs-types/cosmos/tx/signing/v1beta1/signing';
+import { estimatedVesting } from 'utils';
 
 export type MnemonicLength = 12 | 24;
 
@@ -351,9 +352,7 @@ class WalletClient {
 		try {
 			const account = await this.cheqClient.getAccount(address);
 			if (account) {
-				const { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt } =
-					LumUtils.estimatedVesting(account);
-
+				const { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt } = estimatedVesting(account);
 				return { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt };
 			}
 

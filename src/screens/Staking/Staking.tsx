@@ -433,8 +433,7 @@ const Staking = (): JSX.Element => {
 							<BalanceCard
 								balance={
 									vestings
-										? balance.cheq -
-										  Number(LumUtils.convertUnit(vestings.lockedBankCoins, NanoCheqDenom))
+										? balance.cheq - convertCoin(vestings.lockedBankCoins.amount, NanoCheqDenom)
 										: balance.cheq
 								}
 								address={wallet.getAddress()}

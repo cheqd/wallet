@@ -42,13 +42,13 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
 						/>
 					</button>
 				</HoverTooltip>
-				{IS_TESTNET && (
-					<HoverTooltip text={t('common.mintFaucet')}>
-						<button type="button" className="ps-2 pb-2" onClick={() => mintFaucet(address)}>
-							<img src={assets.images.addIcon} className="tint-white" />
-						</button>
-					</HoverTooltip>
-				)}
+				{/* {IS_TESTNET && ( */}
+				{/* 	<HoverTooltip text={t('common.mintFaucet')}> */}
+				{/* 		<button type="button" className="ps-2 pb-2" onClick={() => mintFaucet(address)}> */}
+				{/* 			<img src={assets.images.addIcon} className="tint-white" /> */}
+				{/* 		</button> */}
+				{/* 	</HoverTooltip> */}
+				{/* )} */}
 			</div>
 		</Card>
 	);

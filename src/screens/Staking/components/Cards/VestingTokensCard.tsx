@@ -6,7 +6,8 @@ import { Card } from 'frontend-elements';
 import { Vestings } from 'models';
 import { dateToNow, NumbersUtils } from 'utils';
 import { SmallerDecimal } from 'components';
-import { CheqDenom } from 'network';
+import { CheqDenom, NanoCheqDenom } from 'network';
+import { convertCoin } from 'network/util';
 
 const VestingTokensCard = ({ vestings }: { vestings: Vestings | null }): JSX.Element => {
 	const { t } = useTranslation();
@@ -17,10 +18,7 @@ const VestingTokensCard = ({ vestings }: { vestings: Vestings | null }): JSX.Ele
 			<div className="ps-2 my-3 d-flex flex-row align-items-baseline w-100">
 				<div className="me-2 me-sm-3 text-white text-truncate">
 					<SmallerDecimal
-						nb={NumbersUtils.formatUnit(
-							vestings ? vestings.lockedBankCoins : { amount: '0', denom: CheqDenom },
-							true,
-						)}
+						nb={convertCoin(vestings ? vestings.lockedBankCoins.amount : '0', NanoCheqDenom).toString()}
 						big
 					/>
 				</div>
