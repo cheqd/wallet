@@ -60,8 +60,7 @@ const Dashboard = (): JSX.Element => {
 						<BalanceCard
 							balance={
 								vestings
-									? balance.cheq -
-									  Number(LumUtils.convertUnit(vestings.lockedBankCoins, NanoCheqDenom))
+									? balance.cheq - Number(convertCoin(vestings.lockedBankCoins.amount, NanoCheqDenom))
 									: balance.cheq
 							}
 							address={wallet.getAddress()}
