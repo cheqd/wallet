@@ -59,6 +59,31 @@ import { MsgCreateVestingAccount } from '@lum-network/sdk-javascript/build/codec
 import { MsgCreateDid } from 'network/cheqd/v1/tx';
 import { CheqDenom } from 'network/constants';
 import { TxBody } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import {
+	MsgAcknowledgement,
+	MsgChannelCloseConfirm,
+	MsgChannelCloseInit,
+	MsgChannelOpenAck,
+	MsgChannelOpenConfirm,
+	MsgChannelOpenInit,
+	MsgChannelOpenTry,
+	MsgRecvPacket,
+	MsgTimeout,
+	MsgTimeoutOnClose,
+} from 'cosmjs-types/ibc/core/channel/v1/tx';
+import {
+	MsgCreateClient,
+	MsgSubmitMisbehaviour,
+	MsgUpdateClient,
+	MsgUpgradeClient,
+} from 'cosmjs-types/ibc/core/client/v1/tx';
+import {
+	MsgConnectionOpenAck,
+	MsgConnectionOpenConfirm,
+	MsgConnectionOpenInit,
+	MsgConnectionOpenTry,
+} from 'cosmjs-types/ibc/core/connection/v1/tx';
+import { ClientUpdateProposal } from 'cosmjs-types/ibc/core/client/v1/client';
 
 const registryTypes: Iterable<[string, GeneratedType]> = [
 	['/cosmos.tx.v1beta1.TxBody', TxBody],
@@ -104,6 +129,25 @@ const registryTypes: Iterable<[string, GeneratedType]> = [
 	['/cosmos.vesting.v1beta1.PeriodicVestingAccount', PeriodicVestingAccount],
 	['/cosmos.vesting.v1beta1.MsgCreateVestingAccount', MsgCreateVestingAccount],
 	['/cheqdid.cheqdnode.cheqd.v1.MsgCreateDid', MsgCreateDid],
+	['/ibc.core.client.v1.ClientUpdateProposal', ClientUpdateProposal],
+	['/ibc.core.channel.v1.MsgChannelOpenInit', MsgChannelOpenInit],
+	['/ibc.core.channel.v1.MsgChannelOpenTry', MsgChannelOpenTry],
+	['/ibc.core.channel.v1.MsgChannelOpenAck', MsgChannelOpenAck],
+	['/ibc.core.channel.v1.MsgChannelOpenConfirm', MsgChannelOpenConfirm],
+	['/ibc.core.channel.v1.MsgChannelCloseInit', MsgChannelCloseInit],
+	['/ibc.core.channel.v1.MsgChannelCloseConfirm', MsgChannelCloseConfirm],
+	['/ibc.core.channel.v1.MsgRecvPacket', MsgRecvPacket],
+	['/ibc.core.channel.v1.MsgTimeout', MsgTimeout],
+	['/ibc.core.channel.v1.MsgTimeoutOnClose', MsgTimeoutOnClose],
+	['/ibc.core.channel.v1.MsgAcknowledgement', MsgAcknowledgement],
+	['/ibc.core.client.v1.MsgCreateClient', MsgCreateClient],
+	['/ibc.core.client.v1.MsgUpdateClient', MsgUpdateClient],
+	['/ibc.core.client.v1.MsgUpgradeClient', MsgUpgradeClient],
+	['/ibc.core.client.v1.MsgSubmitMisbehaviour', MsgSubmitMisbehaviour],
+	['/ibc.core.connection.v1.MsgConnectionOpenInit', MsgConnectionOpenInit],
+	['/ibc.core.connection.v1.MsgConnectionOpenTry', MsgConnectionOpenTry],
+	['/ibc.core.connection.v1.MsgConnectionOpenAck', MsgConnectionOpenAck],
+	['/ibc.core.connection.v1.MsgConnectionOpenConfirm', MsgConnectionOpenConfirm],
 ];
 
 class ExtendedRegistry extends Registry {
