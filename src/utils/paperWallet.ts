@@ -54,7 +54,7 @@ export class CheqPaperWallet extends CheqWallet {
 				.then(async (wallet) => {
 					this.directWallet = wallet;
 					const signingClient = await SigningStargateClient.connectWithSigner(
-						process.env.REACT_APP_RPC_URL,
+						process.env.RPC_ENDPOINT,
 						wallet,
 						{ gasPrice: GasPrice.fromString('25' + NanoCheqDenom) },
 					);

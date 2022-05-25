@@ -214,7 +214,7 @@ class WalletClient {
 
 	// Init
 	init = () => {
-		CheqClient.connect(process.env.REACT_APP_RPC_URL).then(async (client: CheqClient) => {
+		CheqClient.connect(process.env.RPC_ENDPOINT).then(async (client: CheqClient) => {
 			this.GasPrice = GasPrice.fromString('25' + NanoCheqDenom);
 			const status = await client.status();
 			this.cheqClient = client;

@@ -111,7 +111,7 @@ const Identity = (): JSX.Element => {
 		try {
 			showModal('authToken', false);
 
-			const authTokenBytes = await getAuthToken(wallet, process.env.REACT_APP_ISSUER_URL);
+			const authTokenBytes = await getAuthToken(wallet, process.env.IDENTITY_ENDPOINT);
 			const authToken = toBase64(authTokenBytes);
 			setAuthToken(authToken);
 
