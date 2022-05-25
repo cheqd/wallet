@@ -60,6 +60,7 @@ export const estimatedVesting = (
 		const doneRatio = Math.min(1.0, Math.max(0, elapsed / delta));
 		const unlockedCoins = { amount: `${Math.ceil(Number(totalCoins.amount) * doneRatio)}`, denom };
 		const lockedCoins = { amount: `${Math.ceil(Number(totalCoins.amount) * (1.0 - doneRatio))}`, denom };
+		console.log('lockedCoin: ', lockedCoins);
 		const lockedBankCoins = {
 			amount: `${Math.max(0, Number(lockedCoins.amount) - Number(lockedDelegatedCoins.amount))}`,
 			denom,
