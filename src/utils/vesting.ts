@@ -38,6 +38,7 @@ export const estimatedVesting = (
 	if (account._continuousVestingAccount && account._continuousVestingAccount.baseVestingAccount) {
 		const startsAt = uint64ProtoToDate(account._continuousVestingAccount.startTime);
 		const endsAt = uint64ProtoToDate(account._continuousVestingAccount.baseVestingAccount.endTime);
+
 		const totalCoins: Coin = { amount: '0', denom: denom };
 		for (const c of account._continuousVestingAccount.baseVestingAccount.originalVesting) {
 			if (c.denom === denom) {
@@ -45,6 +46,7 @@ export const estimatedVesting = (
 				break;
 			}
 		}
+
 		const lockedDelegatedCoins: Coin = { amount: '0', denom: denom };
 		for (const c of account._continuousVestingAccount.baseVestingAccount.delegatedVesting) {
 			if (c.denom === denom) {
@@ -56,10 +58,10 @@ export const estimatedVesting = (
 		const elapsed = t.getTime() - startsAt.getTime();
 		const delta = endsAt.getTime() - startsAt.getTime();
 		const doneRatio = Math.min(1.0, Math.max(0, elapsed / delta));
-		const unlockedCoins = { amount: `${Math.ceil(parseInt(totalCoins.amount) * doneRatio)}`, denom };
-		const lockedCoins = { amount: `${Math.ceil(parseInt(totalCoins.amount) * (1.0 - doneRatio))}`, denom };
+		const unlockedCoins = { amount: `${Math.ceil(Number(totalCoins.amount) * doneRatio)}`, denom };
+		const lockedCoins = { amount: `${Math.ceil(Number(totalCoins.amount) * (1.0 - doneRatio))}`, denom };
 		const lockedBankCoins = {
-			amount: `${Math.max(0, parseInt(lockedCoins.amount) - parseInt(lockedDelegatedCoins.amount))}`,
+			amount: `${Math.max(0, Number(lockedCoins.amount) - Number(lockedDelegatedCoins.amount))}`,
 			denom,
 		};
 
@@ -94,10 +96,10 @@ export const estimatedVesting = (
 		}
 
 		const doneRatio = t > endsAt ? 1 : 0;
-		const unlockedCoins = { amount: `${Math.ceil(parseInt(totalCoins.amount) * doneRatio)}`, denom };
-		const lockedCoins = { amount: `${Math.ceil(parseInt(totalCoins.amount) * (1.0 - doneRatio))}`, denom };
+		const unlockedCoins = { amount: `${Math.ceil(Number(totalCoins.amount) * doneRatio)}`, denom };
+		const lockedCoins = { amount: `${Math.ceil(Number(totalCoins.amount) * (1.0 - doneRatio))}`, denom };
 		const lockedBankCoins = {
-			amount: `${Math.max(0, parseInt(lockedCoins.amount) - parseInt(lockedDelegatedCoins.amount))}`,
+			amount: `${Math.max(0, Number(lockedCoins.amount) - Number(lockedDelegatedCoins.amount))}`,
 			denom,
 		};
 
@@ -141,17 +143,17 @@ export const estimatedVesting = (
 			currentTime += pDuration;
 			for (const c of p.amount) {
 				if (c.denom === denom) {
-					doneAmount += parseInt(c.amount);
+					doneAmount += Number(c.amount);
 					break;
 				}
 			}
 		}
 
-		const doneRatio = doneAmount / parseFloat(totalCoins.amount);
-		const unlockedCoins = { amount: `${Math.ceil(parseInt(totalCoins.amount) * doneRatio)}`, denom };
-		const lockedCoins = { amount: `${Math.ceil(parseInt(totalCoins.amount) * (1.0 - doneRatio))}`, denom };
+		const doneRatio = doneAmount / Number(totalCoins.amount);
+		const unlockedCoins = { amount: `${Math.ceil(Number(totalCoins.amount) * doneRatio)}`, denom };
+		const lockedCoins = { amount: `${Math.ceil(Number(totalCoins.amount) * (1.0 - doneRatio))}`, denom };
 		const lockedBankCoins = {
-			amount: `${Math.max(0, parseInt(lockedCoins.amount) - parseInt(lockedDelegatedCoins.amount))}`,
+			amount: `${Math.max(0, Number(lockedCoins.amount) - Number(lockedDelegatedCoins.amount))}`,
 			denom,
 		};
 

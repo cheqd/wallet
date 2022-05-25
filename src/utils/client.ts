@@ -16,13 +16,12 @@ import { sortByBlockHeight } from './transactions';
 import {
 	Bech32,
 	generateAuthInfoBytes,
-	generateSignDocBytes,
 	getAddressFromPublicKey,
 	sha256,
 	sortJSON,
 	toAscii,
 } from '@lum-network/sdk-javascript/build/utils';
-import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
+import { DirectSecp256k1HdWallet, makeSignBytes } from '@cosmjs/proto-signing';
 import { convertCoin } from 'network/util';
 import { MsgBeginRedelegate, MsgDelegate, MsgUndelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx';
 import {
@@ -36,8 +35,8 @@ import {
 import { MsgWithdrawDelegatorReward } from 'cosmjs-types/cosmos/distribution/v1beta1/tx';
 import { MsgVote } from 'cosmjs-types/cosmos/gov/v1beta1/tx';
 import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
-import { SignMode } from 'cosmjs-types/cosmos/tx/signing/v1beta1/signing';
 import { estimatedVesting } from 'utils';
+import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
 
 export type MnemonicLength = 12 | 24;
 
@@ -783,8 +782,7 @@ class WalletClient {
 		}
 
 		try {
-			// @ts-ignore
-			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, [msg], 'auto', memo);
+			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, [msg], 'auto', '');
 			// Verify the transaction was successfully broadcasted and made it into a block
 			// @ts-ignore
 			assertIsDeliverTxSuccess(broadcastResult);
@@ -851,7 +849,7 @@ export const verifySignMsg = async (msg: SignMsg): Promise<boolean> => {
 			chainId: CheqSignOnlyChainId,
 			accountNumber: Long.fromNumber(0),
 		};
-		const signedBytes = generateSignDocBytes(signDoc);
+		const signedBytes = makeSignBytes(signDoc);
 		return verifySignature(msg.sig, signedBytes, msg.publicKey);
 	} else if (msg.signer === CheqMessageSigner.LEDGER) {
 		// Re-generate ledger required amino payload to sign messages
