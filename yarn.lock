@@ -17258,6 +17258,8 @@ __metadata:
     typescript: ^4.1.2
     web-vitals: ^1.0.1
     yup: ^0.32.9
+  peerDependencies:
+    webpack: "*"
   languageName: unknown
   linkType: soft
 
