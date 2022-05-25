@@ -15206,16 +15206,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.50.0":
-  version: 1.50.0
-  resolution: "sass@npm:1.50.0"
+"sass@npm:^1.52.1":
+  version: 1.52.1
+  resolution: "sass@npm:1.52.1"
   dependencies:
     chokidar: ">=3.0.0 <4.0.0"
     immutable: ^4.0.0
     source-map-js: ">=0.6.2 <2.0.0"
   bin:
     sass: sass.js
-  checksum: 43738cc83a3921731456f769aba190277f0620f8b80c14426ab098be9ab8dc8465957f5bf2edbcffda189edb3024ed83dee2cb8cd580459ca4984a9fc88c18f7
+  checksum: a0508c88b149641202e8fb589f731e0cb09a15650128dfee6d0d1ee4a868cb57f1e71575535ccd72f54c5313b684a8beb208d293402ca8d32084ee1709d9f26d
   languageName: node
   linkType: hard
 
@@ -17254,7 +17254,7 @@ __metadata:
     react-toastify: ^7.0.3
     react-transition-group: ^4.4.2
     redux: ^4.0.5
-    sass: ^1.50.0
+    sass: ^1.52.1
     typescript: ^4.1.2
     web-vitals: ^1.0.1
     yup: ^0.32.9
