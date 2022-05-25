@@ -1,0 +1,3 @@
+[submodule "src/frontend-elements"]
+	path = src/frontend-elements
+	url = https://github.com/cheqd/frontend-elements.git
