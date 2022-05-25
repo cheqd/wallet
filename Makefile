@@ -1,4 +1,4 @@
-build: submodule sass-fix yarn-install
+build: submodule yarn-install
 	yarn build
 
 submodule:
