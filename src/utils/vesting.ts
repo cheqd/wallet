@@ -38,6 +38,7 @@ export const estimatedVesting = (
 	if (account._continuousVestingAccount && account._continuousVestingAccount.baseVestingAccount) {
 		const startsAt = uint64ProtoToDate(account._continuousVestingAccount.startTime);
 		const endsAt = uint64ProtoToDate(account._continuousVestingAccount.baseVestingAccount.endTime);
+
 		const totalCoins: Coin = { amount: '0', denom: denom };
 		for (const c of account._continuousVestingAccount.baseVestingAccount.originalVesting) {
 			if (c.denom === denom) {
@@ -45,6 +46,7 @@ export const estimatedVesting = (
 				break;
 			}
 		}
+
 		const lockedDelegatedCoins: Coin = { amount: '0', denom: denom };
 		for (const c of account._continuousVestingAccount.baseVestingAccount.delegatedVesting) {
 			if (c.denom === denom) {
@@ -58,7 +60,6 @@ export const estimatedVesting = (
 		const doneRatio = Math.min(1.0, Math.max(0, elapsed / delta));
 		const unlockedCoins = { amount: `${Math.ceil(Number(totalCoins.amount) * doneRatio)}`, denom };
 		const lockedCoins = { amount: `${Math.ceil(Number(totalCoins.amount) * (1.0 - doneRatio))}`, denom };
-		console.log('lockedCoin: ', lockedCoins);
 		const lockedBankCoins = {
 			amount: `${Math.max(0, Number(lockedCoins.amount) - Number(lockedDelegatedCoins.amount))}`,
 			denom,
