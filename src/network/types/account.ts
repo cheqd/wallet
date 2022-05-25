@@ -7,6 +7,13 @@ import {
 	PeriodicVestingAccount,
 } from 'cosmjs-types/cosmos/vesting/v1beta1/vesting';
 
+import Long from 'long';
+import { Uint64 } from '@cosmjs/math';
+import { assert } from '@cosmjs/utils';
+import { decodePubkey } from '@cosmjs/proto-signing';
+
+import { Any } from 'cosmjs-types/google/protobuf/any';
+
 export interface Account {
 	readonly address: string;
 	readonly accountNumber: number;
@@ -18,13 +25,6 @@ export interface Account {
 	readonly _delayedVestingAccount?: DelayedVestingAccount;
 	readonly _periodicVestingAccount?: PeriodicVestingAccount;
 }
-
-import Long from 'long';
-import { Uint64 } from '@cosmjs/math';
-import { assert } from '@cosmjs/utils';
-import { decodePubkey } from '@cosmjs/proto-signing';
-
-import { Any } from 'cosmjs-types/google/protobuf/any';
 
 function uint64FromProto(input: Long) {
 	return Uint64.fromString(input.toString());
