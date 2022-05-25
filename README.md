@@ -1,6 +1,4 @@
-# CHEQ Wallet
-
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+# cheqd Network Wallet
 
 [CHEQ Wallet](https://wallet.cheqd.io) gives a single for users to manage their CHEQ wallets, and try out the new digital identity functionality we're building on our network.
 
