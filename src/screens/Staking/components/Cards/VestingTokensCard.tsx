@@ -18,7 +18,7 @@ const VestingTokensCard = ({ vestings }: { vestings: Vestings | null }): JSX.Ele
 			<div className="ps-2 my-3 d-flex flex-row align-items-baseline w-100">
 				<div className="me-2 me-sm-3 text-white text-truncate">
 					<SmallerDecimal
-						nb={convertCoin(vestings ? vestings.lockedBankCoins.amount : '0', NanoCheqDenom).toString()}
+						nb={convertCoin(vestings ? vestings.lockedCoins.amount : '0', NanoCheqDenom).toString()}
 						big
 					/>
 				</div>
