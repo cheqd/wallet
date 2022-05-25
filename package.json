@@ -78,6 +78,7 @@
         "prettier": "^2.2.1"
     },
     "scripts": {
+        "prepare": "yarn install --immutable",
         "start": "react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",

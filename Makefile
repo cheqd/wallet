@@ -1,8 +1,11 @@
 build: submodule yarn-install
 	yarn build
 
-submodule:
-	git submodule update --init --recursive
+# build: submodule yarn-install
+# 	yarn build
 
-yarn-install:
-	yarn && cd src/frontend-elements && yarn && cd ../..
+# submodule:
+# 	git submodule update --init --recursive
+
+# yarn-install:
+# 	yarn && cd src/frontend-elements && yarn && cd ../..
