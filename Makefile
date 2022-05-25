@@ -5,4 +5,4 @@ submodule:
 	git submodule update --init --recursive
 
 yarn-install:
-	yarn && cd src/frontend-elements && yarn && cd ../..
+	yarn install
