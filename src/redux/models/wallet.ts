@@ -261,6 +261,8 @@ export const wallet = createModel<RootModel>()({
 							average: 30,
 							high: 50,
 						},
+						// 'stargate' and 'no-legacy-stdTx' are deprecated now
+						features: ['ibc-transfer', 'ibc-go'],
 						beta: chainId.includes('testnet'),
 					});
 				} catch {

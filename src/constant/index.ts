@@ -11,7 +11,7 @@ export const COSMOS_LEDGER_APP_INSTALL_LINK =
 	'https://support.ledger.com/hc/en-us/articles/360013713840-Cosmos-ATOM-?docs=true';
 export const KEPLR_INSTALL_LINK = 'https://keplr.app';
 export const CHEQ_EXPLORER = IS_TESTNET ? 'https://testnet-explorer.cheqd.io/' : 'https://explorer.cheqd.io';
-export const CHEQ_WALLET = IS_TESTNET ? 'https://wallet.testnet.cheqd.network' : 'https://wallet.cheqd.io';
+export const CHEQ_WALLET = IS_TESTNET ? 'https://wallet.cheqd.network' : 'https://wallet.cheqd.io';
 export const CHEQ_COINGECKO_ID = 'cheqd-network';
 
 export const CLIENT_PRECISION = 1_000_000_000_000_000_000;
