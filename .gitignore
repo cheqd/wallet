@@ -1,5 +1,12 @@
 ### APP-SPECIFIC EXCLUSIONS ###
 
+# src/frontend-elements exclusions
+src/frontend-elements/.yarn/cache
+src/frontend-elements/.yarn/unplugged
+src/frontend-elements/.yarn/build-state.yml
+src/frontend-elements/.yarn/install-state.gz
+src/frontend-elements/.pnp.*
+src/frontend-elements/node_modules
 
 ### GENERAL EXCLUSIONS ###
 
