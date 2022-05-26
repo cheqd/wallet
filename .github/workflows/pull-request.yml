@@ -2,8 +2,7 @@ name: PR Title Check
 on:
   pull_request_target:
     branches:
-      - main
-      - 'release/**'
+      - cheqd
     types:
       - opened
       - reopened
