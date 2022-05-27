@@ -1,4 +1,4 @@
-build: submodule npm-install
+build: cleanup submodule npm-install
 	npm run build
 
 submodule:
@@ -6,3 +6,6 @@ submodule:
 
 npm-install:
 	npm install -f && cd src/frontend-elements && npm install -f && cd ../..
+
+cleanup:
+	rm -rf node_modules && rm -rf src/frontend-elements
