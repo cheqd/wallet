@@ -1,8 +1,8 @@
-build: submodule yarn-install
-	yarn build
+build: submodule npm-install
+	npm run build
 
 submodule:
-	git submodule update --init
+	git submodule update --init --recursive
 
-yarn-install:
-	yarn && cd src/frontend-elements && yarn && cd ../..
+npm-install:
+	npm install -f && cd src/frontend-elements && npm install -f && cd ../..
