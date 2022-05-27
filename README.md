@@ -43,7 +43,7 @@ make build
 Serve the app by using this command:
 
 ```bash
-$ yarn start
+yarn start
 ```
 
 ## 🙌 Acknowledgments
