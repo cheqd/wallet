@@ -214,6 +214,12 @@ dist
 .vscode-test
 
 # yarn v2
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 .yarn/cache
 .yarn/unplugged
 .yarn/build-state.yml
