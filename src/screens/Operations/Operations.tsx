@@ -22,8 +22,9 @@ import Vote from './components/Forms/Vote';
 
 import './Operations.scss';
 import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
-import { CheqBech32PrefixAccAddr, CheqBech32PrefixValAddr, CheqDenom } from 'network';
+import { CheqBech32PrefixAccAddr, CheqBech32PrefixValAddr, CheqDenom, NanoCheqDenom } from 'network';
 import { CHEQ_EXPLORER } from 'constant';
+import { convertCoin } from 'network/util';
 
 type MsgType = { name: string; icon: string; iconClassName?: string; id: string; description: string };
 
@@ -388,8 +389,7 @@ const Operations = (): JSX.Element => {
 							<BalanceCard
 								balance={
 									vestings
-										? balance.cheq -
-										  Number(LumUtils.convertUnit(vestings.lockedBankCoins, CheqDenom))
+										? balance.cheq - convertCoin(vestings.lockedBankCoins.amount, NanoCheqDenom)
 										: balance.cheq
 								}
 								address={wallet.getAddress()}

@@ -8,21 +8,13 @@ import {
 	broadcastTxCommitSuccess,
 } from '@cosmjs/tendermint-rpc';
 import { QueryClient as StargateQueryClient, SigningStargateClient, DeliverTxResponse, StdFee } from '@cosmjs/stargate';
-
-import {
-	Coin,
-	// BlockResponse,
-	Account,
-	// TxResponse,
-	// BroadcastTxCommitResponse,
-	SignDoc,
-	// TxSearchParams,
-} from '@lum-network/sdk-javascript/build/types';
-
 import { Doc } from './types/msg';
 import { BankExtension, setupBankExtension, TxExtension, setupTxExtension } from './modules';
 import { LumUtils } from '@lum-network/sdk-javascript';
 import { CheqWallet } from './wallet';
+import { Account, accountFromAny } from './types/account';
+import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
 
 import {
 	StakingExtension,
@@ -176,7 +168,7 @@ export class CheqClient {
 		if (!anyAccount) {
 			return null;
 		}
-		return LumUtils.accountFromAny(anyAccount);
+		return accountFromAny(anyAccount);
 	};
 
 	/**
