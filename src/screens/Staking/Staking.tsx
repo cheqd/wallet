@@ -39,7 +39,7 @@ import { CHEQ_EXPLORER } from 'constant';
 import { convertCoin } from 'network/util';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = () => {};
+const noop = () => { };
 
 const Staking = (): JSX.Element => {
 	// State
@@ -433,8 +433,7 @@ const Staking = (): JSX.Element => {
 							<BalanceCard
 								balance={
 									vestings
-										? balance.cheq -
-										  Number(LumUtils.convertUnit(vestings.lockedBankCoins, NanoCheqDenom))
+										? balance.cheq - convertCoin(vestings.lockedBankCoins.amount, NanoCheqDenom)
 										: balance.cheq
 								}
 								address={wallet.getAddress()}

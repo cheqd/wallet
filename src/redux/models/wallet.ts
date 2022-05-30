@@ -218,8 +218,8 @@ export const wallet = createModel<RootModel>()({
 					await keplrWindow.keplr.experimentalSuggestChain({
 						chainId: chainId,
 						chainName: chainId.includes('testnet') ? 'Cheq Testnet' : 'Cheq Network',
-						rpc: process.env.REACT_APP_RPC_URL,
-						rest: process.env.REACT_APP_API_URL,
+						rpc: process.env.REACT_APP_RPC_ENDPOINT,
+						rest: process.env.REACT_APP_REST_ENDPOINT,
 						stakeCurrency: {
 							coinDenom: CheqDenom.toUpperCase(),
 							coinMinimalDenom: NanoCheqDenom,
@@ -348,7 +348,7 @@ export const wallet = createModel<RootModel>()({
 
 					DirectSecp256k1HdWallet.fromMnemonic(payload.mnemonic, { prefix: CheqBech32PrefixAccAddr })
 						.then((w) => {
-							SigningStargateClient.connectWithSigner(process.env.REACT_APP_RPC_URL, w, {
+							SigningStargateClient.connectWithSigner(process.env.REACT_APP_RPC_ENDPOINT, w, {
 								gasPrice: GasPrice.fromString('25' + NanoCheqDenom),
 							})
 								.then((signingClient) => {
