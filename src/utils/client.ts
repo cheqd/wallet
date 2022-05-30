@@ -5,26 +5,23 @@ import { assertIsDeliverTxSuccess, SigningStargateClient, coin, GasPrice } from 
 import { LumUtils } from '@lum-network/sdk-javascript';
 import { ProposalStatus, VoteOption } from 'cosmjs-types/cosmos/gov/v1beta1/gov';
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
-import { Coin } from '@lum-network/sdk-javascript/build/types';
 import { OSMOSIS_API_URL } from 'constant';
 import Long from 'long';
 import { CheqInfo, PasswordStrength, PasswordStrengthType, Proposal, Transaction, Wallet } from 'models';
 import { CheqClient } from 'network/cheqd';
 import { CheqRegistry } from 'network/modules/registry';
 import { SignMsg } from 'network/types/signMsg';
-import { CheqDenom, CheqMessageSigner, CheqSignOnlyChainId, NanoCheqDenom } from '../network/constants';
+import { CheqDenom, CheqMessageSigner, CheqSignOnlyChainId, NanoCheqDenom } from 'network/constants';
 import { sortByBlockHeight } from './transactions';
 import {
 	Bech32,
 	generateAuthInfoBytes,
-	generateSignDocBytes,
 	getAddressFromPublicKey,
 	sha256,
 	sortJSON,
 	toAscii,
 } from '@lum-network/sdk-javascript/build/utils';
-import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
-import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
+import { DirectSecp256k1HdWallet, makeSignBytes } from '@cosmjs/proto-signing';
 import { convertCoin } from 'network/util';
 import { MsgBeginRedelegate, MsgDelegate, MsgUndelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx';
 import {
@@ -37,6 +34,9 @@ import {
 } from '@lum-network/sdk-javascript/build/messages';
 import { MsgWithdrawDelegatorReward } from 'cosmjs-types/cosmos/distribution/v1beta1/tx';
 import { MsgVote } from 'cosmjs-types/cosmos/gov/v1beta1/tx';
+import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
+import { estimatedVesting } from 'utils';
+import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
 
 export type MnemonicLength = 12 | 24;
 
@@ -214,7 +214,7 @@ class WalletClient {
 
 	// Init
 	init = () => {
-		CheqClient.connect(process.env.REACT_APP_RPC_URL).then(async (client: CheqClient) => {
+		CheqClient.connect(process.env.REACT_APP_RPC_ENDPOINT).then(async (client: CheqClient) => {
 			this.GasPrice = GasPrice.fromString('25' + NanoCheqDenom);
 			const status = await client.status();
 			this.cheqClient = client;
@@ -269,7 +269,7 @@ class WalletClient {
 			]);
 
 			return { bonded: bondedValidators.validators, unbonded: unbondedValidators.validators };
-		} catch (e) {}
+		} catch (e) { }
 	};
 
 	getValidatorsInfos = async (address: string) => {
@@ -313,7 +313,7 @@ class WalletClient {
 				stakedCoins,
 				unbondedTokens,
 			};
-		} catch (e) {}
+		} catch (e) { }
 	};
 
 	getWalletBalance = async (address: string) => {
@@ -351,9 +351,7 @@ class WalletClient {
 		try {
 			const account = await this.cheqClient.getAccount(address);
 			if (account) {
-				const { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt } =
-					LumUtils.estimatedVesting(account);
-
+				const { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt } = estimatedVesting(account);
 				return { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt };
 			}
 
@@ -434,12 +432,12 @@ class WalletClient {
 
 		const result = await this.cheqClient.queryClient.gov.proposals(
 			ProposalStatus.PROPOSAL_STATUS_UNSPECIFIED |
-				ProposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD |
-				ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD |
-				ProposalStatus.PROPOSAL_STATUS_PASSED |
-				ProposalStatus.PROPOSAL_STATUS_REJECTED |
-				ProposalStatus.PROPOSAL_STATUS_FAILED |
-				ProposalStatus.UNRECOGNIZED,
+			ProposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD |
+			ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD |
+			ProposalStatus.PROPOSAL_STATUS_PASSED |
+			ProposalStatus.PROPOSAL_STATUS_REJECTED |
+			ProposalStatus.PROPOSAL_STATUS_FAILED |
+			ProposalStatus.UNRECOGNIZED,
 			'',
 			'',
 		);
@@ -784,8 +782,7 @@ class WalletClient {
 		}
 
 		try {
-			// @ts-ignore
-			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, [msg], 'auto', memo);
+			const broadcastResult = await this.cheqClient.signAndBroadcastTx(fromWallet, [msg], 'auto', '');
 			// Verify the transaction was successfully broadcasted and made it into a block
 			// @ts-ignore
 			assertIsDeliverTxSuccess(broadcastResult);
@@ -852,7 +849,7 @@ export const verifySignMsg = async (msg: SignMsg): Promise<boolean> => {
 			chainId: CheqSignOnlyChainId,
 			accountNumber: Long.fromNumber(0),
 		};
-		const signedBytes = generateSignDocBytes(signDoc);
+		const signedBytes = makeSignBytes(signDoc);
 		return verifySignature(msg.sig, signedBytes, msg.publicKey);
 	} else if (msg.signer === CheqMessageSigner.LEDGER) {
 		// Re-generate ledger required amino payload to sign messages

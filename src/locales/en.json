@@ -307,7 +307,7 @@
         "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded"],
         "claim": "Claim",
         "timeRemaining": "{{ time }} remaining",
-        "includingVesting": ["Including ", " vesting"],
+		"includingVesting": ["Including ", " delegated vesting"],
         "topValidatorModal": {
             "title": "Warning: This validator already has more than 8% of the voting power, you should chose another validator in order to help decentralization and better secure the network.",
             "go": "Delegate anyway"
