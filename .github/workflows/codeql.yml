@@ -2,6 +2,7 @@ name: "CodeQL"
 on:
   push:
     branches:
+      - master
       - cheqd
       - develop
 concurrency:
