@@ -10,7 +10,7 @@
         "@cosmjs/stargate": "^0.28.4",
         "@cosmjs/tendermint-rpc": "^0.28.4",
         "@keplr-wallet/crypto": "^0.10.1",
-        "@ledgerhq/hw-transport-webusb": "^6.7.0",
+        "@ledgerhq/hw-transport-webusb": "^6.27.1",
         "@lum-network/sdk-javascript": "^0.7.3",
         "@popperjs/core": "^2.10.2",
         "@rematch/core": "^2.1.0",
