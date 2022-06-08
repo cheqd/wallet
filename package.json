@@ -15,6 +15,7 @@
         "@popperjs/core": "^2.10.2",
         "@rematch/core": "^2.1.0",
         "@rematch/loading": "^2.1.1",
+        "@rematch/persist": "^2.1.2",
         "axios": "^0.27.2",
         "bootstrap": "^5.1.2",
         "clipboard": "^2.0.6",
