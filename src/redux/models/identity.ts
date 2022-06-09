@@ -4,6 +4,11 @@ import { IdentityWallet, RootModel } from '../../models';
 interface IdentityState {
 	authToken: string | null;
 	passphrase: string | null;
+	claims: {
+	    service: string;
+        profileName: string;
+        accessToken: string;
+    }[];
 	wallet: IdentityWallet | null;
 }
 
@@ -12,6 +17,7 @@ export const identity = createModel<RootModel>()({
 	state: {
 		authToken: null,
 		passphrase: null,
+		claims: [],
 		wallet: null,
 	} as IdentityState,
 	reducers: {
@@ -25,6 +31,16 @@ export const identity = createModel<RootModel>()({
 			return {
 				...state,
 				passphrase,
+			};
+		},
+		addClaim(state, claim: {
+            service: string;
+            profileName: string;
+            accessToken: string;
+        }) {
+			return {
+				...state,
+				claims: [...state.claims, claim],
 			};
 		},
 		setWallet(state, wallet: IdentityWallet | null) {

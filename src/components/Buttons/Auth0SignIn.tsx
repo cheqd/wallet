@@ -6,8 +6,8 @@ const Auth0SignIn = () => {
 	const { t } = useTranslation();
 	const { loginWithPopup } = useAuth0();
 
-	return <Button className="px-5" onClick={() => loginWithPopup()}>
-		{t('identity.twitter.connect')}
+	return <Button className="px-5" onClick={() => loginWithPopup({connection: "twitter", scope: "openid profile"})}>
+		{/*{t('identity.twitter.connect')}*/}
 	</Button>
 }
 

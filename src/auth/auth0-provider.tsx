@@ -1,7 +1,6 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { Auth0Provider as Auth0 } from '@auth0/auth0-react';
-import { JsxElement } from 'typescript';
 
 type Props = {
 	children: JSX.Element

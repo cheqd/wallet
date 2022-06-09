@@ -4,10 +4,10 @@ import Button from "./Button";
 
 const Auth0SignOut = () => {
 	const { t } = useTranslation();
-	const { logout } = useAuth0();
+	const { logout, user, getIdTokenClaims, getAccessTokenSilently } = useAuth0();
 
 	return <Button className="px-5" onClick={() => logout()}>
-		{t('identity.twitter.disconnect')}
+		{/*{t('identity.twitter.disconnect')}*/}
 	</Button>
 }
 
