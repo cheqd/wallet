@@ -394,14 +394,14 @@
         "get": {
             "title": "Get a credential",
             "description": "Get a new credential issued by cheqd",
-            "get": "Get"
+            "get": "Get",
+
+            "claims": {
+                "title": "Claims",
+                "connect": "Connect social account"
+            }
         },
-		"twitter": {
-			"title": "Connect your Twitter Account",
-			"description": "Get a new credential which is connected with your Twitter Account",
-			"connect": "Connect Twitter",
-			"disconnect": "Disconnect Twitter"
-		},
+
         "wallet": {
             "title": "My credentials",
             "description": "Manage your credentials",

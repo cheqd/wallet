@@ -21,8 +21,9 @@ import Assets from '../../assets';
 import { QRCodeSVG } from 'qrcode.react';
 import Multibase from 'multibase';
 import Multicodec from 'multicodec';
-import TwitterAuthButton from 'components/Buttons/TwitterAuthButton';
-import { useAuth0 } from '@auth0/auth0-react';
+import createAuth0Client from "@auth0/auth0-spa-js";
+import { loadUrlInIframe } from "../../utils/iframe";
+import { switchFetch } from "@auth0/auth0-spa-js/dist/typings/http";
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
@@ -30,24 +31,26 @@ const Identity = (): JSX.Element => {
 	const credentialDetailedRef = useRef<HTMLDivElement>(null);
 
 	// Redux hooks
-	const { wallet, identityWallet, authToken, passphrase } = useSelector((state: RootState) => ({
+	const { wallet, identityWallet, authToken, passphrase, claims } = useSelector((state: RootState) => ({
 		wallet: state.wallet.currentWallet,
 		identityWallet: state.identity.wallet,
 		authToken: state.identity.authToken,
 		passphrase: state.identity.passphrase,
+		claims: state.identity.claims,
 	}));
 
 	// Dispatch methods
-	const { setAuthToken, setPassphrase, setWallet } = useRematchDispatch((dispatch: RootDispatch) => ({
+	const { setAuthToken, setPassphrase, setWallet, addClaim } = useRematchDispatch((dispatch: RootDispatch) => ({
 		setAuthToken: dispatch.identity.setAuthToken,
 		setPassphrase: dispatch.identity.setPassphrase,
 		setWallet: dispatch.identity.setWallet,
+		addClaim: dispatch.identity.addClaim,
 	}));
 
 	// Utils hooks
 	const { t } = useTranslation();
 
-	const { user } = useAuth0();
+	// const { user } = useAuth0();
 
 	// Refs
 	const authTokenRef = useRef<HTMLDivElement>(null);
@@ -60,27 +63,49 @@ const Identity = (): JSX.Element => {
 	}
 
 	// Methods
+	const handleConnectSocialAccount = async () => {
+		try {
+			const auth0 = await createAuth0Client({
+				domain: process.env.REACT_APP_AUTH0_DOMAIN,
+				client_id: process.env.REACT_APP_AUTH0_CLIENT_ID,
+			});
+
+			if (await auth0.isAuthenticated()) {
+				await loadUrlInIframe(auth0.buildLogoutUrl());
+			}
+
+			let token = await auth0.getTokenWithPopup({
+				scope: 'openid profile',
+			})
+
+			const user = (await auth0.getUser())!;
+			// alert(JSON.stringify(user, null, 2));
+
+			const services: { [key: string]: string} = {
+			    'google-oauth2': "Google",
+                'facebook': "Facebook",
+                'twitter': "Twitter"
+            }
+
+            const service = services[user.sub!.substring(0, user.sub!.indexOf('|'))] || "Unknown";
+
+			addClaim({
+				profileName: user.nickname || user.name || user.email || "no data",
+				service,
+				accessToken: token,
+			});
+
+		} catch (error) {
+			showErrorToast((error as Error).message);
+		}
+	}
+
 	const handleGetCredential = async () => {
 		try {
 			if (!identityWallet) {
 				showErrorToast(t('identity.wallet.error.locked'));
 				return;
 			}
-
-			const pair = await window.crypto.subtle.generateKey(
-				{
-					name: 'ECDSA',
-					namedCurve: 'P-256',
-				},
-				true,
-				['sign', 'verify'],
-			);
-
-			const publicKey = await window.crypto.subtle.exportKey('spki', pair.publicKey!);
-			const privateKey = await window.crypto.subtle.exportKey('pkcs8', pair.privateKey!);
-
-			console.log(publicKey);
-			console.log(privateKey);
 
 			const identifier = Buffer.from(
 				Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey()))),
@@ -246,28 +271,39 @@ const Identity = (): JSX.Element => {
 					<div className="container">
 						<div className="row gy-4">
 							<div className="col-12">
-								<Card className="d-flex flex-column h-100 justify-content-between">
+								<Card className="d-flex flex-column h-100 justify-content-between gap-5">
 									<div>
 										<h2>{t('identity.get.title')}</h2>
-										<div className="my-4">{t('identity.get.description')}</div>
+										<div className="mt-3">{t('identity.get.description')}</div>
 									</div>
-									<div className="d-flex gap-4 flex-row justify-content-start">
+									<div className="px-3">
+										<h3>{t('identity.get.claims.title')}</h3>
+                                        <div className="mt-2">
+                                            {claims.map((claim) => {
+                                                    return (
+                                                        <div className="col-lg-6 col-12" key={claim.profileName} title={claim.accessToken}>{claim.service}: {claim.profileName}</div>
+                                                    )
+                                                }
+                                            )}
+                                        </div>
+										<CustomButton className="mt-3 btn-sm btn-outline-secondary outline border-1" onClick={handleConnectSocialAccount}>
+											{t('identity.get.claims.connect')}
+										</CustomButton>
+									</div>
+									<div>
 										<CustomButton className="px-5" onClick={handleGetCredential}>
 											{t('identity.get.get')}
 										</CustomButton>
-										<div className="d-flex flex-row justify-content-start">
-											<TwitterAuthButton />
-										</div>
 									</div>
 								</Card>
 							</div>
-							{user && user.name ?
-								<div className="col-12">
-									<Card className="d-flex flex-column h-100 justify-content-between">
-										<p style={{ width: '80%', wordWrap: "break-word" }}>{JSON.stringify(user)}</p>
-									</Card>
-								</div> : null
-							}
+							{/*{user && user.name ?*/}
+							{/*	<div className="col-12">*/}
+							{/*		<Card className="d-flex flex-column h-100 justify-content-between">*/}
+							{/*			<p style={{ width: '80%', wordWrap: "break-word" }}>{JSON.stringify(user)}</p>*/}
+							{/*		</Card>*/}
+							{/*	</div> : null*/}
+							{/*}*/}
 							<div className="col-12">
 								<Card className="d-flex flex-column h-100 justify-content-between">
 									<div>
