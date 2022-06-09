@@ -1,3 +1,4 @@
+import Auth0Provider from 'auth/auth0-provider';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch, Route, BrowserRouter, Redirect } from 'react-router-dom';
@@ -8,34 +9,36 @@ import MainLayout from './Layout/MainLayout/MainLayout';
 const RootNavigator = (): JSX.Element => {
 	return (
 		<BrowserRouter>
-			<MainLayout>
-				<Switch>
-					<Route path="/welcome">
-						<Welcome />
-					</Route>
-					<Route path="/create">
-						<CreateWallet />
-					</Route>
-					<PrivateRoute exact path={['/home', '/']}>
-						<Dashboard />
-					</PrivateRoute>
-					<PrivateRoute exact path="/operations">
-						<Operations />
-					</PrivateRoute>
-					<PrivateRoute exact path="/staking">
-						<Staking />
-					</PrivateRoute>
-					<PrivateRoute exact path={['/governance', '/governance/proposal/:proposalId']}>
-						<Governance />
-					</PrivateRoute>
-					<PrivateRoute exact path="/identity">
-						<Identity />
-					</PrivateRoute>
-					<Route path="*">
-						<Error404 />
-					</Route>
-				</Switch>
-			</MainLayout>
+			<Auth0Provider>
+				<MainLayout>
+					<Switch>
+						<Route path="/welcome">
+							<Welcome />
+						</Route>
+						<Route path="/create">
+							<CreateWallet />
+						</Route>
+						<PrivateRoute exact path={['/home', '/']}>
+							<Dashboard />
+						</PrivateRoute>
+						<PrivateRoute exact path="/operations">
+							<Operations />
+						</PrivateRoute>
+						<PrivateRoute exact path="/staking">
+							<Staking />
+						</PrivateRoute>
+						<PrivateRoute exact path={['/governance', '/governance/proposal/:proposalId']}>
+							<Governance />
+						</PrivateRoute>
+						<PrivateRoute exact path="/identity">
+							<Identity />
+						</PrivateRoute>
+						<Route path="*">
+							<Error404 />
+						</Route>
+					</Switch>
+				</MainLayout>
+			</Auth0Provider>
 		</BrowserRouter>
 	);
 };

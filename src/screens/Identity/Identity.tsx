@@ -21,6 +21,8 @@ import Assets from '../../assets';
 import { QRCodeSVG } from 'qrcode.react';
 import Multibase from 'multibase';
 import Multicodec from 'multicodec';
+import TwitterAuthButton from 'components/Buttons/TwitterAuthButton';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
@@ -44,6 +46,8 @@ const Identity = (): JSX.Element => {
 
 	// Utils hooks
 	const { t } = useTranslation();
+
+	const { user } = useAuth0();
 
 	// Refs
 	const authTokenRef = useRef<HTMLDivElement>(null);
@@ -224,6 +228,7 @@ const Identity = (): JSX.Element => {
 
 	function changeActiveTab(activeTab: string) {
 		const tabs = ['tab-formatted', 'tab-json', 'tab-qr'];
+
 		tabs.forEach((tab) => {
 			const tabObj = document.getElementById(tab);
 			if (tab === activeTab) {
@@ -246,13 +251,23 @@ const Identity = (): JSX.Element => {
 										<h2>{t('identity.get.title')}</h2>
 										<div className="my-4">{t('identity.get.description')}</div>
 									</div>
-									<div className="d-flex flex-row justify-content-start">
+									<div className="d-flex gap-4 flex-row justify-content-start">
 										<CustomButton className="px-5" onClick={handleGetCredential}>
 											{t('identity.get.get')}
 										</CustomButton>
+										<div className="d-flex flex-row justify-content-start">
+											<TwitterAuthButton />
+										</div>
 									</div>
 								</Card>
 							</div>
+							{user && user.name ?
+								<div className="col-12">
+									<Card className="d-flex flex-column h-100 justify-content-between">
+										<p style={{ width: '80%', wordWrap: "break-word" }}>{JSON.stringify(user)}</p>
+									</Card>
+								</div> : null
+							}
 							<div className="col-12">
 								<Card className="d-flex flex-column h-100 justify-content-between">
 									<div>
