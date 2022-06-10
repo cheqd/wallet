@@ -12,7 +12,7 @@ import { getAuthToken } from '../../utils/walletAuth';
 import { fromBase64, toBase64 } from '@lum-network/sdk-javascript/build/utils';
 import { getCredential } from '../../apis/issuer';
 import { useRematchDispatch } from '../../redux/hooks';
-import { Credential as VerifiableCredential } from '../../models';
+import { Credential as VerifiableCredential, Wallet } from '../../models';
 import { Modal as BSModal } from 'bootstrap';
 import { backupCryptoBox, loadCryptoBox } from '../../apis/storage';
 import { encryptIdentityWallet, tryDecryptIdentityWallet } from '../../utils/identityWalet';
@@ -23,7 +23,6 @@ import Multibase from 'multibase';
 import Multicodec from 'multicodec';
 import createAuth0Client from "@auth0/auth0-spa-js";
 import { loadUrlInIframe } from "../../utils/iframe";
-import { switchFetch } from "@auth0/auth0-spa-js/dist/typings/http";
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
@@ -40,17 +39,16 @@ const Identity = (): JSX.Element => {
 	}));
 
 	// Dispatch methods
-	const { setAuthToken, setPassphrase, setWallet, addClaim } = useRematchDispatch((dispatch: RootDispatch) => ({
+	const { setAuthToken, setPassphrase, setWallet, addClaim, removeClaim } = useRematchDispatch((dispatch: RootDispatch) => ({
 		setAuthToken: dispatch.identity.setAuthToken,
 		setPassphrase: dispatch.identity.setPassphrase,
 		setWallet: dispatch.identity.setWallet,
-		addClaim: dispatch.identity.addClaim,
+        addClaim: dispatch.identity.addClaim,
+        removeClaim: dispatch.identity.removeClaim,
 	}));
 
 	// Utils hooks
 	const { t } = useTranslation();
-
-	// const { user } = useAuth0();
 
 	// Refs
 	const authTokenRef = useRef<HTMLDivElement>(null);
@@ -79,19 +77,24 @@ const Identity = (): JSX.Element => {
 			})
 
 			const user = (await auth0.getUser())!;
-			// alert(JSON.stringify(user, null, 2));
 
-			const services: { [key: string]: string} = {
+			const serviceNames: { [key: string]: string} = {
 			    'google-oauth2': "Google",
                 'facebook': "Facebook",
                 'twitter': "Twitter"
             }
 
-            const service = services[user.sub!.substring(0, user.sub!.indexOf('|'))] || "Unknown";
+            const serviceId = user.sub!.substring(0, user.sub!.indexOf('|'));
+            const serviceName = serviceNames[serviceId] || serviceId;
+
+            if (claims.find(s => s.service === serviceName)) {
+				showErrorToast(t('identity.get.error.serviceIsAlreadyConnected'));
+            	return;
+			}
 
 			addClaim({
 				profileName: user.nickname || user.name || user.email || "no data",
-				service,
+				service: serviceName,
 				accessToken: token,
 			});
 
@@ -100,19 +103,15 @@ const Identity = (): JSX.Element => {
 		}
 	}
 
-	const handleGetCredential = async () => {
+    const handleGetCredential = async () => {
 		try {
 			if (!identityWallet) {
 				showErrorToast(t('identity.wallet.error.locked'));
 				return;
 			}
 
-			const identifier = Buffer.from(
-				Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey()))),
-			).toString();
-			const subjectId = 'did:key:' + identifier;
 			// Get credential
-			const cred = await getCredential(subjectId);
+			const cred = await getCredential(getSubjectId(wallet), claims.map(c => c.accessToken));
 
 			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
 
@@ -126,6 +125,14 @@ const Identity = (): JSX.Element => {
 			showErrorToast((e as Error).message);
 		}
 	};
+
+	function getSubjectId(wallet: Wallet): string {
+		const identifier = Buffer.from(
+			Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey()))),
+		).toString();
+
+		return  'did:key:' + identifier;
+	}
 
 	const handleUnlock = async () => {
 		if (authToken == null) {
@@ -271,17 +278,26 @@ const Identity = (): JSX.Element => {
 					<div className="container">
 						<div className="row gy-4">
 							<div className="col-12">
-								<Card className="d-flex flex-column h-100 justify-content-between gap-5">
+								<Card className="d-flex flex-column h-100 justify-content-between gap-4">
 									<div>
 										<h2>{t('identity.get.title')}</h2>
 										<div className="mt-3">{t('identity.get.description')}</div>
+									</div>
+									<div className="px-3">
+										<h3>{t('identity.get.subject.title')}</h3>
+										<div className="mt-3">
+											<div className="col-lg-6 col-12">{getSubjectId(wallet)}</div>
+										</div>
 									</div>
 									<div className="px-3">
 										<h3>{t('identity.get.claims.title')}</h3>
                                         <div className="mt-2">
                                             {claims.map((claim) => {
                                                     return (
-                                                        <div className="col-lg-6 col-12" key={claim.profileName} title={claim.accessToken}>{claim.service}: {claim.profileName}</div>
+                                                        <div  key={claim.profileName} className="claim d-flex flex-row">
+                                                            <div title={claim.accessToken}>{claim.service}: {claim.profileName}</div>
+                                                            <div className="delete mx-3 btn-link pointer" onClick={() => removeClaim(claim)}>remove</div>
+                                                        </div>
                                                     )
                                                 }
                                             )}
@@ -297,13 +313,6 @@ const Identity = (): JSX.Element => {
 									</div>
 								</Card>
 							</div>
-							{/*{user && user.name ?*/}
-							{/*	<div className="col-12">*/}
-							{/*		<Card className="d-flex flex-column h-100 justify-content-between">*/}
-							{/*			<p style={{ width: '80%', wordWrap: "break-word" }}>{JSON.stringify(user)}</p>*/}
-							{/*		</Card>*/}
-							{/*	</div> : null*/}
-							{/*}*/}
 							<div className="col-12">
 								<Card className="d-flex flex-column h-100 justify-content-between">
 									<div>

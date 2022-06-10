@@ -396,9 +396,18 @@
             "description": "Get a new credential issued by cheqd",
             "get": "Get",
 
+            "subject": {
+                "title": "Subject",
+                "description": "Derived from the public key of the wallet"
+            },
+
             "claims": {
                 "title": "Claims",
                 "connect": "Connect social account"
+            },
+
+            "error": {
+                "serviceIsAlreadyConnected": "Service already connected"
             }
         },
 
@@ -425,6 +434,7 @@
                 "resetConfirmation": "Are you sure you want to reset your wallet? This will delete all your credentials."
             }
         },
+
         "credential": {
             "title": "Credential",
             "remove": "Remove",
