@@ -15,11 +15,10 @@ const Button = (props: ButtonProps): JSX.Element => {
 	return (
 		<button
 			{...rest}
-			className={`${
-				buttonType === 'normal'
-					? 'normal-btn scale-anim d-flex justify-content-center align-items-center px-5 py-2 rounded-pill'
-					: 'scale-anim'
-			} ${outline && 'outline'} ${className}`}
+			className={`${buttonType === 'normal'
+				? 'normal-btn scale-anim d-flex justify-content-center align-items-center px-5 py-2 rounded-pill'
+				: 'scale-anim'
+				} ${outline && 'outline'} ${className}`}
 		>
 			{isLoading ? <Loading /> : children}
 		</button>

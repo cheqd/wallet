@@ -1,30 +1,32 @@
-import React, { useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
-import { Redirect } from 'react-router';
-import { Card } from 'frontend-elements';
 import { Button as CustomButton, Input, Modal } from 'components';
+import { Card } from 'frontend-elements';
+import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { Redirect } from 'react-router';
 import { RootDispatch, RootState } from 'redux/store';
 
-import './styles/Identity.scss';
-import { showErrorToast, showSuccessToast, trunc } from 'utils';
-import { getAuthToken } from '../../utils/walletAuth';
 import { fromBase64, toBase64 } from '@lum-network/sdk-javascript/build/utils';
-import { getCredential } from '../../apis/issuer';
-import { useRematchDispatch } from '../../redux/hooks';
-import { Credential as VerifiableCredential } from '../../models';
+import axios from 'axios';
 import { Modal as BSModal } from 'bootstrap';
-import { backupCryptoBox, loadCryptoBox } from '../../apis/storage';
-import { encryptIdentityWallet, tryDecryptIdentityWallet } from '../../utils/identityWalet';
 import update from 'immutability-helper';
-import Assets from '../../assets';
-import { QRCodeSVG } from 'qrcode.react';
 import Multibase from 'multibase';
 import Multicodec from 'multicodec';
+import { QRCodeSVG } from 'qrcode.react';
+import { showErrorToast, showSuccessToast, trunc } from 'utils';
+import { getCredential } from '../../apis/issuer';
+import { backupCryptoBox, loadCryptoBox } from '../../apis/storage';
+import Assets from '../../assets';
+import { Credential as VerifiableCredential } from '../../models';
+import { useRematchDispatch } from '../../redux/hooks';
+import { encryptIdentityWallet, tryDecryptIdentityWallet } from '../../utils/identityWalet';
+import { getAuthToken } from '../../utils/walletAuth';
+import './styles/Identity.scss';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
 	const [selectedCred, setSelectedCred] = useState<VerifiableCredential | null>(null);
+	const [verifyCreds, setVerifyCreds] = useState({ isVerified: false, isLoading: false });
 	const credentialDetailedRef = useRef<HTMLDivElement>(null);
 
 	// Redux hooks
@@ -205,42 +207,21 @@ const Identity = (): JSX.Element => {
 		showModal('credentialDetails', true);
 	};
 
-	const verifyStyleStatusList = new Map([
-			["success", "btn-outline-success"],
-			["not-verified", "btn-outline-secondary"],
-			["in-progress","btn-outline-primary"],
-			["invalid", "btn-outline-danger"]
-		]);
-	const setStyleForVerificationBtn = (cardId: string, status: string) => {
-		if (!verifyStyleStatusList.has(status)) return;
-		verifyStyleStatusList.forEach((className, btnStatus) => {
-			const btn = document.getElementById("verifyCard" + cardId);
-			if (btn) {
-				btn.classList.remove(className);
-			}
-			const icon = document.getElementById("verification-icon-" + btnStatus + cardId)
-			if (icon) {
-				icon.style.display = "none";
-			}
-		});
-		const btn = document.getElementById("verifyCard" + cardId);
-		if (btn) {
-			btn.classList.add(verifyStyleStatusList.get(status)!);
-		}
-		const icon = document.getElementById("verification-icon-" + status + cardId)
-		if (icon) {
-			icon.style.display = "inline-block";
-		}
+	const handleVerifyCredential = async (credential: VerifiableCredential) => {
+		if (credential == null) return;
+		setVerifyCreds({ ...verifyCreds, isLoading: true })
 
-	}
-	const handleVerifyCredential = async (cred: VerifiableCredential) => {
-        if (cred == null) return;
-        showModal('credentialDetails', false);
-        setSelectedCred(null);
-		setStyleForVerificationBtn(cred.issuanceDate, "in-progress");
-		// TODO: set successfulCheck by verification result
-        const successfulCheck = true;
-        setStyleForVerificationBtn(cred.issuanceDate, (successfulCheck?"success":"invalid"));
+		const uri = `${process.env.REACT_APP_CREDENTIALS_ENDPOINT}/api/credentials/verify`;
+
+		// request object is like
+		// { credential: {...} }
+		axios.post(uri, { credential }).then(resp => {
+			setVerifyCreds({ isLoading: false, isVerified: true })
+			setSelectedCred(credential);
+		}).catch(err => {
+			setVerifyCreds({ isVerified: false, isLoading: false });
+			showModal('credentialDetails', true);
+		})
 	};
 
 
@@ -303,7 +284,7 @@ const Identity = (): JSX.Element => {
 											return (
 												<div className="col-lg-6 col-12" key={cred.issuanceDate}>
 													<Card className="d-flex flex-column h-100 justify-content-between message-button-container">
-														<div onClick={async () => await handleShowCredential(cred)}>
+														<div>
 															<div className="d-flex flex-row justify-content-between mb-2">
 																<h2>
 																	<img
@@ -313,42 +294,23 @@ const Identity = (): JSX.Element => {
 																	/>
 																	Credential
 																</h2>
-																<div className="btn btn-outline-secondary p-2 h-auto"
-                                                                     id={"verifyCard" + cred.issuanceDate}
-                                                                     onClick={async (e) => {
-                                                                         e.preventDefault();
-                                                                         await handleVerifyCredential(cred);
-                                                                     }
-                                                                     }
-                                                                >
-																	Verify
-																	<svg
-																			xmlns="http://www.w3.org/2000/svg"
-																			width="16"
-																			height="16"
-																			fill="currentColor"
-																			className="bi bi-check verify-icon"
-																			viewBox="0 0 16 16"
-																			id={"verification-icon-success" + cred.issuanceDate}
-																		>
-																			<path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-																		</svg>
-																	<svg xmlns="http://www.w3.org/2000/svg" width="16"
-																			 height="16" fill="currentColor"
-																			 className="bi bi-x verify-icon" viewBox="0 0 16 16"
-																			 id={"verification-icon-invalid" + cred.issuanceDate}
-																		>
-																			<path
-																				d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-																		</svg>
-                                                                    <div
-                                                                        className="verify-icon"
-                                                                         id={"verification-icon-in-progress" + cred.issuanceDate}
-                                                                    >
-                                                                        <span className="spinner-border spinner-border-sm"
-                                                                              role="status" aria-hidden="true"/>
-                                                                    </div>
-																</div>
+																<CustomButton
+																	onClick={() => handleVerifyCredential(cred)}
+																	outline={true}
+																	isLoading={verifyCreds.isLoading}
+																	disabled={verifyCreds.isVerified}
+																>
+																	{verifyCreds.isVerified ?
+																		<div className="flex-row d-flex gap-2">
+																			Verified
+																			<img
+																				src={Assets.images.checkmarkIcon}
+																				height="20"
+																			/>
+																		</div>
+																		: 'Verify'
+																	}
+																</CustomButton>
 															</div>
 															<>
 																<p>
