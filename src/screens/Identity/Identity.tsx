@@ -366,13 +366,13 @@ const Identity = (): JSX.Element => {
 																	: null
 																}
 																{
-																	cred.WebPage.map((webpage) => {
+																	cred.WebPage ? cred.WebPage.map((webpage) => {
 																		return (
 																			<p>
 																				<b>{webpage.description}:</b> {webpage.name}
 																			</p>
 																		)
-																	})
+																	}) : null
 																}
 															</>
 
@@ -616,7 +616,7 @@ const Identity = (): JSX.Element => {
 															: null
 													}
 													{
-														selectedCred.WebPage.map((webpage) => {
+														selectedCred.WebPage ? selectedCred.WebPage.map((webpage) => {
 															return (
 																<tr>
 																	<td>
@@ -625,7 +625,7 @@ const Identity = (): JSX.Element => {
 																	<td> {webpage.name}</td>
 																</tr>
 															)
-														})
+														}) : null
 													}
 												</tbody>
 											</table>

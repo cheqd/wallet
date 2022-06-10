@@ -133,7 +133,7 @@ export interface IdentityWallet {
 
 export interface Credential {
 	name: string | undefined;
-	WebPage: WebPage[];
+	WebPage: WebPage[] | undefined;
 	type: string[];
 	issuer: Issuer;
 	credentialSubject: CredentialSubject;
