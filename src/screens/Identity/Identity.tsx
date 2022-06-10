@@ -358,9 +358,22 @@ const Identity = (): JSX.Element => {
 																<p>
 																	<b>Issuer: </b> {trunc(cred.issuer.id, 17)}
 																</p>
-																<p>
-																	<b>Name:</b> {cred.name}
-																</p>
+																{
+																	cred.name ?
+																	<p>
+																		<b>Name:</b> {cred.name}
+																	</p>
+																	: null
+																}
+																{
+																	cred.WebPage.map((webpage) => {
+																		return (
+																			<p>
+																				<b>{webpage.description}:</b> {webpage.name}
+																			</p>
+																		)
+																	})
+																}
 															</>
 
 															<div className="d-flex flex-row align-items-right mt-4 mx-0">
@@ -592,12 +605,28 @@ const Identity = (): JSX.Element => {
 														</td>
 														<td> {selectedCred.issuer.id}</td>
 													</tr>
-													<tr>
-														<td>
-															<b>NAME</b>
-														</td>
-														<td> {selectedCred.name}</td>
-													</tr>
+													{
+														selectedCred.name ?
+															<tr className={selectedCred.name ? "" : "visually-hidden"}>
+																<td>
+																	<b>NAME</b>
+																</td>
+																<td> {selectedCred.name}</td>
+															</tr>
+															: null
+													}
+													{
+														selectedCred.WebPage.map((webpage) => {
+															return (
+																<tr>
+																	<td>
+																		<b>{webpage.description}</b>
+																	</td>
+																	<td> {webpage.name}</td>
+																</tr>
+															)
+														})
+													}
 												</tbody>
 											</table>
 										</li>
