@@ -7,12 +7,12 @@ import { Button as CustomButton, Input, Modal } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 
 import './styles/Identity.scss';
-import { showErrorToast, showSuccessToast, trunc } from 'utils';
+import { showErrorToast, showInfoToast, showSuccessToast, trunc } from 'utils';
 import { getAuthToken } from '../../utils/walletAuth';
 import { fromBase64, toBase64 } from '@lum-network/sdk-javascript/build/utils';
 import { getCredential } from '../../apis/issuer';
 import { useRematchDispatch } from '../../redux/hooks';
-import { Credential as VerifiableCredential } from '../../models';
+import { Credential as VerifiableCredential, Wallet } from '../../models';
 import { Modal as BSModal } from 'bootstrap';
 import { backupCryptoBox, loadCryptoBox } from '../../apis/storage';
 import { encryptIdentityWallet, tryDecryptIdentityWallet } from '../../utils/identityWalet';
@@ -21,6 +21,8 @@ import Assets from '../../assets';
 import { QRCodeSVG } from 'qrcode.react';
 import Multibase from 'multibase';
 import Multicodec from 'multicodec';
+import createAuth0Client from "@auth0/auth0-spa-js";
+import { loadUrlInIframe } from "../../utils/iframe";
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
@@ -28,18 +30,21 @@ const Identity = (): JSX.Element => {
 	const credentialDetailedRef = useRef<HTMLDivElement>(null);
 
 	// Redux hooks
-	const { wallet, identityWallet, authToken, passphrase } = useSelector((state: RootState) => ({
+	const { wallet, identityWallet, authToken, passphrase, claims } = useSelector((state: RootState) => ({
 		wallet: state.wallet.currentWallet,
 		identityWallet: state.identity.wallet,
 		authToken: state.identity.authToken,
 		passphrase: state.identity.passphrase,
+		claims: state.identity.claims,
 	}));
 
 	// Dispatch methods
-	const { setAuthToken, setPassphrase, setWallet } = useRematchDispatch((dispatch: RootDispatch) => ({
+	const { setAuthToken, setPassphrase, setWallet, addClaim, removeClaim } = useRematchDispatch((dispatch: RootDispatch) => ({
 		setAuthToken: dispatch.identity.setAuthToken,
 		setPassphrase: dispatch.identity.setPassphrase,
 		setWallet: dispatch.identity.setWallet,
+        addClaim: dispatch.identity.addClaim,
+        removeClaim: dispatch.identity.removeClaim,
 	}));
 
 	// Utils hooks
@@ -56,34 +61,62 @@ const Identity = (): JSX.Element => {
 	}
 
 	// Methods
-	const handleGetCredential = async () => {
+	const handleConnectSocialAccount = async () => {
+		try {
+			const auth0 = await createAuth0Client({
+				domain: process.env.REACT_APP_AUTH0_DOMAIN,
+				client_id: process.env.REACT_APP_AUTH0_CLIENT_ID,
+			});
+
+			if (await auth0.isAuthenticated()) {
+				await loadUrlInIframe(auth0.buildLogoutUrl());
+			}
+
+			let token = await auth0.getTokenWithPopup({
+				scope: 'openid profile',
+			})
+
+			const user = (await auth0.getUser())!;
+
+			const serviceNames: { [key: string]: string} = {
+			    'google-oauth2': "Google",
+                'facebook': "Facebook",
+                'twitter': "Twitter"
+            }
+
+            const serviceId = user.sub!.substring(0, user.sub!.indexOf('|'));
+            const serviceName = serviceNames[serviceId] || serviceId;
+
+            if (claims.find(s => s.service === serviceName)) {
+				showErrorToast(t('identity.get.error.serviceIsAlreadyConnected'));
+            	return;
+			}
+
+			addClaim({
+				profileName: user.nickname || user.name || user.email || "no data",
+				service: serviceName,
+				accessToken: token,
+			});
+
+		} catch (error) {
+			showErrorToast((error as Error).message);
+		}
+	}
+
+    const handleGetCredential = async () => {
 		try {
 			if (!identityWallet) {
 				showErrorToast(t('identity.wallet.error.locked'));
 				return;
 			}
 
-			const pair = await window.crypto.subtle.generateKey(
-				{
-					name: 'ECDSA',
-					namedCurve: 'P-256',
-				},
-				true,
-				['sign', 'verify'],
-			);
-
-			const publicKey = await window.crypto.subtle.exportKey('spki', pair.publicKey!);
-			const privateKey = await window.crypto.subtle.exportKey('pkcs8', pair.privateKey!);
-
-			console.log(publicKey);
-			console.log(privateKey);
-
-			const identifier = Buffer.from(
-				Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey()))),
-			).toString();
-			const subjectId = 'did:key:' + identifier;
 			// Get credential
-			const cred = await getCredential(subjectId);
+			if (claims.length !== 1) {
+				showInfoToast(t("identity.get.message.connectionNeeded"));
+				return;
+			}
+
+			const cred = await getCredential(getSubjectId(wallet), claims[0].accessToken);
 
 			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
 
@@ -98,6 +131,14 @@ const Identity = (): JSX.Element => {
 		}
 	};
 
+	function getSubjectId(wallet: Wallet): string {
+		const identifier = Buffer.from(
+			Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey()))),
+		).toString();
+
+		return  'did:key:' + identifier;
+	}
+
 	const handleUnlock = async () => {
 		if (authToken == null) {
 			showModal('authToken', true);
@@ -111,7 +152,7 @@ const Identity = (): JSX.Element => {
 		try {
 			showModal('authToken', false);
 
-			const authTokenBytes = await getAuthToken(wallet, process.env.REACT_APP_IDENTITY_ENDPOINT);
+			const authTokenBytes = await getAuthToken(wallet, process.env.REACT_APP_STORAGE_ENDPOINT);
 			const authToken = toBase64(authTokenBytes);
 			setAuthToken(authToken);
 
@@ -224,6 +265,7 @@ const Identity = (): JSX.Element => {
 
 	function changeActiveTab(activeTab: string) {
 		const tabs = ['tab-formatted', 'tab-json', 'tab-qr'];
+
 		tabs.forEach((tab) => {
 			const tabObj = document.getElementById(tab);
 			if (tab === activeTab) {
@@ -241,12 +283,29 @@ const Identity = (): JSX.Element => {
 					<div className="container">
 						<div className="row gy-4">
 							<div className="col-12">
-								<Card className="d-flex flex-column h-100 justify-content-between">
+								<Card className="d-flex flex-column h-100 justify-content-between gap-4">
 									<div>
 										<h2>{t('identity.get.title')}</h2>
-										<div className="my-4">{t('identity.get.description')}</div>
+										<div className="mt-3">{t('identity.get.description')}</div>
 									</div>
-									<div className="d-flex flex-row justify-content-start">
+									<div className="px-3">
+										<h3>{t('identity.get.connections.title')}</h3>
+                                        <div className="mt-2">
+                                            {claims.map((claim) => {
+                                                    return (
+                                                        <div  key={claim.profileName} className="claim d-flex flex-row">
+                                                            <div title={claim.accessToken}>{claim.service}: @{claim.profileName}</div>
+                                                            <div className="delete mx-3 btn-link pointer" onClick={() => removeClaim(claim)}>remove</div>
+                                                        </div>
+                                                    )
+                                                }
+                                            )}
+                                        </div>
+										<CustomButton className="mt-3 btn-sm btn-outline-secondary outline border-1" disabled={claims.length >= 1} onClick={handleConnectSocialAccount}>
+											{t('identity.get.connections.connect')}
+										</CustomButton>
+									</div>
+									<div>
 										<CustomButton className="px-5" onClick={handleGetCredential}>
 											{t('identity.get.get')}
 										</CustomButton>
