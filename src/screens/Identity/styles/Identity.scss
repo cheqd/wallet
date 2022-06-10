@@ -28,3 +28,11 @@
 .active {
   font-weight: bold;
 }
+
+.claim:hover .delete {
+  display:block
+}
+
+.claim .delete {
+  display: none;
+}
