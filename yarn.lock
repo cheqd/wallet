@@ -2,14 +2,7 @@
 # yarn lockfile v1
 
 
-"@auth0/auth0-react@^1.10.1":
-  version "1.10.1"
-  resolved "https://registry.yarnpkg.com/@auth0/auth0-react/-/auth0-react-1.10.1.tgz#bb8b2917fe86d080c5375e2e04e7b8acd0182d6a"
-  integrity sha512-aBCRQ3PPqy+bcieD1/QQhv7ahbv7enegwhbApBPSKn7xPMzXYKQAfRRm7mkCwMGNNaYMFuejKgxbiTMD+gz5fA==
-  dependencies:
-    "@auth0/auth0-spa-js" "^1.21.0"
-
-"@auth0/auth0-spa-js@^1.21.0", "@auth0/auth0-spa-js@^1.22.0":
+"@auth0/auth0-spa-js@^1.22.0":
   version "1.22.0"
   resolved "https://registry.yarnpkg.com/@auth0/auth0-spa-js/-/auth0-spa-js-1.22.0.tgz#3e7b494efed9c1aea1744b4addb3393dc99e1508"
   integrity sha512-y4/vd7dhAwD3ueYAZhuo06muv/scxq+lHnI2lsT5h/3gSLOOXjDE2rjVmMexeYw4t02oXwHpjphYPfL9hgUsuA==

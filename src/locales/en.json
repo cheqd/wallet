@@ -396,14 +396,13 @@
             "description": "Get a new credential issued by cheqd",
             "get": "Get",
 
-            "subject": {
-                "title": "Subject",
-                "description": "Derived from the public key of the wallet"
+            "connections": {
+                "title": "Connected social media accounts",
+                "connect": "Connect social account"
             },
 
-            "claims": {
-                "title": "Claims",
-                "connect": "Connect social account"
+            "message": {
+                "connectionNeeded": "Please connect your social media account to get a credential"
             },
 
             "error": {

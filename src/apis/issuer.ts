@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { Credential } from '../models';
 
-export const getCredential = async (subjectId: string, claims: string[]): Promise<Credential> => {
-	const resp = await axios.post<Credential>(process.env.REACT_APP_IDENTITY_ENDPOINT + '/api/credentials/issue/123', {
+export const getCredential = async (subjectId: string, claim: string): Promise<Credential> => {
+	const resp = await axios.post<Credential>(process.env.REACT_APP_ISSUER_ENDPOINT + '/api/credentials/issue', {
 		subjectId,
-		claims
+		claim,
+		provider: "twitter" // TODO: Get rid of this
 	});
 	return resp.data;
 };

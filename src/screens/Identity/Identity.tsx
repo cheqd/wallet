@@ -7,7 +7,7 @@ import { Button as CustomButton, Input, Modal } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 
 import './styles/Identity.scss';
-import { showErrorToast, showSuccessToast, trunc } from 'utils';
+import { showErrorToast, showInfoToast, showSuccessToast, trunc } from 'utils';
 import { getAuthToken } from '../../utils/walletAuth';
 import { fromBase64, toBase64 } from '@lum-network/sdk-javascript/build/utils';
 import { getCredential } from '../../apis/issuer';
@@ -111,7 +111,12 @@ const Identity = (): JSX.Element => {
 			}
 
 			// Get credential
-			const cred = await getCredential(getSubjectId(wallet), claims.map(c => c.accessToken));
+			if (claims.length !== 1) {
+				showInfoToast(t("identity.get.message.connectionNeeded"));
+				return;
+			}
+
+			const cred = await getCredential(getSubjectId(wallet), claims[0].accessToken);
 
 			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
 
@@ -147,7 +152,7 @@ const Identity = (): JSX.Element => {
 		try {
 			showModal('authToken', false);
 
-			const authTokenBytes = await getAuthToken(wallet, process.env.REACT_APP_IDENTITY_ENDPOINT);
+			const authTokenBytes = await getAuthToken(wallet, process.env.REACT_APP_STORAGE_ENDPOINT);
 			const authToken = toBase64(authTokenBytes);
 			setAuthToken(authToken);
 
@@ -284,26 +289,20 @@ const Identity = (): JSX.Element => {
 										<div className="mt-3">{t('identity.get.description')}</div>
 									</div>
 									<div className="px-3">
-										<h3>{t('identity.get.subject.title')}</h3>
-										<div className="mt-3">
-											<div className="col-lg-6 col-12">{getSubjectId(wallet)}</div>
-										</div>
-									</div>
-									<div className="px-3">
-										<h3>{t('identity.get.claims.title')}</h3>
+										<h3>{t('identity.get.connections.title')}</h3>
                                         <div className="mt-2">
                                             {claims.map((claim) => {
                                                     return (
                                                         <div  key={claim.profileName} className="claim d-flex flex-row">
-                                                            <div title={claim.accessToken}>{claim.service}: {claim.profileName}</div>
+                                                            <div title={claim.accessToken}>{claim.service}: @{claim.profileName}</div>
                                                             <div className="delete mx-3 btn-link pointer" onClick={() => removeClaim(claim)}>remove</div>
                                                         </div>
                                                     )
                                                 }
                                             )}
                                         </div>
-										<CustomButton className="mt-3 btn-sm btn-outline-secondary outline border-1" onClick={handleConnectSocialAccount}>
-											{t('identity.get.claims.connect')}
+										<CustomButton className="mt-3 btn-sm btn-outline-secondary outline border-1" disabled={claims.length >= 1} onClick={handleConnectSocialAccount}>
+											{t('identity.get.connections.connect')}
 										</CustomButton>
 									</div>
 									<div>
