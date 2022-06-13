@@ -22,11 +22,18 @@ import { useRematchDispatch } from '../../redux/hooks';
 import { encryptIdentityWallet, tryDecryptIdentityWallet } from '../../utils/identityWalet';
 import { getAuthToken } from '../../utils/walletAuth';
 import './styles/Identity.scss';
+import CredentialCard from './Cards/CredentialCard';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
 	const [selectedCred, setSelectedCred] = useState<VerifiableCredential | null>(null);
-	const [verifyCreds, setVerifyCreds] = useState({ isVerified: false, isLoading: false });
+	const [credentialState, setCredentialState] = useState(
+		{
+			isVerified: false,
+			isLoading: false,
+			activeCredential: null,
+		}
+	);
 	const credentialDetailedRef = useRef<HTMLDivElement>(null);
 
 	// Redux hooks
@@ -209,17 +216,17 @@ const Identity = (): JSX.Element => {
 
 	const handleVerifyCredential = async (credential: VerifiableCredential) => {
 		if (credential == null) return;
-		setVerifyCreds({ ...verifyCreds, isLoading: true })
+		setCredentialState({ ...credentialState, isLoading: true })
 
 		const uri = `${process.env.REACT_APP_CREDENTIALS_ENDPOINT}/api/credentials/verify`;
 
 		// request object is like
 		// { credential: {...} }
 		axios.post(uri, { credential }).then(resp => {
-			setVerifyCreds({ isLoading: false, isVerified: true })
+			setCredentialState({ ...credentialState, isLoading: false, isVerified: true })
 			setSelectedCred(credential);
 		}).catch(err => {
-			setVerifyCreds({ isVerified: false, isLoading: false });
+			setCredentialState({ isVerified: false, isLoading: false, activeCredential: null });
 			showModal('credentialDetails', true);
 		})
 	};
@@ -280,77 +287,34 @@ const Identity = (): JSX.Element => {
 										<div className="my-4">{t('identity.wallet.description')}</div>
 									</div>
 									<div className="row gy-4">
-										{identityWallet?.credentials.map((cred) => {
+										{identityWallet?.credentials.map((cred: VerifiableCredential) => {
 											return (
-												<div className="col-lg-6 col-12" key={cred.issuanceDate}>
-													<Card className="d-flex flex-column h-100 justify-content-between message-button-container">
-														<div>
-															<div className="d-flex flex-row justify-content-between mb-2">
-																<h2>
-																	<img
-																		src={Assets.images.cheqdRoundLogo}
-																		height="28"
-																		className="me-3"
-																	/>
-																	Credential
-																</h2>
-																<CustomButton
-																	onClick={() => handleVerifyCredential(cred)}
-																	outline={true}
-																	isLoading={verifyCreds.isLoading}
-																	disabled={verifyCreds.isVerified}
-																>
-																	{verifyCreds.isVerified ?
-																		<div className="flex-row d-flex gap-2">
-																			Verified
-																			<img
-																				src={Assets.images.checkmarkIcon}
-																				height="20"
-																			/>
-																		</div>
-																		: 'Verify'
-																	}
-																</CustomButton>
-															</div>
-															<>
-																<p>
-																	<b>Type:</b> {cred.type.join(', ')}
-																</p>
-																<p>
-																	<b>Issuance Date: </b>
-																	{new Date(cred.issuanceDate).toUTCString()}
-																</p>
-																<p>
-																	<b>Issuer: </b> {trunc(cred.issuer.id, 17)}
-																</p>
-																<p>
-																	<b>Name:</b> {cred.name}
-																</p>
-															</>
+												<CredentialCard
+													credential={cred}
+													handleShowCredential={() => handleShowCredential(cred)}
+													handleRemoveCredential={() => handleRemoveCredential(cred)}
+													handleVerifyCredential={() => handleVerifyCredential(cred)}
+												>
+													<div className="d-flex flex-row align-items-right mt-4 mx-0">
+														<div
+															className="app-btn  app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+															onClick={() => showModal('credentialDetails', true)}
+														>
+															{t('identity.credential.show')}
+														</div>
 
-															<div className="d-flex flex-row align-items-right mt-4 mx-0">
-																<div
-																	className="app-btn  app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
-																	onClick={async () =>
-																		await handleShowCredential(cred)
-																	}
-																>
-																	{t('identity.credential.show')}
-																</div>
-																<div className="wrapper undefined">
-																	<div
-																		className="scale-anim undefined bg-transparent text-btn p-0 h-auto"
-																		onClick={async () =>
-																			await handleRemoveCredential(cred)
-																		}
-																	>
-																		{t('identity.credential.remove')}
-																	</div>
-																</div>
+														<div className="wrapper undefined">
+															<div
+																className="scale-anim undefined bg-transparent text-btn p-0 h-auto"
+																onClick={() => handleRemoveCredential(cred)}
+															>
+																{t('identity.credential.remove')}
 															</div>
 														</div>
-													</Card>
-												</div>
+
+													</div>
+												</CredentialCard>
+
 											);
 										})}
 									</div>
@@ -595,7 +559,7 @@ const Identity = (): JSX.Element => {
 
 								<CustomButton
 									className="mt-5"
-									onClick={async () => await handleRemoveCredential(selectedCred)}
+									onClick={() => handleRemoveCredential(selectedCred)}
 								>
 									{t('identity.credential.remove')}
 								</CustomButton>
