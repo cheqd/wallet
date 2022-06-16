@@ -10,8 +10,8 @@ import {
 	createStakingAminoConverters,
 } from '@cosmjs/stargate/build/modules';
 
-import { Tx } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/v1beta1/tx';
-import { PubKey } from '@lum-network/sdk-javascript/build/codec/cosmos/crypto/secp256k1/keys';
+import { Tx } from 'cosmjs-types/cosmos/tx/v1beta1/tx'
+import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys'
 import {
 	BaseAccount,
 	ModuleAccount,
@@ -55,7 +55,7 @@ import {
 	DelayedVestingAccount,
 	PeriodicVestingAccount,
 } from '@lum-network/sdk-javascript/build/codec/cosmos/vesting/v1beta1/vesting';
-import { MsgCreateVestingAccount } from '@lum-network/sdk-javascript/build/codec/cosmos/vesting/v1beta1/tx';
+import { MsgCreateVestingAccount } from 'cosmjs-types/cosmos/vesting/v1beta1/tx';
 import { MsgCreateDid } from 'network/cheqd/v1/tx';
 import { CheqDenom } from 'network/constants';
 import { TxBody } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
@@ -85,7 +85,7 @@ import {
 } from 'cosmjs-types/ibc/core/connection/v1/tx';
 import { ClientUpdateProposal } from 'cosmjs-types/ibc/core/client/v1/client';
 
-const registryTypes: Iterable<[string, GeneratedType]> = [
+export const registryTypes: Iterable<[string, GeneratedType]> = [
 	['/cosmos.tx.v1beta1.TxBody', TxBody],
 	['/cosmos.auth.v1beta1.BaseAccount', BaseAccount],
 	['/cosmos.auth.v1beta1.ModuleAccount', ModuleAccount],

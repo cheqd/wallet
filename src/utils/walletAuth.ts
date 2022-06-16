@@ -3,11 +3,11 @@
 import { NanoCheqDenom } from '../network';
 import { WalletClient } from './index';
 import { Doc } from '../network/types/msg';
-import { LumUtils } from '@lum-network/sdk-javascript';
 import { Wallet } from '../models';
 import { KeplrHelper } from 'utils/keplrHelper';
 import { KeplrIntereactionOptions } from '@keplr-wallet/types';
 import { CheqRegistry } from '../network/modules';
+import { LumUtils } from '@lum-network/sdk-javascript';
 
 // Builds submit text proposal transaction with specific title and description
 export const getAuthToken = async (wallet: Wallet, uri: string): Promise<Uint8Array> => {
@@ -25,20 +25,7 @@ export const getAuthToken = async (wallet: Wallet, uri: string): Promise<Uint8Ar
 		},
 	};
 
-	const msg = {
-		typeUrl: '/cosmos.gov.v1beta1.MsgSubmitProposal',
-		value: {
-			content: {
-				typeUrl: msg_text_proposal.typeUrl,
-				value: CheqRegistry.encode(msg_text_proposal),
-			},
-			proposer: '',
-			initialDeposit: [],
-		},
-	};
-
 	const chainId = await WalletClient.cheqClient.getChainId();
-
 	const keplr = new KeplrHelper();
 	let optionsBak: KeplrIntereactionOptions;
 
@@ -56,21 +43,21 @@ export const getAuthToken = async (wallet: Wallet, uri: string): Promise<Uint8Ar
 		gas: '1', // Keplr requires positive number
 	};
 
-	const memo = '';
-
+	const memo = 'cheqd wallet connect';
 	const accountNumber = 0;
 	const sequence = 0;
-
+	const pubKey = wallet.getPublicKey();
+	console.log('pubkey: ', pubKey);
 	const doc: Doc = {
 		chainId,
 		fee,
 		memo,
-		messages: [msg],
+		messages: [msg_text_proposal],
 		signers: [
 			{
 				accountNumber,
 				sequence,
-				publicKey: wallet.getPublicKey(),
+				publicKey: pubKey,
 			},
 		],
 	};

@@ -1,5 +1,6 @@
-import { Message } from '@lum-network/sdk-javascript/build/messages';
-import { Fee } from '@lum-network/sdk-javascript/build/types/Fee';
+import { EncodeObject } from '@cosmjs/proto-signing';
+import { StdFee } from '@cosmjs/stargate';
+import { Any } from 'cosmjs-types/google/protobuf/any';
 
 export interface Doc {
 	/**
@@ -11,7 +12,7 @@ export interface Doc {
 	/**
 	 * Transaction requested Fee
 	 */
-	fee: Fee;
+	fee: StdFee;
 	/**
 	 * Transaction memo
 	 */
@@ -19,7 +20,7 @@ export interface Doc {
 	/**
 	 * Transactions messages
 	 */
-	messages: Message[];
+	messages: EncodeObject[];
 	/**
 	 * Transction auth signers
 	 */
