@@ -43,8 +43,8 @@ const Identity = (): JSX.Element => {
 		setAuthToken: dispatch.identity.setAuthToken,
 		setPassphrase: dispatch.identity.setPassphrase,
 		setWallet: dispatch.identity.setWallet,
-        addClaim: dispatch.identity.addClaim,
-        removeClaim: dispatch.identity.removeClaim,
+		addClaim: dispatch.identity.addClaim,
+		removeClaim: dispatch.identity.removeClaim,
 	}));
 
 	// Utils hooks
@@ -76,20 +76,33 @@ const Identity = (): JSX.Element => {
 				scope: 'openid profile',
 			})
 
+			const cclaims = await auth0.getIdTokenClaims()
+
 			const user = (await auth0.getUser())!;
 
-			const serviceNames: { [key: string]: string} = {
-			    'google-oauth2': "Google",
-                'facebook': "Facebook",
-                'twitter': "Twitter"
-            }
+			const serviceNames: { [key: string]: string } = {
+				'google-oauth2': "Google",
+				'facebook': "Facebook",
+				'twitter': "Twitter",
+				'discord': "Discord",
+			}
 
-            const serviceId = user.sub!.substring(0, user.sub!.indexOf('|'));
-            const serviceName = serviceNames[serviceId] || serviceId;
+			// sub usually has the format: "<platform-name>|<unique-id>"
+			// for twitter is looks like: twitter|123456789987
+			let serviceId = user.sub!.substring(0, user.sub!.indexOf('|'));
 
-            if (claims.find(s => s.service === serviceName)) {
+			// in case of discord, "sub" has the following format:
+			// "oauth2|discord|<unique-id>"
+			const subParts = user.sub?.split('|')
+			if (subParts?.length === 3) {
+				serviceId = subParts[1]
+			}
+
+			const serviceName = serviceNames[serviceId] || serviceId;
+
+			if (claims.find(s => s.service === serviceName)) {
 				showErrorToast(t('identity.get.error.serviceIsAlreadyConnected'));
-            	return;
+				return;
 			}
 
 			addClaim({
@@ -103,7 +116,7 @@ const Identity = (): JSX.Element => {
 		}
 	}
 
-    const handleGetCredential = async () => {
+	const handleGetCredential = async () => {
 		try {
 			if (!identityWallet) {
 				showErrorToast(t('identity.wallet.error.locked'));
@@ -136,7 +149,7 @@ const Identity = (): JSX.Element => {
 			Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey()))),
 		).toString();
 
-		return  'did:key:' + identifier;
+		return 'did:key:' + identifier;
 	}
 
 	const handleUnlock = async () => {
@@ -290,18 +303,18 @@ const Identity = (): JSX.Element => {
 									</div>
 									<div className="px-3">
 										<h3>{t('identity.get.connections.title')}</h3>
-                                        <div className="mt-2">
-                                            {claims.map((claim) => {
-                                                    return (
-                                                        <div  key={claim.profileName} className="claim d-flex flex-row">
-                                                            <div title={claim.accessToken}>{claim.service}: @{claim.profileName}</div>
-                                                            <div className="delete mx-3 btn-link pointer" onClick={() => removeClaim(claim)}>remove</div>
-                                                        </div>
-                                                    )
-                                                }
-                                            )}
-                                        </div>
-										<CustomButton className="mt-3 btn-sm btn-outline-secondary outline border-1" disabled={claims.length >= 1} onClick={handleConnectSocialAccount}>
+										<div className="mt-2">
+											{claims.map((claim) => {
+												return (
+													<div key={claim.profileName} className="claim d-flex flex-row">
+														<div title={claim.accessToken}>{claim.service}: @{claim.profileName}</div>
+														<div className="delete mx-3 btn-link pointer" onClick={() => removeClaim(claim)}>remove</div>
+													</div>
+												)
+											}
+											)}
+										</div>
+										<CustomButton className="mt-3 btn-sm btn-outline-secondary outline border-1" onClick={handleConnectSocialAccount}>
 											{t('identity.get.connections.connect')}
 										</CustomButton>
 									</div>
@@ -360,10 +373,10 @@ const Identity = (): JSX.Element => {
 																</p>
 																{
 																	cred.name ?
-																	<p>
-																		<b>Name:</b> {cred.name}
-																	</p>
-																	: null
+																		<p>
+																			<b>Name:</b> {cred.name}
+																		</p>
+																		: null
 																}
 																{
 																	cred.WebPage ? cred.WebPage.map((webpage) => {
