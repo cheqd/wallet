@@ -143,6 +143,8 @@ export interface Credential {
 export interface WebPage {
 	description: string;
 	name: string;
+	identifier: string;
+	URL: string;
 }
 
 export interface Issuer {

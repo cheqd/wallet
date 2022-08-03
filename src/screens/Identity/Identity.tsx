@@ -74,9 +74,7 @@ const Identity = (): JSX.Element => {
 
 			let token = await auth0.getTokenWithPopup({
 				scope: 'openid profile',
-			})
-
-			const cclaims = await auth0.getIdTokenClaims()
+			});
 
 			const user = (await auth0.getUser())!;
 
@@ -332,11 +330,11 @@ const Identity = (): JSX.Element => {
 										<div className="my-4">{t('identity.wallet.description')}</div>
 									</div>
 									<div className="row gy-4">
-										{identityWallet?.credentials.map((cred) => {
+										{identityWallet?.credentials.map((cred, i) => {
 											return (
-												<div className="col-lg-6 col-12" key={cred.issuanceDate}>
-													<Card className="d-flex flex-column h-100 justify-content-between message-button-container">
-														<div onClick={async () => await handleShowCredential(cred)}>
+												<div className="col-lg-6 col-12" key={i}>
+													<Card key={i} className="d-flex flex-column h-100 justify-content-between">
+														<div>
 															<div className="d-flex flex-row justify-content-between mb-2">
 																<h2>
 																	<img
@@ -382,7 +380,8 @@ const Identity = (): JSX.Element => {
 																	cred.WebPage ? cred.WebPage.map((webpage) => {
 																		return (
 																			<p>
-																				<b>{webpage.description}:</b> {webpage.name}
+																				<b>{webpage.description}:</b>
+																				<a href={webpage.URL} target='_blank'> {webpage.identifier}</a>
 																			</p>
 																		)
 																	}) : null
