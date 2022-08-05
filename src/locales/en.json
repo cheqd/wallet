@@ -438,7 +438,10 @@
             "title": "Credential",
             "remove": "Remove",
             "show": "Show",
-            "notFound": "Credential is not found"
+            "notFound": "Credential is not found",
+			"close": "Close",
+			"verified": "Verified",
+			"notVerified": "Not verified"
         }
     }
 }

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Redirect } from 'react-router';
@@ -23,12 +23,13 @@ import Multibase from 'multibase';
 import Multicodec from 'multicodec';
 import createAuth0Client from "@auth0/auth0-spa-js";
 import { loadUrlInIframe } from "../../utils/iframe";
+import axios, { AxiosResponse } from 'axios';
+import CredentialList from './components/CredentialList';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
-	const [selectedCred, setSelectedCred] = useState<VerifiableCredential | null>(null);
+	const [activeVC, setActiveVC] = useState<VerifiableCredential | null>(null);
 	const credentialDetailedRef = useRef<HTMLDivElement>(null);
-
 	// Redux hooks
 	const { wallet, identityWallet, authToken, passphrase, claims } = useSelector((state: RootState) => ({
 		wallet: state.wallet.currentWallet,
@@ -252,10 +253,23 @@ const Identity = (): JSX.Element => {
 	};
 
 	const handleShowCredential = async (cred: VerifiableCredential) => {
-		if (cred == null || !identityWallet?.credentials.includes(cred as VerifiableCredential)) return;
-		setSelectedCred(cred);
+		const set = new Set();
+		identityWallet?.credentials.forEach((c: VerifiableCredential) => {
+			set.add(c)
+		})
+
+		if (cred == null || !set.has(cred)) return;
+
+		setActiveVC(cred);
 		showModal('credentialDetails', true);
 	};
+
+	const verifyStyleStatusList = new Map([
+		["success", "success-btn"],
+		["not-verified", "btn-outline-secondary"],
+		["in-progress", "btn-outline-primary"],
+		["invalid", "btn-outline-danger"]
+	]);
 
 	const handleRemoveCredential = async (cred: VerifiableCredential) => {
 		if (cred == null) return;
@@ -266,7 +280,7 @@ const Identity = (): JSX.Element => {
 		setWallet(identityWallet);
 		if (credentialDetailedRef.current) {
 			showModal('credentialDetails', false);
-			setSelectedCred(null);
+			setActiveVC(null);
 		}
 		showSuccessToast('Credential removed');
 		// Backup wallet
@@ -329,91 +343,11 @@ const Identity = (): JSX.Element => {
 										<h2>{t('identity.wallet.title')}</h2>
 										<div className="my-4">{t('identity.wallet.description')}</div>
 									</div>
-									<div className="row gy-4">
-										{identityWallet?.credentials.map((cred, i) => {
-											return (
-												<div className="col-lg-6 col-12" key={i}>
-													<Card key={i} className="d-flex flex-column h-100 justify-content-between">
-														<div>
-															<div className="d-flex flex-row justify-content-between mb-2">
-																<h2>
-																	<img
-																		src={Assets.images.cheqdRoundLogo}
-																		height="28"
-																		className="me-3"
-																	/>
-																	Credential
-																</h2>
-																{/*<div className="btn btn-outline-success p-2 h-auto">*/}
-																{/*	Verify*/}
-																{/*	<svg*/}
-																{/*		xmlns="http://www.w3.org/2000/svg"*/}
-																{/*		width="16"*/}
-																{/*		height="16"*/}
-																{/*		fill="currentColor"*/}
-																{/*		className="bi bi-check"*/}
-																{/*		viewBox="0 0 16 16"*/}
-																{/*	>*/}
-																{/*		<path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>*/}
-																{/*	</svg>*/}
-																{/*</div>*/}
-															</div>
-															<>
-																<p>
-																	<b>Type:</b> {cred.type.join(', ')}
-																</p>
-																<p>
-																	<b>Issuance Date: </b>
-																	{new Date(cred.issuanceDate).toUTCString()}
-																</p>
-																<p>
-																	<b>Issuer: </b> {trunc(cred.issuer.id, 17)}
-																</p>
-																{
-																	cred.name ?
-																		<p>
-																			<b>Name:</b> {cred.name}
-																		</p>
-																		: null
-																}
-																{
-																	cred.WebPage ? cred.WebPage.map((webpage) => {
-																		return (
-																			<p>
-																				<b>{webpage.description}:</b>
-																				<a href={webpage.URL} target='_blank'> {webpage.identifier}</a>
-																			</p>
-																		)
-																	}) : null
-																}
-															</>
-
-															<div className="d-flex flex-row align-items-right mt-4 mx-0">
-																<div
-																	className="app-btn  app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
-																	onClick={async () =>
-																		await handleShowCredential(cred)
-																	}
-																>
-																	{t('identity.credential.show')}
-																</div>
-																<div className="wrapper undefined">
-																	<div
-																		className="scale-anim undefined bg-transparent text-btn p-0 h-auto"
-																		onClick={async () =>
-																			await handleRemoveCredential(cred)
-																		}
-																	>
-																		{t('identity.credential.remove')}
-																	</div>
-																</div>
-															</div>
-														</div>
-													</Card>
-												</div>
-											);
-										})}
-									</div>
+									<CredentialList
+										handleRemoveCredential={handleRemoveCredential}
+										handleShowCredential={handleShowCredential}
+										credentialList={identityWallet?.credentials}
+									/>
 									<div className="d-flex flex-row justify-content-start mt-4 gap-4">
 										{identityWallet == null && (
 											<CustomButton className="px-5" onClick={handleUnlock}>
@@ -554,7 +488,7 @@ const Identity = (): JSX.Element => {
 					dataBsKeyboard={false}
 					contentClassName="p-3 w-auto"
 				>
-					{selectedCred === null ? (
+					{!activeVC || !activeVC ? (
 						<>
 							<p className="color-error">{t('identity.credential.notFound')}</p>
 						</>
@@ -603,32 +537,32 @@ const Identity = (): JSX.Element => {
 														<td>
 															<b>TYPE</b>
 														</td>
-														<td> {selectedCred.type.join(', ')}</td>
+														<td> {activeVC.type.join(', ')}</td>
 													</tr>
 													<tr>
 														<td>
 															<b>ISSUANCE DATE</b>
 														</td>
-														<td> {new Date(selectedCred.issuanceDate).toUTCString()}</td>
+														<td> {new Date(activeVC.issuanceDate).toUTCString()}</td>
 													</tr>
 													<tr>
 														<td>
 															<b>ISSUER</b>
 														</td>
-														<td> {selectedCred.issuer.id}</td>
+														<td> {activeVC.issuer.id}</td>
 													</tr>
 													{
-														selectedCred.name ?
-															<tr className={selectedCred.name ? "" : "visually-hidden"}>
+														activeVC.name ?
+															<tr className={activeVC.name ? "" : "visually-hidden"}>
 																<td>
 																	<b>NAME</b>
 																</td>
-																<td> {selectedCred.name}</td>
+																<td> {activeVC.name}</td>
 															</tr>
 															: null
 													}
 													{
-														selectedCred.WebPage ? selectedCred.WebPage.map((webpage) => {
+														activeVC.WebPage ? activeVC.WebPage.map((webpage) => {
 															return (
 																<tr>
 																	<td>
@@ -646,13 +580,13 @@ const Identity = (): JSX.Element => {
 											<textarea
 												readOnly
 												className="w-100 p-2"
-												value={JSON.stringify(selectedCred, null, 2)}
+												value={JSON.stringify(activeVC, null, 2)}
 												rows={25}
 											/>
 										</li>
 										<li id="qr-code" className="container tab-pane">
 											<QRCodeSVG
-												value={JSON.stringify(selectedCred, null, 1)}
+												value={JSON.stringify(activeVC, null, 1)}
 												size={300}
 												bgColor="#ffffff"
 												fgColor="#000000"
@@ -668,13 +602,20 @@ const Identity = (): JSX.Element => {
 										</li>
 									</ul>
 								</div>
-
-								<CustomButton
-									className="mt-5"
-									onClick={async () => await handleRemoveCredential(selectedCred)}
-								>
-									{t('identity.credential.remove')}
-								</CustomButton>
+								<div className="d-flex flex-row gap-4 align-items-center justify-content-center">
+									<CustomButton
+										className="mt-5"
+										onClick={async () => await handleRemoveCredential(activeVC)}
+									>
+										{t('identity.credential.remove')}
+									</CustomButton>
+									<CustomButton
+										className="mt-5"
+										onClick={() => showModal('credentialDetails', false)}
+									>
+										{t('identity.credential.close')}
+									</CustomButton>
+								</div>
 							</div>
 						</>
 					)}
