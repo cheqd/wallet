@@ -326,7 +326,10 @@ const Identity = (): JSX.Element => {
 											}
 											)}
 										</div>
-										<CustomButton className="mt-3 btn-sm btn-outline-secondary outline border-1" onClick={handleConnectSocialAccount}>
+										<CustomButton
+											className="px-5 btn-sm btn-outline-secondary outline border-1"
+											onClick={handleConnectSocialAccount}
+										>
 											{t('identity.get.connections.connect')}
 										</CustomButton>
 									</div>
