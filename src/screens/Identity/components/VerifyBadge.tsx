@@ -13,7 +13,7 @@ const CredentialVerificatinBadge: React.FC<Props> = ({ verified }): JSX.Element 
 	const { t } = useTranslation();
 	if (verified === CredentialVerificationState.Success) {
 		return (
-			<div className="">
+			<div>
 				<div className={`app-badge success`}>
 					<p className="text success">
 						<img alt="checkmark" src={Assets.images.checkmarkIcon} />{' '}
@@ -25,7 +25,7 @@ const CredentialVerificatinBadge: React.FC<Props> = ({ verified }): JSX.Element 
 	}
 
 	return (
-		<div className="">
+		<div>
 			<div className='app-badge warning'>
 				<p className="text warning">
 					<img alt="checkmark" src={Assets.images.crossIcon} />{' '}
