@@ -1,64 +1,45 @@
-import { Registry, GeneratedType } from '@cosmjs/proto-signing';
-import { AminoConverters, AminoTypes } from '@cosmjs/stargate';
+import { GeneratedType, Registry } from '@cosmjs/proto-signing';
 import {
-	createAuthzAminoConverters,
+	AminoConverters, AminoTypes, createAuthzAminoConverters,
 	createBankAminoConverters,
 	createDistributionAminoConverters,
 	createFreegrantAminoConverters,
 	createGovAminoConverters,
 	createIbcAminoConverters,
-	createStakingAminoConverters,
-} from '@cosmjs/stargate/build/modules';
+	createStakingAminoConverters
+} from '@cosmjs/stargate';
 
-import { Tx } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/v1beta1/tx';
-import { PubKey } from '@lum-network/sdk-javascript/build/codec/cosmos/crypto/secp256k1/keys';
-import {
-	BaseAccount,
-	ModuleAccount,
-	Params as AuthParams,
-} from '@lum-network/sdk-javascript/build/codec/cosmos/auth/v1beta1/auth';
-import { MsgExec, MsgGrant, MsgRevoke } from '@lum-network/sdk-javascript/build/codec/cosmos/authz/v1beta1/tx';
-import { MsgSend, MsgMultiSend } from '@lum-network/sdk-javascript/build/codec/cosmos/bank/v1beta1/tx';
-import { Coin, DecCoin, DecProto, IntProto } from '@lum-network/sdk-javascript/build/codec/cosmos/base/v1beta1/coin';
-import {
-	CommunityPoolSpendProposal,
-	CommunityPoolSpendProposalWithDeposit,
-} from '@lum-network/sdk-javascript/build/codec/cosmos/distribution/v1beta1/distribution';
-import {
-	MsgFundCommunityPool,
-	MsgSetWithdrawAddress,
-	MsgWithdrawDelegatorReward,
-	MsgWithdrawValidatorCommission,
-} from '@lum-network/sdk-javascript/build/codec/cosmos/distribution/v1beta1/tx';
-import {
-	MsgGrantAllowance,
-	MsgRevokeAllowance,
-} from '@lum-network/sdk-javascript/build/codec/cosmos/feegrant/v1beta1/tx';
-import { Proposal, TextProposal } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
-import { MsgDeposit, MsgSubmitProposal, MsgVote } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/tx';
-import { ParameterChangeProposal } from '@lum-network/sdk-javascript/build/codec/cosmos/params/v1beta1/params';
-import { MsgUnjail } from '@lum-network/sdk-javascript/build/codec/cosmos/slashing/v1beta1/tx';
+import { BaseAccount, ModuleAccount, Params as AuthParams } from 'cosmjs-types/cosmos/auth/v1beta1/auth';
+import { MsgExec, MsgGrant, MsgRevoke } from 'cosmjs-types/cosmos/authz/v1beta1/tx';
+import { MsgMultiSend, MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
+import { Coin, DecCoin, DecProto, IntProto } from 'cosmjs-types/cosmos/base/v1beta1/coin';
+import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys';
+import { CommunityPoolSpendProposal, CommunityPoolSpendProposalWithDeposit } from 'cosmjs-types/cosmos/distribution/v1beta1/distribution';
+import { MsgFundCommunityPool, MsgSetWithdrawAddress, MsgWithdrawDelegatorReward, MsgWithdrawValidatorCommission } from 'cosmjs-types/cosmos/distribution/v1beta1/tx';
+import { MsgGrantAllowance, MsgRevokeAllowance } from 'cosmjs-types/cosmos/feegrant/v1beta1/tx';
+import { Proposal, TextProposal } from 'cosmjs-types/cosmos/gov/v1beta1/gov';
+import { MsgDeposit, MsgSubmitProposal, MsgVote } from 'cosmjs-types/cosmos/gov/v1beta1/tx';
+import { ParameterChangeProposal } from 'cosmjs-types/cosmos/params/v1beta1/params';
+import { MsgUnjail } from 'cosmjs-types/cosmos/slashing/v1beta1/tx';
 import {
 	MsgBeginRedelegate,
 	MsgCreateValidator,
 	MsgDelegate,
 	MsgEditValidator,
-	MsgUndelegate,
-} from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/tx';
+	MsgUndelegate
+} from 'cosmjs-types/cosmos/staking/v1beta1/tx';
+import { Tx, TxBody } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import {
 	CancelSoftwareUpgradeProposal,
-	SoftwareUpgradeProposal,
-} from '@lum-network/sdk-javascript/build/codec/cosmos/upgrade/v1beta1/upgrade';
+	SoftwareUpgradeProposal
+} from 'cosmjs-types/cosmos/upgrade/v1beta1/upgrade';
+import { MsgCreateVestingAccount } from 'cosmjs-types/cosmos/vesting/v1beta1/tx';
 import {
 	BaseVestingAccount,
 	ContinuousVestingAccount,
 	DelayedVestingAccount,
-	PeriodicVestingAccount,
-} from '@lum-network/sdk-javascript/build/codec/cosmos/vesting/v1beta1/vesting';
-import { MsgCreateVestingAccount } from '@lum-network/sdk-javascript/build/codec/cosmos/vesting/v1beta1/tx';
-import { MsgCreateDid } from 'network/cheqd/v1/tx';
-import { CheqDenom } from 'network/constants';
-import { TxBody } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+	PeriodicVestingAccount
+} from 'cosmjs-types/cosmos/vesting/v1beta1/vesting';
 import {
 	MsgAcknowledgement,
 	MsgChannelCloseConfirm,
@@ -69,21 +50,23 @@ import {
 	MsgChannelOpenTry,
 	MsgRecvPacket,
 	MsgTimeout,
-	MsgTimeoutOnClose,
+	MsgTimeoutOnClose
 } from 'cosmjs-types/ibc/core/channel/v1/tx';
+import { ClientUpdateProposal } from 'cosmjs-types/ibc/core/client/v1/client';
 import {
 	MsgCreateClient,
 	MsgSubmitMisbehaviour,
 	MsgUpdateClient,
-	MsgUpgradeClient,
+	MsgUpgradeClient
 } from 'cosmjs-types/ibc/core/client/v1/tx';
 import {
 	MsgConnectionOpenAck,
 	MsgConnectionOpenConfirm,
 	MsgConnectionOpenInit,
-	MsgConnectionOpenTry,
+	MsgConnectionOpenTry
 } from 'cosmjs-types/ibc/core/connection/v1/tx';
-import { ClientUpdateProposal } from 'cosmjs-types/ibc/core/client/v1/client';
+import { MsgCreateDid } from 'network/cheqd/v1/tx';
+import { CheqDenom } from 'network/constants';
 
 const registryTypes: Iterable<[string, GeneratedType]> = [
 	['/cosmos.tx.v1beta1.TxBody', TxBody],
