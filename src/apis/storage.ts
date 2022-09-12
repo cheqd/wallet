@@ -28,12 +28,12 @@ export const loadCryptoBox = async <T>(accountId: string, authToken: string): Pr
 			headers: {
 				Authorization: authToken,
 			},
-			validateStatus: (status) => status === 200 || status === 404,
+			validateStatus: (status) => status === 200 || status === 400,
 		},
 	);
 	console.log(resp.status);
 
-	if (resp.status === 404) {
+	if (resp.status === 400) {
 		return null;
 	}
 

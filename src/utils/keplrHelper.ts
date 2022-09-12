@@ -4,7 +4,7 @@ export class KeplrHelper {
 	public isInstalled: boolean;
 
 	constructor() {
-		this.isInstalled = (window as Window).keplr != undefined;
+		this.isInstalled = (window as Window).keplr !== undefined;
 	}
 
 	checkWalletIsInstalled(): void {

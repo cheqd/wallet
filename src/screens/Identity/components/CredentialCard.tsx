@@ -1,13 +1,11 @@
-import React, { useState } from "react";
 import Assets from 'assets';
-import { Card, Button as CustomButton, Badge } from "components";
-import { Credential as VerifiableCredential, Wallet } from '../../../models';
-import { trunc } from "utils";
+import axios from "axios";
+import { Button as CustomButton, Card } from "components";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ProposalStatus } from "@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov";
-import { proposalStatusFromJSON } from "cosmjs-types/cosmos/gov/v1beta1/gov";
+import { trunc } from "utils";
+import { Credential as VerifiableCredential } from '../../../models';
 import CredentialVerificatinBadge from "./VerifyBadge";
-import axios, { AxiosResponse } from "axios";
 
 type Props = {
 	cred: VerifiableCredential;

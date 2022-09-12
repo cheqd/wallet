@@ -3,7 +3,7 @@
 import { StdSignDoc } from '@cosmjs/amino';
 import { encodeSecp256k1Pubkey } from '@cosmjs/launchpad';
 import { Int53 } from '@cosmjs/math';
-import { decodePubkey, encodePubkey, makeAuthInfoBytes, TxBodyEncodeObject } from '@cosmjs/proto-signing';
+import { encodePubkey, makeAuthInfoBytes, TxBodyEncodeObject } from '@cosmjs/proto-signing';
 import { MsgSubmitProposalEncodeObject } from '@cosmjs/stargate';
 import { KeplrIntereactionOptions } from '@keplr-wallet/types';
 import { TextProposal } from 'cosmjs-types/cosmos/gov/v1beta1/gov';

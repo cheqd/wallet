@@ -1,6 +1,6 @@
 import { Uint64 } from '@cosmjs/math';
-import { NanoCheqDenom } from 'network';
 import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
+import { NanoCheqDenom } from 'network';
 import { Account } from 'network/types/account';
 
 const uint64ProtoToDate = (input: Long): Date => {
