@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { trunc } from "utils";
 import { Credential as VerifiableCredential } from '../../../models';
-import CredentialVerificatinBadge from "./VerifyBadge";
+import CredentialVerificationBadge from "./VerifyBadge";
 
 type Props = {
 	cred: VerifiableCredential;
@@ -37,7 +37,9 @@ const CredentialCard: React.FC<Props> = ({
 		axios.post(uri, { credential }).then((resp: { data: { verified: boolean }, status: number }) => {
 			if (resp.data.verified) {
 				setState({ isVerified: CredentialVerificationState.Success })
+				return
 			}
+			setState({ isVerified: CredentialVerificationState.Failed })
 		}).catch((err: any) => {
 			setState({ isVerified: CredentialVerificationState.Failed })
 		})
@@ -58,9 +60,10 @@ const CredentialCard: React.FC<Props> = ({
 						</h2>
 						<div className="d-flex align-items-center justify-content-center gap-2">
 							{
-								state.isVerified === CredentialVerificationState.Success || state.isVerified === CredentialVerificationState.Failed ?
+								state.isVerified === CredentialVerificationState.Success ||
+									state.isVerified === CredentialVerificationState.Failed ?
 									<div className="outline d-flex flex-row align-items-center">
-										<CredentialVerificatinBadge verified={state.isVerified} />
+										<CredentialVerificationBadge verified={state.isVerified} />
 									</div> :
 									<CustomButton
 										outline={true}

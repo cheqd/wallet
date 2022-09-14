@@ -9,7 +9,7 @@ type Props = {
 	verified: CredentialVerificationState;
 }
 
-const CredentialVerificatinBadge: React.FC<Props> = ({ verified }): JSX.Element => {
+const CredentialVerificationBadge: React.FC<Props> = ({ verified }): JSX.Element => {
 	const { t } = useTranslation();
 	if (verified === CredentialVerificationState.Success) {
 		return (
@@ -36,4 +36,4 @@ const CredentialVerificatinBadge: React.FC<Props> = ({ verified }): JSX.Element 
 	);
 };
 
-export default CredentialVerificatinBadge;
+export default CredentialVerificationBadge;
