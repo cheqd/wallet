@@ -132,11 +132,19 @@ export interface IdentityWallet {
 }
 
 export interface Credential {
-	name: string;
+	name: string | undefined;
+	WebPage: WebPage[] | undefined;
 	type: string[];
 	issuer: Issuer;
 	credentialSubject: CredentialSubject;
 	issuanceDate: string;
+}
+
+export interface WebPage {
+	description: string;
+	name: string;
+	identifier: string;
+	URL: string;
 }
 
 export interface Issuer {
