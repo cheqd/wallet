@@ -1,17 +1,18 @@
-import Transport from '@ledgerhq/hw-transport';
-import Cosmos from '@ledgerhq/hw-app-cosmos';
+import { StdSignDoc as AminoDoc } from '@cosmjs/amino';
 import { ExtendedSecp256k1Signature } from '@cosmjs/crypto';
+import Cosmos from '@ledgerhq/hw-app-cosmos';
+import Transport from '@ledgerhq/hw-transport';
 
 import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
-import { generateSignDoc, sortJSON, uint8IndexOf, fromHex } from '@lum-network/sdk-javascript/build/utils';
+import { fromHex, generateSignDoc, sortJSON, uint8IndexOf } from '@lum-network/sdk-javascript/build/utils';
 
-import { CheqAminoRegistry } from '../network/modules/registry';
-import { CheqMessageSigner, CheqSignOnlyChainId, CheqWalletSigningVersion } from '../network/constants';
-import { CheqWallet } from 'network/wallet';
-import { SignMsg } from 'network/types/signMsg';
-import { Doc, DocSigner } from 'network/types/msg';
-import { SignDoc } from '@lum-network/sdk-javascript/build/types';
 import { Message } from '@lum-network/sdk-javascript/build/messages';
+import { SignDoc } from '@lum-network/sdk-javascript/build/types';
+import { Doc, DocSigner, DocV2 } from 'network/types/msg';
+import { SignMsg } from 'network/types/signMsg';
+import { CheqWallet } from 'network/wallet';
+import { CheqMessageSigner, CheqSignOnlyChainId, CheqWalletSigningVersion } from '../network/constants';
+import { CheqAminoRegistry } from '../network/modules/registry';
 
 export class CheqLedgerWallet extends CheqWallet {
 	cosmosApp: Cosmos;
@@ -118,4 +119,8 @@ export class CheqLedgerWallet extends CheqWallet {
 			signer: CheqMessageSigner.LEDGER,
 		};
 	};
+
+	signAminoTx = (doc: DocV2): Promise<[AminoDoc, Uint8Array]> => {
+		return Promise.resolve([{} as AminoDoc, Uint8Array.from([0])])
+	}
 }

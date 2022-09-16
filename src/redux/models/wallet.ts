@@ -122,6 +122,8 @@ export const wallet = createModel<RootModel>()({
 				currentWallet: {
 					useAccount: wallet.useAccount,
 					sign: wallet.sign,
+					signAminoTx: wallet.signAminoTx,
+					signTransactionV2: wallet.signTransactionV2,
 					signMessage: wallet.signMessage,
 					signTransaction: wallet.signTransaction,
 					signingMode: wallet.signingMode,

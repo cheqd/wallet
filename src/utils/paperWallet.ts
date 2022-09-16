@@ -1,32 +1,30 @@
-import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
-import { sha256, ripemd160 } from '@cosmjs/crypto';
-import { DirectSecp256k1HdWallet, EncodeObject, makeSignBytes } from '@cosmjs/proto-signing';
+import { ripemd160, sha256 } from '@cosmjs/crypto';
 import { Bech32 } from '@cosmjs/encoding';
-import { isUint8Array, generateSignature, uint8IndexOf, toAscii } from '@lum-network/sdk-javascript/build/utils';
-import {
-	getPublicKeyFromPrivateKey,
-	getAddressFromPublicKey,
-	getPrivateKeyFromMnemonic,
-	publicKeyToProto,
-} from '../network/keys';
+import { Int53 } from '@cosmjs/math';
+import { DirectSecp256k1HdWallet, EncodeObject, makeSignBytes } from '@cosmjs/proto-signing';
+import { GasPrice, SigningStargateClient, StdFee } from '@cosmjs/stargate';
 import { Fee, SignDoc } from '@lum-network/sdk-javascript/build/types';
-import { CheqWallet } from '../network/wallet';
+import { generateSignature, isUint8Array, toAscii, uint8IndexOf } from '@lum-network/sdk-javascript/build/utils';
+import { SignMode } from 'cosmjs-types/cosmos/tx/signing/v1beta1/signing';
+import { AuthInfo, TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import i18n from 'locales';
+import Long from 'long';
+import { showErrorToast } from 'utils';
 import {
 	CheqBech32PrefixAccAddr,
 	CheqMessageSigner,
 	CheqWalletSigningVersion,
 	getCheqHdPath,
-	NanoCheqDenom,
+	NanoCheqDenom
 } from '../network/constants';
-import { SignMsg } from '../network/types/signMsg';
+import {
+	getAddressFromPublicKey,
+	getPrivateKeyFromMnemonic, getPublicKeyFromPrivateKey, publicKeyToProto
+} from '../network/keys';
+import { CheqRegistry } from '../network/modules';
 import { Doc, DocSigner } from '../network/types/msg';
-import { GasPrice, SigningStargateClient, StdFee } from '@cosmjs/stargate';
-import { showErrorToast } from 'utils';
-import i18n from 'locales';
-import Long from 'long';
-import { Int53 } from '@cosmjs/math';
-import { AuthInfo, TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { CheqRegistry } from 'network/modules';
+import { SignMsg } from '../network/types/signMsg';
+import { CheqWallet } from '../network/wallet';
 
 export class CheqPaperWallet extends CheqWallet {
 	private directWallet!: DirectSecp256k1HdWallet;

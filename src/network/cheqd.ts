@@ -1,34 +1,38 @@
-import {
-	Tendermint34Client,
-	StatusResponse,
-	TxResponse,
-	TxSearchParams,
-	BroadcastTxCommitResponse,
-	BlockResponse,
-	broadcastTxCommitSuccess,
-} from '@cosmjs/tendermint-rpc';
-import { QueryClient as StargateQueryClient, SigningStargateClient, DeliverTxResponse, StdFee } from '@cosmjs/stargate';
-import { Doc } from './types/msg';
-import { BankExtension, setupBankExtension, TxExtension, setupTxExtension } from './modules';
-import { LumUtils } from '@lum-network/sdk-javascript';
-import { CheqWallet } from './wallet';
-import { Account, accountFromAny } from './types/account';
-import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
-
-import {
-	StakingExtension,
-	AuthExtension,
-	setupAuthExtension,
-	setupStakingExtension,
-	DistributionExtension,
-	setupDistributionExtension,
-	GovExtension,
-	setupGovExtension,
-} from '@cosmjs/stargate/build/modules';
-import { EncodeObject } from '@cosmjs/proto-signing';
-import { NanoCheqDenom } from './constants';
 import { toHex } from '@cosmjs/encoding';
+import { EncodeObject } from '@cosmjs/proto-signing';
+import {
+	DeliverTxResponse,
+	QueryClient as StargateQueryClient,
+	SigningStargateClient,
+	StdFee
+} from '@cosmjs/stargate';
+import {
+	AuthExtension,
+	DistributionExtension,
+	GovExtension,
+	setupAuthExtension,
+	setupDistributionExtension,
+	setupGovExtension,
+	setupStakingExtension,
+	StakingExtension
+} from '@cosmjs/stargate/build/modules';
+import {
+	BlockResponse,
+	BroadcastTxCommitResponse,
+	broadcastTxCommitSuccess,
+	StatusResponse,
+	Tendermint34Client,
+	TxResponse,
+	TxSearchParams
+} from '@cosmjs/tendermint-rpc';
+import { LumUtils } from '@lum-network/sdk-javascript';
+import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
+import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import { NanoCheqDenom } from './constants';
+import { BankExtension, setupBankExtension, setupTxExtension, TxExtension } from './modules';
+import { Account, accountFromAny } from './types/account';
+import { Doc } from './types/msg';
+import { CheqWallet } from './wallet';
 
 export class CheqClient {
 	readonly tmClient: Tendermint34Client;

@@ -1,3 +1,4 @@
+import { EncodeObject } from '@cosmjs/proto-signing';
 import { Message } from '@lum-network/sdk-javascript/build/messages';
 import { Fee } from '@lum-network/sdk-javascript/build/types/Fee';
 
@@ -33,4 +34,29 @@ export interface DocSigner {
 	sequence: number;
 	/** account public key */
 	publicKey: Uint8Array;
+}
+
+export interface DocV2 {
+	/**
+	 * chain_id is the unique identifier of the chain this transaction targets.
+	 * It prevents signed transactions from being used on another chain by an
+	 * attacker
+	 */
+	chainId: string;
+	/**
+	 * Transaction requested Fee
+	 */
+	fee: Fee;
+	/**
+	 * Transaction memo
+	 */
+	memo?: string;
+	/**
+	 * Transactions messages
+	 */
+	messages: EncodeObject[];
+	/**
+	 * Transction auth signers
+	 */
+	signers: DocSigner[];
 }

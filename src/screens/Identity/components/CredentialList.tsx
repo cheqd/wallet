@@ -1,9 +1,5 @@
-import React, { useState } from "react";
-import Assets from 'assets';
-import { Card, Button as CustomButton } from "components";
-import { Credential as VerifiableCredential, Wallet } from '../../../models';
-import { trunc } from "utils";
-import { useTranslation } from "react-i18next";
+import React from "react";
+import { Credential as VerifiableCredential } from '../../../models';
 import CredentialCard from "./CredentialCard";
 
 type Props = {

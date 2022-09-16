@@ -3,7 +3,7 @@ import { TxResponse } from '@cosmjs/tendermint-rpc';
 import { Secp256k1, Secp256k1Signature } from '@cosmjs/crypto';
 import { assertIsDeliverTxSuccess, SigningStargateClient, coin, GasPrice } from '@cosmjs/stargate';
 import { LumUtils } from '@lum-network/sdk-javascript';
-import { ProposalStatus, VoteOption } from 'cosmjs-types/cosmos/gov/v1beta1/gov';
+import { ProposalStatus, Proposal as OnChainProposal, VoteOption, TextProposal } from 'cosmjs-types/cosmos/gov/v1beta1/gov';
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
 import { OSMOSIS_API_URL } from 'constant';
 import Long from 'long';
@@ -13,14 +13,6 @@ import { CheqRegistry } from 'network/modules/registry';
 import { SignMsg } from 'network/types/signMsg';
 import { CheqDenom, CheqMessageSigner, CheqSignOnlyChainId, NanoCheqDenom } from 'network/constants';
 import { sortByBlockHeight } from './transactions';
-import {
-	Bech32,
-	generateAuthInfoBytes,
-	getAddressFromPublicKey,
-	sha256,
-	sortJSON,
-	toAscii,
-} from '@lum-network/sdk-javascript/build/utils';
 import { DirectSecp256k1HdWallet, makeSignBytes } from '@cosmjs/proto-signing';
 import { convertCoin } from 'network/util';
 import { MsgBeginRedelegate, MsgDelegate, MsgUndelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx';
@@ -36,7 +28,10 @@ import { MsgWithdrawDelegatorReward } from 'cosmjs-types/cosmos/distribution/v1b
 import { MsgVote } from 'cosmjs-types/cosmos/gov/v1beta1/tx';
 import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
 import { estimatedVesting } from 'utils';
-import { SignMode } from '@lum-network/sdk-javascript/build/codec/cosmos/tx/signing/v1beta1/signing';
+import { Bech32, toAscii } from '@cosmjs/encoding';
+import { generateAuthInfoBytes, sha256, sortJSON } from '@lum-network/sdk-javascript/build/utils';
+import { getAddressFromPublicKey } from 'network/keys';
+import { SignMode } from 'cosmjs-types/cosmos/tx/signing/v1beta1/signing';
 
 export type MnemonicLength = 12 | 24;
 
@@ -443,9 +438,9 @@ class WalletClient {
 		);
 
 		// eslint-disable-next-line
-		return result.proposals.map((proposal: any) => ({
+		return result.proposals.map((proposal: OnChainProposal) => ({
 			...proposal,
-			content: proposal.content ? CheqRegistry.decode(proposal.content) : proposal.content,
+			content: TextProposal.decode(proposal.content!.value),
 			finalResult: {
 				yes: Number(proposal.finalTallyResult?.yes) || 0,
 				no: Number(proposal.finalTallyResult?.no) || 0,
@@ -475,7 +470,6 @@ class WalletClient {
 	};
 
 	// Operations
-
 	sendTx = async (fromWallet: Wallet, toAddress: string, cheqAmount: string, memo = '') => {
 		if (this.cheqClient === null) {
 			return null;

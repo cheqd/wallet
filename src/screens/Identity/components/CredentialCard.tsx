@@ -1,13 +1,11 @@
-import React, { useState } from "react";
 import Assets from 'assets';
-import { Card, Button as CustomButton, Badge } from "components";
-import { Credential as VerifiableCredential, Wallet } from '../../../models';
-import { trunc } from "utils";
+import axios from "axios";
+import { Button as CustomButton, Card } from "components";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ProposalStatus } from "@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov";
-import { proposalStatusFromJSON } from "cosmjs-types/cosmos/gov/v1beta1/gov";
-import CredentialVerificatinBadge from "./VerifyBadge";
-import axios, { AxiosResponse } from "axios";
+import { trunc } from "utils";
+import { Credential as VerifiableCredential } from '../../../models';
+import CredentialVerificationBadge from "./VerifyBadge";
 
 type Props = {
 	cred: VerifiableCredential;
@@ -39,7 +37,9 @@ const CredentialCard: React.FC<Props> = ({
 		axios.post(uri, { credential }).then((resp: { data: { verified: boolean }, status: number }) => {
 			if (resp.data.verified) {
 				setState({ isVerified: CredentialVerificationState.Success })
+				return
 			}
+			setState({ isVerified: CredentialVerificationState.Failed })
 		}).catch((err: any) => {
 			setState({ isVerified: CredentialVerificationState.Failed })
 		})
@@ -60,9 +60,10 @@ const CredentialCard: React.FC<Props> = ({
 						</h2>
 						<div className="d-flex align-items-center justify-content-center gap-2">
 							{
-								state.isVerified === CredentialVerificationState.Success || state.isVerified === CredentialVerificationState.Failed ?
+								state.isVerified === CredentialVerificationState.Success ||
+									state.isVerified === CredentialVerificationState.Failed ?
 									<div className="outline d-flex flex-row align-items-center">
-										<CredentialVerificatinBadge verified={state.isVerified} />
+										<CredentialVerificationBadge verified={state.isVerified} />
 									</div> :
 									<CustomButton
 										outline={true}

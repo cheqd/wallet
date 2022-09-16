@@ -6,7 +6,7 @@ export interface LoadCryptoBoxResp<T> {
 
 export const backupCryptoBox = async <T>(accountId: string, data: T, authToken: string): Promise<void> => {
 	await axios.post(
-		process.env.REACT_APP_STORAGE_ENDPOINT + '/api/credentials/cryptoBox',
+		process.env.REACT_APP_STORAGE_ENDPOINT + '/api/authentication/cryptoBox',
 		// process.env.REACT_APP_STORAGE_ENDPOINT + '/api/authentication/cryptoBox',
 		{
 			accountID: accountId,
@@ -22,18 +22,18 @@ export const backupCryptoBox = async <T>(accountId: string, data: T, authToken: 
 
 export const loadCryptoBox = async <T>(accountId: string, authToken: string): Promise<T | null> => {
 	const resp = await axios.get<LoadCryptoBoxResp<T>>(
-		process.env.REACT_APP_STORAGE_ENDPOINT + `/api/credentials/cryptoBox/${accountId}`,
+		process.env.REACT_APP_STORAGE_ENDPOINT + `/api/authentication/cryptoBox/${accountId}`,
 		// process.env.REACT_APP_STORAGE_ENDPOINT + `/api/authentication/cryptoBox/${accountId}`,
 		{
 			headers: {
 				Authorization: authToken,
 			},
-			validateStatus: (status) => status === 200 || status === 404,
+			validateStatus: (status) => status === 200 || status === 400,
 		},
 	);
 	console.log(resp.status);
 
-	if (resp.status === 404) {
+	if (resp.status === 400) {
 		return null;
 	}
 

@@ -1,6 +1,7 @@
+import { StdSignDoc as AminoDoc } from '@cosmjs/amino';
 import { SignMode } from 'cosmjs-types/cosmos/tx/signing/v1beta1/signing';
 import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { Doc } from './types/msg';
+import { Doc, DocV2 } from './types/msg';
 import { SignMsg } from './types/signMsg';
 
 export abstract class CheqWallet {
@@ -76,4 +77,12 @@ export abstract class CheqWallet {
 	 * @param msg message to sign
 	 */
 	abstract signMessage(msg: string): Promise<SignMsg>;
+
+	signAminoTx(doc: DocV2): Promise<[AminoDoc, Uint8Array]> {
+		return Promise.reject('not implemented')
+	}
+
+	signTransactionV2(doc: DocV2): Promise<[SignDoc, Uint8Array]> {
+		return Promise.reject('not implemented')
+	}
 }
