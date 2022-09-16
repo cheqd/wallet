@@ -25,6 +25,14 @@ button:focus {
     outline: 0;
 }
 
+.success-icon-btn {
+	color: $color-green !important;
+}
+
+.success-btn {
+	color: $color-green !important;
+}
+
 /* END Reset button default styling */
 
 .normal-btn {
@@ -66,10 +74,15 @@ button:focus {
 }
 
 @media (prefers-color-scheme: dark) {
+	button:hover {
+		&.outline {
+			color: $color-white;
+		}
+	}
+
     .normal-btn {
         background-color: $color-white;
         color: $color-primary;
-
         &.outline {
             background-color: transparent;
             border: 1px solid $color-white;
