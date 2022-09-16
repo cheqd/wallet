@@ -394,8 +394,22 @@
         "get": {
             "title": "Get a credential",
             "description": "Get a new credential issued by cheqd",
-            "get": "Get"
+            "get": "Get",
+
+            "connections": {
+                "title": "Connected social media accounts",
+                "connect": "Connect social account"
+            },
+
+            "message": {
+                "connectionNeeded": "Please connect your social media account to get a credential"
+            },
+
+            "error": {
+                "serviceIsAlreadyConnected": "Service already connected"
+            }
         },
+
         "wallet": {
             "title": "My credentials",
             "description": "Manage your credentials",
@@ -419,11 +433,15 @@
                 "resetConfirmation": "Are you sure you want to reset your wallet? This will delete all your credentials."
             }
         },
+
         "credential": {
             "title": "Credential",
             "remove": "Remove",
             "show": "Show",
-            "notFound": "Credential is not found"
+            "notFound": "Credential is not found",
+			"close": "Close",
+			"verified": "Verified",
+			"notVerified": "Not verified"
         }
     }
 }
