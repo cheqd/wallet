@@ -436,7 +436,7 @@ const Identity = (): JSX.Element => {
 					<h1 className="logout-modal-title">{t('identity.wallet.error.invalidPassphrase')}</h1>
 					<div className="d-flex flex-column flex-sm-row  justify-content-around mt-4">
 						<CustomButton
-							className="logout-modal-btn me-sm-3 mb-4 mb-sm-0"
+							className="logout-modal-cancel-btn me-sm-3 mb-4 mb-sm-0"
 							data-bs-dismiss="modal"
 							onClick={() => handlePassphrase(authToken!)}
 						>
