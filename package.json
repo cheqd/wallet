@@ -51,7 +51,7 @@
         "yup": "^0.32.9"
     },
     "devDependencies": {
-        "@keplr-wallet/types": "^0.10.3",
+        "@keplr-wallet/types": "^0.10.19",
         "@testing-library/dom": "^7.29.4",
         "@testing-library/jest-dom": "^5.16.4",
         "@testing-library/react": "^11.1.0",
