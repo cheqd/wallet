@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Redirect } from 'react-router';
+import { redirect } from 'react-router';
 import { Card } from 'frontend-elements';
 import { Button as CustomButton, Input, Modal } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
@@ -58,7 +58,7 @@ const Identity = (): JSX.Element => {
 	const resetConfirmationRef = useRef<HTMLDivElement>(null);
 
 	if (!wallet) {
-		return <Redirect to="/welcome" />;
+		throw redirect('/welcome');
 	}
 
 	// Methods

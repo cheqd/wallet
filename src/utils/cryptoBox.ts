@@ -30,7 +30,7 @@ export const decrypt = async (boxBytes: Uint8Array, password: string): Promise<U
 
 	const key = await deriveAESGCMKey(password, fromBase64(box.salt));
 
-	return await window.crypto.subtle.decrypt(
+	const bufArray = await window.crypto.subtle.decrypt(
 		{
 			name: 'AES-GCM',
 			iv: fromBase64(box.iv),
@@ -38,6 +38,8 @@ export const decrypt = async (boxBytes: Uint8Array, password: string): Promise<U
 		key,
 		fromBase64(box.ciphertext),
 	);
+
+	return new Uint8Array(bufArray)
 };
 
 const deriveAESGCMKey = async (password: string, salt: Uint8Array): Promise<CryptoKey> => {

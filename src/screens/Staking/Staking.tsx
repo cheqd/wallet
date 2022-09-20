@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import { useSelector } from 'react-redux';
-import { Redirect } from 'react-router';
+import { redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { Validator } from 'cosmjs-types/cosmos/staking/v1beta1/staking';
 import { LumMessages, LumUtils } from '@lum-network/sdk-javascript';
@@ -236,7 +236,7 @@ const Staking = (): JSX.Element => {
 	}, [confirming, delegateForm, redelegateForm, txResult, undelegateForm]);
 
 	if (!wallet) {
-		return <Redirect to="/welcome" />;
+		throw redirect('/welcome');
 	}
 
 	// Submit methods
