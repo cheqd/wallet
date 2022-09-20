@@ -1937,13 +1937,14 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
-"@keplr-wallet/crypto@^0.10.1":
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/@keplr-wallet/crypto/-/crypto-0.10.1.tgz#f074a4ce854d221b88d638e2cb6198694ce3705f"
-  integrity sha512-9Nl58CS3PQAJ+HuqVs7OAq8gd0rZvMwqckvpauoD+N9f7bK0VqZ0ym80dVaehcSObymIlYToCekNLsveQe/A8Q==
+"@keplr-wallet/crypto@^0.10.19":
+  version "0.10.24"
+  resolved "https://registry.yarnpkg.com/@keplr-wallet/crypto/-/crypto-0.10.24.tgz#9beba4aee83652e604b4edb6cdf2357d20d4a213"
+  integrity sha512-NBXOrX+qeVa4Pqr+g5VIswtPz3cIBlF869pIX98F9AN1xLWkSwqysNLWNPgCQaQGqtqrA1izagW3oGmePSpRPQ==
   dependencies:
     bip32 "^2.0.6"
     bip39 "^3.0.3"
+    bs58check "^2.1.2"
     buffer "^6.0.3"
     crypto-js "^4.0.0"
     elliptic "^6.5.3"
@@ -3957,7 +3958,7 @@ bs58@^4.0.0:
   dependencies:
     base-x "^3.0.2"
 
-bs58check@<3.0.0, bs58check@^2.1.1:
+bs58check@<3.0.0, bs58check@^2.1.1, bs58check@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/bs58check/-/bs58check-2.1.2.tgz#53b018291228d82a5aa08e7d796fdafda54aebfc"
   integrity sha512-0TS1jicxdU09dwJMNZtVAfzPi6Q6QeN0pM1Fkzrjn+XYHvzMKPU3pHVpva+769iNVSfIYWf7LJ6WR+BuuMf8cA==
