@@ -10,7 +10,7 @@
         "@cosmjs/proto-signing": "^0.28.5",
         "@cosmjs/stargate": "^0.28.5",
         "@cosmjs/tendermint-rpc": "^0.28.5",
-        "@keplr-wallet/crypto": "^0.10.1",
+        "@keplr-wallet/crypto": "^0.10.19",
         "@ledgerhq/hw-transport-webusb": "^6.27.1",
         "@lum-network/sdk-javascript": "^0.7.3",
         "@popperjs/core": "^2.11.5",
@@ -51,7 +51,7 @@
         "yup": "^0.32.9"
     },
     "devDependencies": {
-        "@keplr-wallet/types": "^0.10.3",
+        "@keplr-wallet/types": "^0.10.19",
         "@testing-library/dom": "^7.29.4",
         "@testing-library/jest-dom": "^5.16.4",
         "@testing-library/react": "^11.1.0",
@@ -74,7 +74,7 @@
         "eslint-config-prettier": "^7.2.0",
         "eslint-plugin-prettier": "^3.1.0",
         "eslint-plugin-react": "^7.29.4",
-        "eslint-plugin-react-hooks": "^4.5.0",
+        "eslint-plugin-react-hooks": "^4.6.0",
         "prettier": "^2.2.1"
     },
     "scripts": {
