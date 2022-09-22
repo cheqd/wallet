@@ -60,7 +60,7 @@
         "@types/clipboard": "^2.0.1",
         "@types/cryptojs": "^3.1.29",
         "@types/jest": "^26.0.15",
-        "@types/node": "^16.11.33",
+        "@types/node": "^16.11.56",
         "@types/numeral": "^2.0.2",
         "@types/react": "^17.0.45",
         "@types/react-dom": "^17.0.0",
