@@ -3,7 +3,6 @@ import {
 	AminoConverters, AminoTypes, createAuthzAminoConverters,
 	createBankAminoConverters,
 	createDistributionAminoConverters,
-	createFreegrantAminoConverters,
 	createGovAminoConverters,
 	createIbcAminoConverters,
 	createStakingAminoConverters
@@ -147,7 +146,6 @@ function createDefaultTypes(prefix: string): AminoConverters {
 		...createGovAminoConverters(),
 		...createStakingAminoConverters(prefix),
 		...createIbcAminoConverters(),
-		...createFreegrantAminoConverters(),
 	};
 }
 

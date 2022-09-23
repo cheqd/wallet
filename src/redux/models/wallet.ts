@@ -255,14 +255,19 @@ export const wallet = createModel<RootModel>()({
 								coinMinimalDenom: NanoCheqDenom,
 								coinDecimals: CheqExponent,
 								coinGeckoId: CHEQ_COINGECKO_ID,
+								gasPriceStep: {
+									low: 25,
+									average: 30,
+									high: 50,
+								}
 							},
 						],
 						coinType,
-						gasPriceStep: {
-							low: 25,
-							average: 30,
-							high: 50,
-						},
+						// gasPriceStep: {
+						// 	low: 25,
+						// 	average: 30,
+						// 	high: 50,
+						// },
 						beta: chainId.includes('testnet'),
 					});
 				} catch {
