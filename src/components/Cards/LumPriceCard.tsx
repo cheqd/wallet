@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import numeral from 'numeral';
 import Chart from '@qognicafinance/react-lightweight-charts';
 import { UTCTimestamp } from 'lightweight-charts';
-import { Card } from 'frontend-elements-v2';
+import { Card } from '@jsdp/frontend-elements';
 
 import { BUY_CHEQ_URL } from 'constant';
 import { NumbersUtils, WalletClient } from 'utils';

@@ -9,33 +9,34 @@ import imagePlugin from '@rollup/plugin-image';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [
-        react(),
-        viteTsconfigPaths(),
-        svgrPlugin(),
-        alias(),
-        imagePlugin(),
-    ],
-    server: {
-        host: "0.0.0.0",
-        port: 3000,
-    },
-    resolve: {
-        alias: [
-            { find: "~frontend-elements", replacement: "./node_modules/frontend-elements-v2/styles" },
-        ]
-    },
-    optimizeDeps: {
-        esbuildOptions: {
-            define: {
-                global: 'globalThis',
-            },
-            plugins: [
-                NodeGlobalsPolyfillPlugin({
-                    buffer: true,
-                })
-            ]
-        }
-    }
+	plugins: [
+		react(),
+		viteTsconfigPaths(),
+		svgrPlugin(),
+		alias(),
+		imagePlugin(),
+	],
+	server: {
+		host: "0.0.0.0",
+		port: 3000,
+	},
+	resolve: {
+		alias: [
+			{ find: "~frontend-elements", replacement: "./node_modules/@jsdp/frontend-elements/dist" },
+			{ find: "~bootstrap", replacement: "./node_modules/bootstrap" },
+		]
+	},
+	optimizeDeps: {
+		esbuildOptions: {
+			define: {
+				global: 'globalThis',
+			},
+			plugins: [
+				NodeGlobalsPolyfillPlugin({
+					buffer: true,
+				})
+			]
+		}
+	}
 });
 

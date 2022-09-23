@@ -8,7 +8,7 @@ import { LumMessages, LumUtils } from '@lum-network/sdk-javascript';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
-import { Card } from 'frontend-elements-v2';
+import { Card } from '@jsdp/frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
 import { BalanceCard, Button, Input, Modal } from 'components';

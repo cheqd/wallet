@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import assets from 'assets';
-import { Card } from 'frontend-elements-v2';
+import { Card } from '@jsdp/frontend-elements';
 import { Vestings } from 'models';
 import { dateToNow, NumbersUtils } from 'utils';
 import { SmallerDecimal } from 'components';

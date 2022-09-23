@@ -2,7 +2,7 @@ import React from 'react';
 
 import assets from 'assets';
 import { CLIENT_PRECISION } from 'constant';
-import { Button, Card } from 'frontend-elements-v2';
+import { Button, Card } from '@jsdp/frontend-elements';
 import { Rewards } from 'models';
 import { useTranslation } from 'react-i18next';
 import { NumbersUtils } from 'utils';

@@ -7,7 +7,7 @@ import numeral from 'numeral';
 import dayjs from 'dayjs';
 
 import { Badge, SmallerDecimal } from 'components';
-import { Button, Card } from 'frontend-elements-v2';
+import { Button, Card } from '@jsdp/frontend-elements';
 import { Proposal, VotesResult } from 'models';
 import { dateFromNow, dateFromTimestamp, GovernanceUtils, NumbersUtils } from 'utils';
 import { useRematchDispatch } from 'redux/hooks';

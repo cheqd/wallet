@@ -1,7 +1,7 @@
 import React from 'react';
 import { ProposalStatus } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import { Button } from 'components';
-import { Button as FEButton } from 'frontend-elements-v2';
+import { Button as FEButton } from '@jsdp/frontend-elements';
 import { Proposal } from 'models';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';

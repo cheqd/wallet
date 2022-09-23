@@ -5,7 +5,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { Modal as BSModal } from 'bootstrap';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { LumConstants } from '@lum-network/sdk-javascript';
-import { Button as FEButton } from 'frontend-elements-v2';
+import { Button as FEButton } from '@jsdp/frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 
 import Assets from 'assets';

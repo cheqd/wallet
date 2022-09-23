@@ -1,6 +1,6 @@
 import React from 'react';
 import './MessageButton.scss';
-import { Card } from 'frontend-elements-v2';
+import { Card } from '@jsdp/frontend-elements';
 
 interface IProps {
 	name: string;

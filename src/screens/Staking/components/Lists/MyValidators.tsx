@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import numeral from 'numeral';
-import { Table, ValidatorLogo } from 'frontend-elements-v2';
+import { Table, ValidatorLogo } from '@jsdp/frontend-elements';
 
 import { CLIENT_PRECISION, CHEQ_ASSETS_GITHUB, CHEQ_EXPLORER } from 'constant';
 import { getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
