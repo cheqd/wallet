@@ -58,7 +58,10 @@
         "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
         "@keplr-wallet/types": "^0.11.3",
         "@rollup/plugin-alias": "^3.1.9",
+        "@rollup/plugin-babel": "^5.3.1",
+        "@rollup/plugin-commonjs": "^22.0.2",
         "@rollup/plugin-image": "^2.1.1",
+        "@rollup/plugin-node-resolve": "^14.1.0",
         "@testing-library/dom": "^8.18.1",
         "@testing-library/jest-dom": "^5.16.4",
         "@testing-library/react": "^13.4.0",
@@ -94,10 +97,8 @@
     },
     "scripts": {
         "start": "vite",
-        "build": "tsc && vite build",
-        "test": "react-scripts test",
-        "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-        "eject": "react-scripts eject"
+        "build": "rm -rf dist && tsc && vite build",
+        "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
     },
     "eslintConfig": {
         "extends": [
