@@ -3197,8 +3197,10 @@ formik@^2.2.6:
     tiny-warning "^1.0.2"
     tslib "^1.10.0"
 
-"frontend-elements@file:../frontend-elements-v2":
-  version "1.0.0"
+frontend-elements@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/frontend-elements/-/frontend-elements-0.1.0.tgz#7ef392400678033fd9092ff499e36d7dd7db9b0e"
+  integrity sha512-5kCSCOP4vkwEd+vad5hBZT4EtIUoblJFlsrysIgfhkTX9LcFUNa0IJ/dSA5dGITMHIsiGplaqbfJrTsahXvrSQ==
   dependencies:
     bootstrap "^5.2.1"
     react-qrcode-logo "^2.8.0"

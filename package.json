@@ -29,7 +29,7 @@
         "cryptojs": "^2.5.3",
         "dayjs": "^1.10.4",
         "formik": "^2.2.6",
-        "frontend-elements": "file:../frontend-elements-v2",
+        "frontend-elements": "^0.1.0",
         "i18next": "^21.9.2",
         "i18next-browser-languagedetector": "^6.0.1",
         "immer": "^9.0.15",
