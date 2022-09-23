@@ -1,6 +1,6 @@
 import assets from 'assets';
 import { SmallerDecimal } from 'components';
-import { Card } from 'frontend-elements';
+import { Card } from 'frontend-elements-v2';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { NumbersUtils } from 'utils';

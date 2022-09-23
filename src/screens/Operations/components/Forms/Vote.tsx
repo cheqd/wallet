@@ -1,7 +1,7 @@
 import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import { Input, Button as CustomButton, Select } from 'components';
 import { FormikContextType } from 'formik';
-import { Button } from 'frontend-elements';
+import { Button } from 'frontend-elements-v2';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 

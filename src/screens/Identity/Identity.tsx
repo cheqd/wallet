@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Redirect } from 'react-router';
-import { Card } from 'frontend-elements';
+import { redirect } from 'react-router';
+import { Card } from 'frontend-elements-v2';
 import { Button as CustomButton, Input, Modal } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 
@@ -58,15 +58,15 @@ const Identity = (): JSX.Element => {
 	const resetConfirmationRef = useRef<HTMLDivElement>(null);
 
 	if (!wallet) {
-		return <Redirect to="/welcome" />;
+		throw redirect('/welcome');
 	}
 
 	// Methods
 	const handleConnectSocialAccount = async () => {
 		try {
 			const auth0 = await createAuth0Client({
-				domain: process.env.REACT_APP_AUTH0_DOMAIN,
-				client_id: process.env.REACT_APP_AUTH0_CLIENT_ID,
+				domain: import.meta.env.VITE_AUTH0_DOMAIN,
+				client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
 			});
 
 			if (await auth0.isAuthenticated()) {
@@ -164,7 +164,7 @@ const Identity = (): JSX.Element => {
 		try {
 			showModal('authToken', false);
 
-			const authTokenBytes = await getAuthToken(wallet, process.env.REACT_APP_STORAGE_ENDPOINT);
+			const authTokenBytes = await getAuthToken(wallet, import.meta.env.VITE_STORAGE_ENDPOINT);
 			const authToken = toBase64(authTokenBytes);
 			setAuthToken(authToken);
 

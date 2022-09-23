@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Redirect, useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 
-import { Card } from 'frontend-elements';
+import { Card } from 'frontend-elements-v2';
 import { CHEQ_TWITTER } from 'constant';
 import { TransactionsTable, AddressCard, BalanceCard, LumPriceCard } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
@@ -28,6 +28,8 @@ const Dashboard = (): JSX.Element => {
 		vestings: state.wallet.vestings,
 	}));
 
+	const navigate = useNavigate();
+
 	const { getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
 		getWalletInfos: dispatch.wallet.reloadWalletInfos,
 	}));
@@ -46,7 +48,8 @@ const Dashboard = (): JSX.Element => {
 	}, [location, prevLocation, wallet, getWalletInfos]);
 
 	if (!wallet) {
-		return <Redirect to="/welcome" />;
+		throw navigate('/welcome');
+		// return <Redirect to="/welcome" />;
 	}
 
 	return (

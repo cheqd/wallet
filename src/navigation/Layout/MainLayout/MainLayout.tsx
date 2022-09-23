@@ -51,9 +51,8 @@ class MainLayout extends PureComponent<Props> {
 					<div className="warning-bar text-center py-2">{t('common.testnetBanner')}</div>
 				)}
 				<nav
-					className={`px-3 ps-lg-2 pe-lg-4 py-0 py-lg-3 justify-content-between justify-content-lg-between navbar navbar-expand-lg ${
-						bottom ? 'position-fixed w-100 bottom-navbar' : ''
-					}`}
+					className={`px-3 ps-lg-2 pe-lg-4 py-0 py-lg-3 justify-content-between justify-content-lg-between navbar navbar-expand-lg ${bottom ? 'position-fixed w-100 bottom-navbar' : ''
+						}`}
 				>
 					{!bottom && (
 						<ul className="navbar-nav navbar-spacer">
@@ -75,8 +74,10 @@ class MainLayout extends PureComponent<Props> {
 						<li>
 							<NavLink
 								to="/home"
-								className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-								activeClassName="selected-navbar-item"
+								className={({ isActive }) => isActive ?
+									"navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
+									: "selected-navbar-item"
+								}
 							>
 								<img
 									src={assets.images.navbarIcons.dashboard}
@@ -90,8 +91,10 @@ class MainLayout extends PureComponent<Props> {
 						<li>
 							<NavLink
 								to="/operations"
-								className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-								activeClassName="selected-navbar-item"
+								className={(isActive) => isActive ?
+									"navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
+									: "selected-navbar-item"
+								}
 							>
 								<img
 									src={assets.images.navbarIcons.operations}
@@ -105,8 +108,10 @@ class MainLayout extends PureComponent<Props> {
 						<li>
 							<NavLink
 								to="/staking"
-								className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-								activeClassName="selected-navbar-item"
+								className={(isActive) => isActive ?
+									"navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
+									: "selected-navbar-item"
+								}
 							>
 								<img
 									src={assets.images.navbarIcons.staking}
@@ -120,8 +125,10 @@ class MainLayout extends PureComponent<Props> {
 						<li>
 							<NavLink
 								to="/governance"
-								className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-								activeClassName="selected-navbar-item"
+								className={(isActive) => isActive ?
+									"navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
+									: "selected-navbar-item"
+								}
 							>
 								<img
 									src={assets.images.navbarIcons.governance}
@@ -135,8 +142,10 @@ class MainLayout extends PureComponent<Props> {
 						<li>
 							<NavLink
 								to="/identity"
-								className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-								activeClassName="selected-navbar-item"
+								className={(isActive) => isActive ?
+									"navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
+									: "selected-navbar-item"
+								}
 							>
 								<img
 									src={assets.images.navbarIcons.identity}

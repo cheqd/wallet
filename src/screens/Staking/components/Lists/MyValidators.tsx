@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import numeral from 'numeral';
-import { Table, ValidatorLogo } from 'frontend-elements';
+import { Table, ValidatorLogo } from 'frontend-elements-v2';
 
 import { CLIENT_PRECISION, CHEQ_ASSETS_GITHUB, CHEQ_EXPLORER } from 'constant';
 import { getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
@@ -127,15 +127,15 @@ const MyValidators = ({
 					items={[
 						...(validator.status === BondStatus.BOND_STATUS_BONDED
 							? [
-									{
-										title: t('staking.claim'),
-										onPress: () => onClaim(validator),
-									},
-									{
-										title: t('operations.types.delegate.name'),
-										onPress: () => onDelegate(validator, totalVotingPower),
-									},
-							  ]
+								{
+									title: t('staking.claim'),
+									onPress: () => onClaim(validator),
+								},
+								{
+									title: t('operations.types.delegate.name'),
+									onPress: () => onDelegate(validator, totalVotingPower),
+								},
+							]
 							: []),
 						{
 							title: t('operations.types.undelegate.name'),

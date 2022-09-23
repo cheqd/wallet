@@ -1,7 +1,7 @@
 import { Input, Button as CustomButton } from 'components';
 import { CLIENT_PRECISION } from 'constant';
 import { FormikContextType } from 'formik';
-import { Button } from 'frontend-elements';
+import { Button } from 'frontend-elements-v2';
 import { Rewards } from 'models';
 import { NanoCheqDenom } from 'network';
 import { convertCoin } from 'network/util';

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import assets from 'assets';
 import { SmallerDecimal } from 'components';
 import { MEDIUM_AIRDROP_ARTICLE } from 'constant';
-import { Card } from 'frontend-elements';
+import { Card } from 'frontend-elements-v2';
 import { Airdrop } from 'models';
 import { NumbersUtils } from 'utils';
 

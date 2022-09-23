@@ -7,7 +7,7 @@ import { Input } from 'components';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
 import { useSelector } from 'react-redux';
-import { Button } from 'frontend-elements';
+import { Button } from 'frontend-elements-v2';
 
 const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }): JSX.Element => {
 	// Redux hooks

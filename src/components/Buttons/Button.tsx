@@ -1,4 +1,4 @@
-import { Loading } from 'frontend-elements';
+import { Loading } from 'frontend-elements-v2';
 import React from 'react';
 
 import './Buttons.scss';

@@ -32,7 +32,7 @@ const CredentialCard: React.FC<Props> = ({
 
 
 	const handleVerifyCredential = async (credential: VerifiableCredential) => {
-		const uri = `${process.env.REACT_APP_ISSUER_ENDPOINT}/api/credentials/verify`;
+		const uri = `${import.meta.env.VITE_ISSUER_ENDPOINT}/api/credentials/verify`;
 		setState({ isVerified: CredentialVerificationState.InProgress })
 		axios.post(uri, { credential }).then((resp: { data: { verified: boolean }, status: number }) => {
 			if (resp.data.verified) {

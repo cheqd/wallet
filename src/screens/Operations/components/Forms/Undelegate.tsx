@@ -1,7 +1,7 @@
 import { Input, Button as CustomButton } from 'components';
 import React, { useState } from 'react';
 import { FormikContextType } from 'formik';
-import { Button } from 'frontend-elements';
+import { Button } from 'frontend-elements-v2';
 import { useTranslation } from 'react-i18next';
 
 interface Props {

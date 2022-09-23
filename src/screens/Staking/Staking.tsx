@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import { useSelector } from 'react-redux';
-import { Redirect } from 'react-router';
+import { redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { Validator } from 'cosmjs-types/cosmos/staking/v1beta1/staking';
 import { LumMessages, LumUtils } from '@lum-network/sdk-javascript';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
-import { Card } from 'frontend-elements';
+import { Card } from 'frontend-elements-v2';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
 import { BalanceCard, Button, Input, Modal } from 'components';
@@ -236,7 +236,7 @@ const Staking = (): JSX.Element => {
 	}, [confirming, delegateForm, redelegateForm, txResult, undelegateForm]);
 
 	if (!wallet) {
-		return <Redirect to="/welcome" />;
+		throw redirect('/welcome');
 	}
 
 	// Submit methods

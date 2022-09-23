@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { LumUtils } from '@lum-network/sdk-javascript';
 
-import { Card, Button } from 'frontend-elements';
+import { Card, Button } from 'frontend-elements-v2';
 import Assets from 'assets';
 import { Input, SwitchInput } from 'components';
 import { PasswordStrength, PasswordStrengthType, SoftwareMethod } from 'models';
@@ -31,8 +31,8 @@ const CreateWallet = (): JSX.Element => {
 
 	/* CODE RELATED TO EXTRA WORD FOR FUTURE IMPLEMENTATION
 
-    const [isExtraWord, setIsExtraWord] = useState(false);
-    const [extraWord, setExtraWord] = useState(''); */
+	const [isExtraWord, setIsExtraWord] = useState(false);
+	const [extraWord, setExtraWord] = useState(''); */
 
 	// Redux hooks
 	const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
@@ -41,7 +41,7 @@ const CreateWallet = (): JSX.Element => {
 	}));
 
 	// Utils hooks
-	const history = useHistory();
+	const navigate = useNavigate();
 	const { t } = useTranslation();
 
 	// Form hook
@@ -85,9 +85,9 @@ const CreateWallet = (): JSX.Element => {
 	// Effects
 	useEffect(() => {
 		if (wallet) {
-			history.push('/home');
+			navigate('/home');
 		}
-	}, [history, wallet]);
+	}, [navigate, wallet]);
 
 	useEffect(() => {
 		if (creationType === SoftwareMethod.Mnemonic) {
@@ -200,13 +200,12 @@ const CreateWallet = (): JSX.Element => {
 				<p className="auth-paragraph">
 					{t('createWallet.keystore.pwdStrength')}
 					<span
-						className={`text-capitalize fw-bold ${
-							passwordStrength === PasswordStrengthType.Strong
-								? 'success'
-								: passwordStrength === PasswordStrengthType.Medium
+						className={`text-capitalize fw-bold ${passwordStrength === PasswordStrengthType.Strong
+							? 'success'
+							: passwordStrength === PasswordStrengthType.Medium
 								? 'warning'
 								: 'danger'
-						}-text`}
+							}-text`}
 					>
 						{passwordStrength}
 					</span>
@@ -248,9 +247,8 @@ const CreateWallet = (): JSX.Element => {
 						<Card className="container import-card" withoutPadding>
 							<ul className="row nav nav-tabs border-0 text-center">
 								<li
-									className={`col-6 nav-item pt-4 pb-2 ${
-										creationType === SoftwareMethod.Keystore ? 'active' : ''
-									}`}
+									className={`col-6 nav-item pt-4 pb-2 ${creationType === SoftwareMethod.Keystore ? 'active' : ''
+										}`}
 								>
 									<a
 										className="nav-link fs-5 border-0"
@@ -261,9 +259,8 @@ const CreateWallet = (): JSX.Element => {
 									</a>
 								</li>
 								<li
-									className={`col-6 nav-item pt-4 pb-2 ${
-										creationType === SoftwareMethod.Mnemonic ? 'active' : ''
-									}`}
+									className={`col-6 nav-item pt-4 pb-2 ${creationType === SoftwareMethod.Mnemonic ? 'active' : ''
+										}`}
 								>
 									<a
 										className="nav-link fs-5 border-0"

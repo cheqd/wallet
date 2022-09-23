@@ -1,4 +1,4 @@
-export const IS_TESTNET = process.env.REACT_APP_RPC_ENDPOINT.includes('network');
+export const IS_TESTNET = import.meta.env.VITE_RPC_ENDPOINT.includes('network');
 
 export const CHEQ_ASSETS_GITHUB = 'https://github.com/cheqd/public-assets';
 export const CHEQ_WALLET_GITHUB = 'https://github.com/cheqd/wallet';

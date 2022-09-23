@@ -4,7 +4,7 @@ import { LumConstants } from '@lum-network/sdk-javascript';
 
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
-import { Button as FEButton } from 'frontend-elements';
+import { Button as FEButton } from 'frontend-elements-v2';
 import { Input, SwitchInput, Button, HdPathInput, HoverTooltip } from 'components';
 
 import { MnemonicLength, WalletUtils } from 'utils';
@@ -27,8 +27,8 @@ const ImportMnemonicModal = (): JSX.Element => {
 
 	/* CODE RELATED TO EXTRA WORD FOR FUTURE IMPLEMENTATION
 
-    const [isExtraWord, setIsExtraWord] = useState(false);
-    const [extraWord, setExtraWord] = useState(''); */
+	const [isExtraWord, setIsExtraWord] = useState(false);
+	const [extraWord, setExtraWord] = useState(''); */
 
 	// Redux hooks
 	const { signInWithMnemonic } = useRematchDispatch((dispatch: RootDispatch) => ({
@@ -76,9 +76,9 @@ const ImportMnemonicModal = (): JSX.Element => {
 		const mnemonicString = mnemonic.values.map((val) => val.trim()).join(' ');
 
 		/*  CODE RELATED TO EXTRA WORD FOR FUTURE IMPLEMENTATION
-        if (extraWord) {
-            mnemonic += ' ' + extraWord;
-        } */
+		if (extraWord) {
+			mnemonic += ' ' + extraWord;
+		} */
 
 		signInWithMnemonic({ mnemonic: mnemonicString, customHdPath });
 	};
