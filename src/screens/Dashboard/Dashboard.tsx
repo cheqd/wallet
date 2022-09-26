@@ -17,7 +17,7 @@ import VestingTokensCard from 'screens/Staking/components/Cards/VestingTokensCar
 import { NanoCheqDenom } from 'network';
 import { convertCoin } from 'network/util';
 
-const Dashboard = (): JSX.Element => {
+function Dashboard() {
 	// Redux hooks
 	const { transactions, balance, wallet, vestings, stakedCoins } = useSelector((state: RootState) => ({
 		loading: state.loading.global.loading,
@@ -92,9 +92,6 @@ const Dashboard = (): JSX.Element => {
 							</div>
 						</>
 					)}
-					<div className="col-12">
-						<LumPriceCard balance={balance.fiat} />
-					</div>
 				</div>
 				<div className="row mt-4">
 					<div className="col">

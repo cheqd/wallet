@@ -4,8 +4,14 @@ import viteTsconfigPaths from 'vite-tsconfig-paths';
 import svgrPlugin from 'vite-plugin-svgr';
 import alias from '@rollup/plugin-alias'
 import { fileURLToPath } from 'url';
-import NodeGlobalsPolyfillPlugin from '@esbuild-plugins/node-globals-polyfill';
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import imagePlugin from '@rollup/plugin-image';
+import inject from '@rollup/plugin-inject'
+import stdLibBrowser from 'node-stdlib-browser';
+
+
+function getPolyfillsForEnv() {
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,6 +21,29 @@ export default defineConfig({
 		svgrPlugin(),
 		alias(),
 		imagePlugin(),
+		{
+			...inject({
+				global: [
+					require.resolve(
+						'node-stdlib-browser/helpers/esbuild/shim'
+					),
+					'global'
+				],
+				process: [
+					require.resolve(
+						'node-stdlib-browser/helpers/esbuild/shim'
+					),
+					'process'
+				],
+				Buffer: [
+					require.resolve(
+						'node-stdlib-browser/helpers/esbuild/shim'
+					),
+					'Buffer'
+				]
+			}),
+			enforce: 'post'
+		}
 	],
 	server: {
 		host: "0.0.0.0",
@@ -26,17 +55,11 @@ export default defineConfig({
 			{ find: "~bootstrap", replacement: "./node_modules/bootstrap" },
 		]
 	},
+	build: {
+		minify: true,
+		polyfillModulePreload: true,
+	},
 	optimizeDeps: {
-		esbuildOptions: {
-			define: {
-				global: 'globalThis',
-			},
-			plugins: [
-				NodeGlobalsPolyfillPlugin({
-					buffer: true,
-				})
-			]
-		}
+		include: ['buffer', 'process'],
 	}
 });
-
