@@ -18,9 +18,10 @@ const RootNavigator = (): JSX.Element => {
 						<Route element={<Operations />} path={'/operations'} />
 						<Route element={<Staking />} path='/staking' />
 						<Route element={<Governance />} path='/governance' />
+						<Route element={<Governance />} path='/governance/proposal/:proposalId' />
 						<Route element={<Identity />} path='/identity' />
+						<Route element={<Dashboard />} path='/' />
 					</Route>
-					<Route path="/" element={<Welcome />} />
 					<Route element={<Error404 />} path="*" />
 				</Routes>
 			</MainLayout>
