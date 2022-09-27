@@ -4636,10 +4636,10 @@ cosmiconfig@^7.0.0:
     path-type "^4.0.0"
     yaml "^1.10.0"
 
-cosmjs-types@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/cosmjs-types/-/cosmjs-types-0.4.0.tgz#22a138e64f2b06dc1cd3c0d79a848bc5ddf0b0c6"
-  integrity sha512-vHThuPZP5CF3Iz5k18zWxKl6PB3mnr8huBu281Uqhsd9CDOwmb3xxtkaCJJz2+64+zWJ0X0Sy2UabLb7ghKHUg==
+cosmjs-types@0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/cosmjs-types/-/cosmjs-types-0.5.1.tgz#f9bc35e78c32b687fb6018dc573eb454b3ae2587"
+  integrity sha512-NcC58xUIVLlKdIimWWQAmSlmCjiMrJnuHf4i3LiD8PCextfHR0fT3V5/WlXZZreyMgdmh6ML1zPUfGTbbo3Z5g==
   dependencies:
     long "^4.0.0"
     protobufjs "~6.11.2"
