@@ -11,7 +11,6 @@ type Props = {
 	cred: VerifiableCredential;
 	handleShowCredential: (cred: VerifiableCredential) => void;
 	handleRemoveCredential: (cred: VerifiableCredential) => void;
-	key: string | number;
 }
 
 export enum CredentialVerificationState {
@@ -22,14 +21,13 @@ export enum CredentialVerificationState {
 }
 
 const CredentialCard: React.FC<Props> = ({
-	cred, key, handleRemoveCredential, handleShowCredential,
+	cred, handleRemoveCredential, handleShowCredential,
 }): JSX.Element => {
 
 	const { t } = useTranslation();
 	const [state, setState] = useState<{ isVerified: CredentialVerificationState }>({
 		isVerified: CredentialVerificationState.Noop,
 	});
-
 
 	const handleVerifyCredential = async (credential: VerifiableCredential) => {
 		const uri = `${import.meta.env.VITE_ISSUER_ENDPOINT}/api/credentials/verify`;
@@ -46,8 +44,8 @@ const CredentialCard: React.FC<Props> = ({
 	}
 
 	return (
-		<div className="col-lg-6 col-12" key={key}>
-			<Card key={0} className="d-flex flex-column h-100 justify-content-between">
+		<div className="col-lg-6 col-12">
+			<Card className="d-flex credential-card flex-column h-100 justify-content-between">
 				<div>
 					<div className="d-flex flex-row justify-content-between mb-2">
 						<h2>
@@ -81,17 +79,17 @@ const CredentialCard: React.FC<Props> = ({
 						<p> <b>Issuer: </b> {trunc(cred.issuer.id, 17)} </p>
 						{cred.name ? <p> <b>Name:</b> {cred.name} </p> : null}
 						{
-							cred.WebPage ? cred.WebPage.map((webpage) => {
+							cred.WebPage ? cred.WebPage.map((webpage, i) => {
 								return (
-									<p> <b>{webpage.description}:</b> {webpage.name} </p>
+									<p key={i}> <b>{webpage.description}:</b> {webpage.name} </p>
 								)
 							}) : null
 						}
 					</>
 
-					<div className="d-flex flex-row align-items-right mt-4 mx-0">
+					<div className="d-flex gap-4 flex-row align-items-right mt-4 mx-0">
 						<div
-							className="app-btn  app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+							className="scale-anim pointer undefined bg-transparent text-btn p-0 h-auto"
 							onClick={async () =>
 								await handleShowCredential(cred)
 							}
@@ -100,7 +98,7 @@ const CredentialCard: React.FC<Props> = ({
 						</div>
 						<div className="wrapper undefined">
 							<div
-								className="scale-anim undefined bg-transparent text-btn p-0 h-auto"
+								className="scale-anim pointer undefined bg-transparent text-btn p-0 h-auto"
 								onClick={async () =>
 									await handleRemoveCredential(cred)
 								}

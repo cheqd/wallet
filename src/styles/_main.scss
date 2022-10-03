@@ -12,6 +12,9 @@ $color-arrow-red: #ff7245ff;
     border-radius: 25px;
     align-items: center;
     padding: 12px;
+	@media (prefers-color-scheme: dark) {
+		background-color: #202124;
+	}
 }
 
 .Toastify__toast--error {
