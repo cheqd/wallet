@@ -1,6 +1,6 @@
 import React from 'react';
 import assets from 'assets';
-import { Card } from '@jsdp/frontend-elements';
+import { Card } from '@cheqd/wallet-frontend-elements';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 

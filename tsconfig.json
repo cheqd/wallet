@@ -20,7 +20,7 @@
         "noEmit": true,
         "jsx": "react",
 		"paths": {
-			"~frontend-elements/*": ["./node_modules/@jsdp/frontend-elements/dist/*"]
+			"~frontend-elements/*": ["./node_modules/@cheqd/wallet-frontend-elements/dist/*"]
 		}
     },
 	"include": ["src"]

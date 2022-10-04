@@ -4,7 +4,7 @@ import ClipboardJS from 'clipboard';
 import printJS from 'print-js';
 
 import assets from 'assets';
-import { Card, QRCode as CodeQr } from '@jsdp/frontend-elements';
+import { Card, QRCode as CodeQr } from '@cheqd/wallet-frontend-elements';
 
 import Modal from '../Modals/Modal';
 import { showErrorToast, showSuccessToast } from 'utils';

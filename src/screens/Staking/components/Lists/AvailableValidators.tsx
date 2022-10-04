@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Validator } from 'cosmjs-types/cosmos/staking/v1beta1/staking';
 import numeral from 'numeral';
-import { Table, ValidatorLogo } from '@jsdp/frontend-elements';
+import { Table, ValidatorLogo } from '@cheqd/wallet-frontend-elements';
 
 import { Button, Input } from 'components';
 import { CLIENT_PRECISION, CHEQ_ASSETS_GITHUB, CHEQ_EXPLORER } from 'constant';

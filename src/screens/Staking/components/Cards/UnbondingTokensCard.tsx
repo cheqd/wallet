@@ -1,7 +1,7 @@
 import assets from 'assets';
 import { SmallerDecimal } from 'components';
 import { Timestamp } from 'cosmjs-types/google/protobuf/timestamp';
-import { Card } from '@jsdp/frontend-elements';
+import { Card } from '@cheqd/wallet-frontend-elements';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { dateFromNow, dateFromTimestamp, NumbersUtils } from 'utils';

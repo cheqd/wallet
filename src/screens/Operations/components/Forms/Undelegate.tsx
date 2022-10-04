@@ -1,7 +1,7 @@
 import { Input, Button as CustomButton } from 'components';
 import React, { useState } from 'react';
 import { FormikContextType } from 'formik';
-import { Button } from '@jsdp/frontend-elements';
+import { Button } from '@cheqd/wallet-frontend-elements';
 import { useTranslation } from 'react-i18next';
 
 interface Props {

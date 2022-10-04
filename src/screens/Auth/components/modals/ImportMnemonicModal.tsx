@@ -4,7 +4,7 @@ import { LumConstants } from '@lum-network/sdk-javascript';
 
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
-import { Button as FEButton } from '@jsdp/frontend-elements';
+import { Button as FEButton } from '@cheqd/wallet-frontend-elements';
 import { Input, SwitchInput, Button, HdPathInput, HoverTooltip } from 'components';
 
 import { MnemonicLength, WalletUtils } from 'utils';

@@ -51,7 +51,7 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: [
-			{ find: "~frontend-elements", replacement: "./node_modules/@jsdp/frontend-elements/dist" },
+			{ find: "~frontend-elements", replacement: "./node_modules/@cheqd/wallet-frontend-elements/dist" },
 			{ find: "~bootstrap", replacement: "./node_modules/bootstrap" },
 		]
 	},

@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router';
 
-import { Card } from '@jsdp/frontend-elements';
+import { Card } from '@cheqd/wallet-frontend-elements';
 import { CHEQ_TWITTER } from 'constant';
 import { TransactionsTable, AddressCard, BalanceCard, LumPriceCard } from 'components';
 import { RootDispatch, RootState } from 'redux/store';

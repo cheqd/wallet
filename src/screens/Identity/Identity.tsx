@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { redirect } from 'react-router';
-import { Card } from '@jsdp/frontend-elements';
+import { Card } from '@cheqd/wallet-frontend-elements';
 import { Button as CustomButton, Input, Modal } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 

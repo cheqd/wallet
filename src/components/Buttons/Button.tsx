@@ -1,4 +1,4 @@
-import { Loading } from '@jsdp/frontend-elements';
+import { Loading } from '@cheqd/wallet-frontend-elements';
 import React from 'react';
 
 import './Buttons.scss';

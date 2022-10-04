@@ -6,7 +6,7 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { LumUtils } from '@lum-network/sdk-javascript';
 
-import { Card, Button } from '@jsdp/frontend-elements';
+import { Card, Button } from '@cheqd/wallet-frontend-elements';
 import Assets from 'assets';
 import { Input, SwitchInput } from 'components';
 import { PasswordStrength, PasswordStrengthType, SoftwareMethod } from 'models';
