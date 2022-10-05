@@ -62,7 +62,7 @@
         "@types/jest": "^26.0.15",
         "@types/node": "^16.11.56",
         "@types/numeral": "^2.0.2",
-        "@types/react": "^17.0.45",
+        "@types/react": "^17.0.50",
         "@types/react-dom": "^17.0.0",
         "@types/react-redux": "^7.1.24",
         "@types/react-router-dom": "^5.1.7",
