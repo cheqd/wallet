@@ -18,6 +18,7 @@
 There are two `package.json` in this repository. You can use a package manager like Yarn or NPM to install dependencies.
 
 ```bash
+mv env.example .env
 yarn install
 cd src/frontend-elements
 yarn install

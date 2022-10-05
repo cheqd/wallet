@@ -21,7 +21,8 @@ import Assets from '../../assets';
 import { QRCodeSVG } from 'qrcode.react';
 import Multibase from 'multibase';
 import Multicodec from 'multicodec';
-import createAuth0Client from "@auth0/auth0-spa-js";
+import createAuth0Client, { Auth0Client } from "@auth0/auth0-spa-js";
+import type { User as Auth0User } from "@auth0/auth0-spa-js";
 import { loadUrlInIframe } from "../../utils/iframe";
 import axios, { AxiosResponse } from 'axios';
 import CredentialList from './components/CredentialList';
@@ -80,8 +81,6 @@ const Identity = (): JSX.Element => {
 			const user = (await auth0.getUser())!;
 
 			const serviceNames: { [key: string]: string } = {
-				'google-oauth2': "Google",
-				'facebook': "Facebook",
 				'twitter': "Twitter",
 				'discord': "Discord",
 			}
@@ -105,7 +104,7 @@ const Identity = (): JSX.Element => {
 			}
 
 			addClaim({
-				profileName: user.nickname || user.name || user.email || "no data",
+				profileName: getProfileName(user, serviceName),
 				service: serviceName,
 				accessToken: token,
 			});
@@ -113,6 +112,16 @@ const Identity = (): JSX.Element => {
 		} catch (error) {
 			showErrorToast((error as Error).message);
 		}
+	}
+
+	const getProfileName = (user: Auth0User, serviceName: string) => {
+		const profileName = user.nickname || user.name || user.email || "no data"
+		if (serviceName === 'Twitter') {
+			return user.screen_name ? user.screen_name : profileName
+		}
+
+
+		return profileName
 	}
 
 	const handleGetCredential = async () => {
