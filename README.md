@@ -1,6 +1,6 @@
 # cheqd Wallet
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/cheqd/wallet?color=green&label=stable%20release&style=flat-square)](https://github.com/cheqd/wallet/releases/latest) ![GitHub Release Date](https://img.shields.io/github/release-date/cheqd/wallet?color=green&style=flat-square) [![GitHub license](https://img.shields.io/github/license/cheqd/wallet?color=blue&style=flat-square)](https://github.com/cheqd/wallet/blob/main/LICENSE)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/cheqd/wallet?color=green&label=stable%20release&style=flat-square)](https://github.com/cheqd/wallet/releases/latest) ![GitHub Release Date](https://img.shields.io/github/release-date/cheqd/wallet?color=green&style=flat-square) [![GitHub license](https://img.shields.io/github/license/cheqd/wallet?color=blue&style=flat-square)](https://github.com/cheqd/wallet/blob/cheqd/LICENSE)
 
 [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/cheqd/wallet?include_prereleases&label=dev%20release&style=flat-square)](https://github.com/cheqd/wallet/releases/) ![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/cheqd/wallet/latest?style=flat-square) [![GitHub contributors](https://img.shields.io/github/contributors/cheqd/wallet?label=contributors%20%E2%9D%A4%EF%B8%8F&style=flat-square)](https://github.com/cheqd/wallet/graphs/contributors)
 
