@@ -219,7 +219,7 @@ export const wallet = createModel<RootModel>()({
 				try {
 					await keplrWindow.keplr.experimentalSuggestChain({
 						chainId: chainId,
-						chainName: chainId.includes('testnet') ? 'Cheq Testnet' : 'Cheq Network',
+						chainName: chainId.includes('testnet') ? 'cheqd Testnet' : 'cheqd Network',
 						rpc: import.meta.env.VITE_RPC_ENDPOINT,
 						rest: import.meta.env.VITE_REST_ENDPOINT,
 						stakeCurrency: {
@@ -257,8 +257,8 @@ export const wallet = createModel<RootModel>()({
 								coinGeckoId: CHEQ_COINGECKO_ID,
 								gasPriceStep: {
 									low: 25,
-									average: 30,
-									high: 50,
+									average: 50,
+									high: 100,
 								}
 							},
 						],
