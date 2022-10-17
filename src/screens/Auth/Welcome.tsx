@@ -39,6 +39,7 @@ const Welcome = (): JSX.Element => {
 	const [keplrCoinType, setKeplrCoinType] = useState(KEPLR_DEFAULT_COIN_TYPE);
 	const [modalShowed, setModalShowed] = useState(false);
 
+	console.log('selectedMethod: ', selectedMethod)
 	// Redux hooks
 	const { wallet, keplrState, ledgerState } = useSelector((state: RootState) => ({
 		wallet: state.wallet.currentWallet,
@@ -226,7 +227,7 @@ const Welcome = (): JSX.Element => {
 						</h3>
 						<p className="auth-paragraph">
 							{t('welcome.extensionModalLoading.description', {
-								app: selectedMethod.method
+								extension: selectedMethod.method
 									? selectedMethod.method[0].toUpperCase() + selectedMethod.method.slice(1)
 									: 'Null',
 							})}
