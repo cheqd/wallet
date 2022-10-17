@@ -7,7 +7,6 @@ export interface LoadCryptoBoxResp<T> {
 export const backupCryptoBox = async <T>(accountId: string, data: T, authToken: string): Promise<void> => {
 	await axios.post(
 		import.meta.env.VITE_STORAGE_ENDPOINT + '/api/authentication/cryptoBox',
-		// process.env.VITE_STORAGE_ENDPOINT + '/api/authentication/cryptoBox',
 		{
 			accountID: accountId,
 			cryptoBox: data,
@@ -23,7 +22,6 @@ export const backupCryptoBox = async <T>(accountId: string, data: T, authToken: 
 export const loadCryptoBox = async <T>(accountId: string, authToken: string): Promise<T | null> => {
 	const resp = await axios.get<LoadCryptoBoxResp<T>>(
 		import.meta.env.VITE_STORAGE_ENDPOINT + `/api/authentication/cryptoBox/${accountId}`,
-		// process.env.VITE_STORAGE_ENDPOINT + `/api/authentication/cryptoBox/${accountId}`,
 		{
 			headers: {
 				Authorization: authToken,

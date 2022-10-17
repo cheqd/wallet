@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { Modal as BSModal } from 'bootstrap';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
-import { LumConstants } from '@lum-network/sdk-javascript';
 import { Button as FEButton } from '@cheqd/wallet-frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 
@@ -21,6 +20,7 @@ import ImportKeystoreModal from './components/modals/ImportKeystoreModal';
 import ImportButton from './components/ImportButton';
 
 import './styles/Auth.scss';
+import { getCheqHdPath } from 'network';
 
 interface ImportType {
 	type: 'software' | 'extension' | 'hardware';
@@ -33,7 +33,7 @@ const Welcome = (): JSX.Element => {
 	const [keystoreFileData, setKeystoreFileData] = useState<string | null>(null);
 	const [softwareMethodModal, setSoftwareMethodModal] = useState<BSModal | null>(null);
 	const [showAdvanced, setShowAdvanced] = useState(false);
-	const [customHdPath, setCustomHdPath] = useState(LumConstants.getLumHdPath());
+	const [customHdPath, setCustomHdPath] = useState(getCheqHdPath());
 	const [isCustomPathValid, setIsCustomPathValid] = useState(true);
 	const [isCustomCoinTypeValid, setIsCustomCoinTypeValid] = useState(true);
 	const [keplrCoinType, setKeplrCoinType] = useState(KEPLR_DEFAULT_COIN_TYPE);
@@ -415,7 +415,7 @@ const Welcome = (): JSX.Element => {
 										<h4>{t('welcome.hardwareModal.advanced.title')}</h4>
 										<FEButton
 											onPress={() => {
-												setCustomHdPath(LumConstants.getLumHdPath());
+												setCustomHdPath(getCheqHdPath());
 											}}
 											className="bg-transparent text-btn p-0 me-2 h-auto"
 										>

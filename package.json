@@ -1,7 +1,6 @@
 {
-    "name": "wallet",
+    "name": "@cheqd/wallet",
     "version": "1.0.0",
-    "private": true,
     "description": "cheqd Wallet",
     "license": "Apache-2.0",
     "author": "Cheqd Foundation Limited (https://github.com/cheqd)",
@@ -118,6 +117,18 @@
         "typescript": "^4.8.3",
         "vite": "^3.1.3",
         "vite-plugin-svgr": "^2.2.1",
-        "vite-tsconfig-paths": "^3.5.0"
+        "vite-tsconfig-paths": "^3.5.0",
+        "@semantic-release/changelog": "^6.0.1",
+        "@semantic-release/commit-analyzer": "^9.0.2",
+        "@semantic-release/git": "^10.0.1",
+        "@semantic-release/github": "^8.0.6",
+        "@semantic-release/npm": "^9.0.1",
+        "@semantic-release/release-notes-generator": "^10.0.3",
+        "conventional-changelog-conventionalcommits": "^5.0.0",
+        "semantic-release": "^19.0.5"
+    },
+    "publishConfig": {
+        "registry": "https://registry.npmjs.org/",
+        "access": "public"
     }
 }

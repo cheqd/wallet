@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LumConstants } from '@lum-network/sdk-javascript';
 
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
@@ -22,7 +21,7 @@ const ImportMnemonicModal = (): JSX.Element => {
 	const [pasteHandled, setPasteHandled] = useState(false);
 	const [showAdvanced, setShowAdvanced] = useState(false);
 
-	const [customHdPath, setCustomHdPath] = useState(LumConstants.getLumHdPath());
+	const [customHdPath, setCustomHdPath] = useState(getCheqHdPath());
 	const [isCustomPathValid, setIsCustomPathValid] = useState(true);
 
 	/* CODE RELATED TO EXTRA WORD FOR FUTURE IMPLEMENTATION
