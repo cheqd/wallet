@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import numeral from 'numeral';
 import { Table, ValidatorLogo } from '@cheqd/wallet-frontend-elements';
 
-import { CLIENT_PRECISION, CHEQ_ASSETS_GITHUB, CHEQ_EXPLORER } from 'constant';
+import { CLIENT_PRECISION, CHEQ_EXPLORER } from 'constant';
 import { getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
 import { Rewards, UserValidator } from 'models';
 import { DropdownButton, SmallerDecimal } from 'components';
@@ -77,7 +77,7 @@ const MyValidators = ({
 					<ValidatorLogo
 						width={34}
 						height={34}
-						githubUrl={CHEQ_ASSETS_GITHUB}
+						githubUrl={''}
 						validatorAddress={validator.operatorAddress}
 						chainId={WalletClient.chainId || ''}
 						className="me-2 me-sm-3"

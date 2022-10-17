@@ -5,7 +5,7 @@ import numeral from 'numeral';
 import { Table, ValidatorLogo } from '@cheqd/wallet-frontend-elements';
 
 import { Button, Input } from 'components';
-import { CLIENT_PRECISION, CHEQ_ASSETS_GITHUB, CHEQ_EXPLORER } from 'constant';
+import { CLIENT_PRECISION, CHEQ_EXPLORER } from 'constant';
 import { trunc, NumbersUtils, sortByVotingPower, WalletClient } from 'utils';
 
 import searchIcon from 'assets/images/search.svg';
@@ -71,7 +71,7 @@ const AvailableValidators = ({ validators, totalVotingPower, onDelegate }: Props
 						<ValidatorLogo
 							width={34}
 							height={34}
-							githubUrl={CHEQ_ASSETS_GITHUB}
+							githubUrl={''}
 							validatorAddress={validator.operatorAddress}
 							chainId={WalletClient.chainId || ''}
 							className="me-2 me-sm-3"

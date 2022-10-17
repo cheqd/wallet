@@ -39,7 +39,6 @@ const Welcome = (): JSX.Element => {
 	const [keplrCoinType, setKeplrCoinType] = useState(KEPLR_DEFAULT_COIN_TYPE);
 	const [modalShowed, setModalShowed] = useState(false);
 
-	console.log('selectedMethod: ', selectedMethod)
 	// Redux hooks
 	const { wallet, keplrState, ledgerState } = useSelector((state: RootState) => ({
 		wallet: state.wallet.currentWallet,
