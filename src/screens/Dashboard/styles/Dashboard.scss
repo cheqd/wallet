@@ -1,4 +1,4 @@
-@import 'src/styles/main';
+@import '../../../styles/main';
 
 .dashboard-card {
     display: flex;
@@ -21,7 +21,7 @@
 }
 
 .account-card {
-    background-color: #5d9aff;
+    background-color: #5d9aff !important;
 }
 
 .balance-card {
