@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/cheqd/wallet/compare/1.0.0...1.0.1) (2022-10-18)
+
+
+### Reverts
+
+* Bump all NPM dependencies ([#87](https://github.com/cheqd/wallet/issues/87))" ([c02e992](https://github.com/cheqd/wallet/commit/c02e9923d5209c71c4ef28172eea4370f5cdf443))
+
 ## 1.0.0 (2022-10-18)
 
 
