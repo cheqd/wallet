@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Redirect, useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 
-import { Card } from 'frontend-elements';
+import { Card } from '@cheqd/wallet-frontend-elements';
 import { CHEQ_TWITTER } from 'constant';
 import { TransactionsTable, AddressCard, BalanceCard, LumPriceCard } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
@@ -17,7 +17,7 @@ import VestingTokensCard from 'screens/Staking/components/Cards/VestingTokensCar
 import { NanoCheqDenom } from 'network';
 import { convertCoin } from 'network/util';
 
-const Dashboard = (): JSX.Element => {
+function Dashboard() {
 	// Redux hooks
 	const { transactions, balance, wallet, vestings, stakedCoins } = useSelector((state: RootState) => ({
 		loading: state.loading.global.loading,
@@ -27,6 +27,8 @@ const Dashboard = (): JSX.Element => {
 		stakedCoins: state.staking.stakedCoins,
 		vestings: state.wallet.vestings,
 	}));
+
+	const navigate = useNavigate();
 
 	const { getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
 		getWalletInfos: dispatch.wallet.reloadWalletInfos,
@@ -46,7 +48,8 @@ const Dashboard = (): JSX.Element => {
 	}, [location, prevLocation, wallet, getWalletInfos]);
 
 	if (!wallet) {
-		return <Redirect to="/welcome" />;
+		throw navigate('/welcome');
+		// return <Redirect to="/welcome" />;
 	}
 
 	return (
@@ -89,9 +92,6 @@ const Dashboard = (): JSX.Element => {
 							</div>
 						</>
 					)}
-					<div className="col-12">
-						<LumPriceCard balance={balance.fiat} />
-					</div>
 				</div>
 				<div className="row mt-4">
 					<div className="col">

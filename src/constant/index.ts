@@ -1,12 +1,10 @@
-export const IS_TESTNET = process.env.REACT_APP_RPC_ENDPOINT.includes('network');
+export const IS_TESTNET = import.meta.env.VITE_RPC_ENDPOINT.includes('network');
 
-export const CHEQ_ASSETS_GITHUB = 'https://github.com/cheqd/public-assets';
 export const CHEQ_WALLET_GITHUB = 'https://github.com/cheqd/wallet';
 export const CHEQ_MAIL = 'contact@cheqd.io';
 export const CHEQ_TELEGRAM = 'https://t.me/cheqd';
 export const CHEQ_TWITTER = 'https://twitter.com/cheqd_io';
 export const CHEQ_DISCORD = 'http://cheqd.link/discord-github';
-export const CHEQ_LEDGER_APP_INSTALL_LINK = 'https://github.com/cheqd/ledger-app#download-and-install-a-prerelease';
 export const COSMOS_LEDGER_APP_INSTALL_LINK =
 	'https://support.ledger.com/hc/en-us/articles/360013713840-Cosmos-ATOM-?docs=true';
 export const KEPLR_INSTALL_LINK = 'https://keplr.app';

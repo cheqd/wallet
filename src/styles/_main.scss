@@ -1,4 +1,5 @@
-@import 'frontend-elements/styles/main.scss';
+@import '../../node_modules/bootstrap/scss/bootstrap';
+@import '../../node_modules/@cheqd/wallet-frontend-elements/dist/index.scss';
 
 $color-arrow-green: #5ecd42ff;
 $color-arrow-red: #ff7245ff;
@@ -12,6 +13,9 @@ $color-arrow-red: #ff7245ff;
     border-radius: 25px;
     align-items: center;
     padding: 12px;
+	@media (prefers-color-scheme: dark) {
+		background-color: #202124;
+	}
 }
 
 .Toastify__toast--error {

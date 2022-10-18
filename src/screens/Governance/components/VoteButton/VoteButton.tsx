@@ -1,7 +1,7 @@
 import React from 'react';
 import { ProposalStatus } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import { Button } from 'components';
-import { Button as FEButton } from 'frontend-elements';
+import { Button as FEButton } from '@cheqd/wallet-frontend-elements';
 import { Proposal } from 'models';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -50,16 +50,16 @@ const VoteButton = ({ proposal, onVote, className, small }: Props): JSX.Element 
 				{...(isDisabled
 					? {}
 					: {
-							onClick: () => onVote(proposal),
-							'data-bs-target': '#voteModal',
-							'data-bs-toggle': 'modal',
-					  })}
+						onClick: () => onVote(proposal),
+						'data-bs-target': '#voteModal',
+						'data-bs-toggle': 'modal',
+					})}
 			>
 				<FEButton
 					disabled={isDisabled}
 					loading={!!loadingVote}
 					// eslint-disable-next-line @typescript-eslint/no-empty-function
-					onPress={() => {}}
+					onPress={() => { }}
 				>
 					{t('governance.proposalCard.voteButtonStates.active')}
 				</FEButton>

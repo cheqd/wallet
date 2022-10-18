@@ -10,10 +10,10 @@ import store from './redux/store';
 import './locales';
 
 const App = (): JSX.Element => (
-    <Provider store={store}>
-        <Core/>
-        <ToastContainer closeButton={ToastCloseButton} hideProgressBar position="bottom-right" draggable={false}/>
-    </Provider>
+	<Provider store={store}>
+		<Core />
+		<ToastContainer closeButton={ToastCloseButton} hideProgressBar position="bottom-right" draggable={false} />
+	</Provider>
 );
 
 export default App;

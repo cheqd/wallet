@@ -102,6 +102,8 @@ function buildAminoTxBody(signed: StdSignDoc, publicKey: Uint8Array, signature: 
 		[{ pubkey, sequence: signedSequence }],
 		signed.fee.amount,
 		signedGasLimit,
+		undefined, // FeeGranter
+		undefined, // FeePayer
 		SignMode.SIGN_MODE_LEGACY_AMINO_JSON,
 	);
 

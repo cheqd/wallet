@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Redirect } from 'react-router';
+import { redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import { LumMessages, LumUtils } from '@lum-network/sdk-javascript';
@@ -27,6 +27,7 @@ import { CHEQ_EXPLORER } from 'constant';
 import { convertCoin } from 'network/util';
 
 type MsgType = { name: string; icon: string; iconClassName?: string; id: string; description: string };
+
 
 const Operations = (): JSX.Element => {
 	const { wallet, balance, vestings } = useSelector((state: RootState) => ({
@@ -239,7 +240,7 @@ const Operations = (): JSX.Element => {
 	}, [confirming, delegateForm, redelegateForm, getRewardForm, modalRef, sendForm, txResult, undelegateForm]);
 
 	if (!wallet) {
-		return <Redirect to="/welcome" />;
+		throw redirect('/welcome');
 	}
 
 	const onSubmitSend = async (toAddress: string, amount: string, memo: string) => {
