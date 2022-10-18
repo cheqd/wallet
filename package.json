@@ -80,7 +80,7 @@
         "react-transition-group": "^4.4.2",
         "redux": "^4.2.0",
         "sass": "^1.54.9",
-        "web-vitals": "^3.0.2",
+        "web-vitals": "^3.0.3",
         "yup": "^0.32.11"
     },
     "devDependencies": {
