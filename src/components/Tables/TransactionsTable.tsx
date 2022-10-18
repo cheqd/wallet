@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table } from 'frontend-elements';
+import { Table } from '@cheqd/wallet-frontend-elements';
 import { CHEQ_EXPLORER } from 'constant';
 import { Transaction, Wallet } from 'models';
 import { NumbersUtils, trunc } from 'utils';

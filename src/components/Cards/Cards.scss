@@ -1,7 +1,13 @@
-@import 'main';
+@import '../../styles/main';
 
 .default-card {
     border-radius: 15px;
+}
+
+.credential-card {
+	@media (prefers-color-scheme: dark) {
+		background-color: #202124;
+	}
 }
 
 .ticker {

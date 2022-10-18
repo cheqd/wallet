@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { Modal as BSModal } from 'bootstrap';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
-import { LumConstants } from '@lum-network/sdk-javascript';
-import { Button as FEButton } from 'frontend-elements';
+import { Button as FEButton } from '@cheqd/wallet-frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 
 import Assets from 'assets';
@@ -21,6 +20,7 @@ import ImportKeystoreModal from './components/modals/ImportKeystoreModal';
 import ImportButton from './components/ImportButton';
 
 import './styles/Auth.scss';
+import { getCheqHdPath } from 'network';
 
 interface ImportType {
 	type: 'software' | 'extension' | 'hardware';
@@ -33,7 +33,7 @@ const Welcome = (): JSX.Element => {
 	const [keystoreFileData, setKeystoreFileData] = useState<string | null>(null);
 	const [softwareMethodModal, setSoftwareMethodModal] = useState<BSModal | null>(null);
 	const [showAdvanced, setShowAdvanced] = useState(false);
-	const [customHdPath, setCustomHdPath] = useState(LumConstants.getLumHdPath());
+	const [customHdPath, setCustomHdPath] = useState(getCheqHdPath());
 	const [isCustomPathValid, setIsCustomPathValid] = useState(true);
 	const [isCustomCoinTypeValid, setIsCustomCoinTypeValid] = useState(true);
 	const [keplrCoinType, setKeplrCoinType] = useState(KEPLR_DEFAULT_COIN_TYPE);
@@ -58,7 +58,7 @@ const Welcome = (): JSX.Element => {
 
 	// Utils hooks
 	const { t } = useTranslation();
-	const history = useHistory();
+	const navigate = useNavigate();
 
 	// Callbacks
 	const showImportModal = useCallback(() => {
@@ -87,9 +87,9 @@ const Welcome = (): JSX.Element => {
 			if (modalShowed) {
 				hideImportModal();
 				// 300ms is the modal transition duration
-				setTimeout(() => history.replace('/home'), 300);
+				setTimeout(() => navigate('/home', { replace: true }), 300);
 			} else {
-				history.replace('/home');
+				navigate('/home', { replace: true });
 			}
 		}
 	}, [wallet, history, modalShowed, hideImportModal]);
@@ -145,9 +145,8 @@ const Welcome = (): JSX.Element => {
 							<button
 								type="button"
 								onClick={() => setSelectedMethod({ type: 'software', method: SoftwareMethod.Keystore })}
-								className={`import-software-btn ${
-									selectedMethod?.method === SoftwareMethod.Keystore && 'selected'
-								}`}
+								className={`import-software-btn ${selectedMethod?.method === SoftwareMethod.Keystore && 'selected'
+									}`}
 							>
 								<p className="d-flex align-items-center justify-content-center fw-normal">
 									<img src={Assets.images.softwareIcon} height="28" className="me-3" />
@@ -157,9 +156,8 @@ const Welcome = (): JSX.Element => {
 							<button
 								type="button"
 								onClick={() => setSelectedMethod({ type: 'software', method: SoftwareMethod.Mnemonic })}
-								className={`import-software-btn my-4 ${
-									selectedMethod?.method === SoftwareMethod.Mnemonic && 'selected'
-								}`}
+								className={`import-software-btn my-4 ${selectedMethod?.method === SoftwareMethod.Mnemonic && 'selected'
+									}`}
 							>
 								<p className="d-flex align-items-center justify-content-center fw-normal">
 									<img src={Assets.images.navbarIcons.messages} height="28" className="me-3" />
@@ -171,9 +169,8 @@ const Welcome = (): JSX.Element => {
 								onClick={() =>
 									setSelectedMethod({ type: 'software', method: SoftwareMethod.PrivateKey })
 								}
-								className={`import-software-btn ${
-									selectedMethod?.method === SoftwareMethod.PrivateKey && 'selected'
-								}`}
+								className={`import-software-btn ${selectedMethod?.method === SoftwareMethod.PrivateKey && 'selected'
+									}`}
 							>
 								<p className="d-flex align-items-center justify-content-center fw-normal">
 									<img src={Assets.images.keyIcon} height="28" className="me-3" />
@@ -229,7 +226,7 @@ const Welcome = (): JSX.Element => {
 						</h3>
 						<p className="auth-paragraph">
 							{t('welcome.extensionModalLoading.description', {
-								app: selectedMethod.method
+								extension: selectedMethod.method
 									? selectedMethod.method[0].toUpperCase() + selectedMethod.method.slice(1)
 									: 'Null',
 							})}
@@ -251,9 +248,8 @@ const Welcome = (): JSX.Element => {
 										? setSelectedMethod({ type: 'extension', method: ExtensionMethod.Keplr })
 										: window.open(KEPLR_INSTALL_LINK, '_blank')
 								}
-								className={`import-software-btn ${
-									selectedMethod?.method === ExtensionMethod.Keplr && 'selected'
-								}`}
+								className={`import-software-btn ${selectedMethod?.method === ExtensionMethod.Keplr && 'selected'
+									}`}
 							>
 								<p className="d-flex fw-normal align-items-center justify-content-center">
 									<img src={Assets.images.keplrIcon} height="28" className="me-3" />
@@ -305,7 +301,7 @@ const Welcome = (): JSX.Element => {
 												const newCoinType = Number(event.target.value);
 
 												setKeplrCoinType(newCoinType);
-												setIsCustomCoinTypeValid(newCoinType !== NaN && newCoinType > 0);
+												setIsCustomCoinTypeValid(!!newCoinType && newCoinType > 0);
 											}}
 										/>
 										<p
@@ -348,9 +344,8 @@ const Welcome = (): JSX.Element => {
 							<button
 								type="button"
 								onClick={() => setSelectedMethod({ type: 'hardware', method: HardwareMethod.Cosmos })}
-								className={`import-software-btn ${
-									selectedMethod?.method === HardwareMethod.Cosmos && 'selected'
-								}`}
+								className={`import-software-btn ${selectedMethod?.method === HardwareMethod.Cosmos && 'selected'
+									}`}
 							>
 								<p className="d-flex align-items-center justify-content-center fw-normal">
 									<img src={Assets.images.cosmosIcon} height="28" className="me-3" />
@@ -375,9 +370,8 @@ const Welcome = (): JSX.Element => {
 								type="button"
 								disabled
 								onClick={() => setSelectedMethod({ type: 'hardware', method: HardwareMethod.Cheq })}
-								className={`import-software-btn mt-4 ${
-									selectedMethod?.method === HardwareMethod.Cheq && 'selected'
-								}`}
+								className={`import-software-btn mt-4 ${selectedMethod?.method === HardwareMethod.Cheq && 'selected'
+									}`}
 							>
 								<p className="d-flex align-items-center justify-content-center fw-normal">
 									<img src={Assets.images.cheqdLogo} height="28" className="me-3" />
@@ -420,7 +414,7 @@ const Welcome = (): JSX.Element => {
 										<h4>{t('welcome.hardwareModal.advanced.title')}</h4>
 										<FEButton
 											onPress={() => {
-												setCustomHdPath(LumConstants.getLumHdPath());
+												setCustomHdPath(getCheqHdPath());
 											}}
 											className="bg-transparent text-btn p-0 me-2 h-auto"
 										>

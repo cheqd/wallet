@@ -4,9 +4,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-
 jobs:
-
+  
   call-lint:
     name: "Lint"
     uses: ./.github/workflows/lint.yml
+
+  call-release:
+    name: "Release"
+    needs: call-lint
+    if: ${{ github.ref_protected == true }}
+    uses: ./.github/workflows/release.yml
+    secrets: inherit

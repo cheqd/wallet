@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Redirect } from 'react-router';
-import { Card } from 'frontend-elements';
+import { redirect } from 'react-router';
+import { Card } from '@cheqd/wallet-frontend-elements';
 import { Button as CustomButton, Input, Modal } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 
@@ -21,7 +21,8 @@ import Assets from '../../assets';
 import { QRCodeSVG } from 'qrcode.react';
 import Multibase from 'multibase';
 import Multicodec from 'multicodec';
-import createAuth0Client from "@auth0/auth0-spa-js";
+import createAuth0Client, { Auth0Client } from "@auth0/auth0-spa-js";
+import type { User as Auth0User } from "@auth0/auth0-spa-js";
 import { loadUrlInIframe } from "../../utils/iframe";
 import axios, { AxiosResponse } from 'axios';
 import CredentialList from './components/CredentialList';
@@ -58,15 +59,15 @@ const Identity = (): JSX.Element => {
 	const resetConfirmationRef = useRef<HTMLDivElement>(null);
 
 	if (!wallet) {
-		return <Redirect to="/welcome" />;
+		throw redirect('/welcome');
 	}
 
 	// Methods
 	const handleConnectSocialAccount = async () => {
 		try {
 			const auth0 = await createAuth0Client({
-				domain: process.env.REACT_APP_AUTH0_DOMAIN,
-				client_id: process.env.REACT_APP_AUTH0_CLIENT_ID,
+				domain: import.meta.env.VITE_AUTH0_DOMAIN,
+				client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
 			});
 
 			if (await auth0.isAuthenticated()) {
@@ -80,8 +81,6 @@ const Identity = (): JSX.Element => {
 			const user = (await auth0.getUser())!;
 
 			const serviceNames: { [key: string]: string } = {
-				'google-oauth2': "Google",
-				'facebook': "Facebook",
 				'twitter': "Twitter",
 				'discord': "Discord",
 			}
@@ -105,7 +104,7 @@ const Identity = (): JSX.Element => {
 			}
 
 			addClaim({
-				profileName: user.nickname || user.name || user.email || "no data",
+				profileName: getProfileName(user, serviceName),
 				service: serviceName,
 				accessToken: token,
 			});
@@ -113,6 +112,16 @@ const Identity = (): JSX.Element => {
 		} catch (error) {
 			showErrorToast((error as Error).message);
 		}
+	}
+
+	const getProfileName = (user: Auth0User, serviceName: string) => {
+		const profileName = user.nickname || user.name || user.email || "no data"
+		if (serviceName === 'Twitter') {
+			return user.screen_name ? user.screen_name : profileName
+		}
+
+
+		return profileName
 	}
 
 	const handleGetCredential = async () => {
@@ -164,7 +173,7 @@ const Identity = (): JSX.Element => {
 		try {
 			showModal('authToken', false);
 
-			const authTokenBytes = await getAuthToken(wallet, process.env.REACT_APP_STORAGE_ENDPOINT);
+			const authTokenBytes = await getAuthToken(wallet, import.meta.env.VITE_STORAGE_ENDPOINT);
 			const authToken = toBase64(authTokenBytes);
 			setAuthToken(authToken);
 

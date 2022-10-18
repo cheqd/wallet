@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Validator } from 'cosmjs-types/cosmos/staking/v1beta1/staking';
 import numeral from 'numeral';
-import { Table, ValidatorLogo } from 'frontend-elements';
+import { Table, ValidatorLogo } from '@cheqd/wallet-frontend-elements';
 
 import { Button, Input } from 'components';
-import { CLIENT_PRECISION, CHEQ_ASSETS_GITHUB, CHEQ_EXPLORER } from 'constant';
+import { CLIENT_PRECISION, CHEQ_EXPLORER } from 'constant';
 import { trunc, NumbersUtils, sortByVotingPower, WalletClient } from 'utils';
 
 import searchIcon from 'assets/images/search.svg';
@@ -71,7 +71,7 @@ const AvailableValidators = ({ validators, totalVotingPower, onDelegate }: Props
 						<ValidatorLogo
 							width={34}
 							height={34}
-							githubUrl={CHEQ_ASSETS_GITHUB}
+							githubUrl={''}
 							validatorAddress={validator.operatorAddress}
 							chainId={WalletClient.chainId || ''}
 							className="me-2 me-sm-3"
