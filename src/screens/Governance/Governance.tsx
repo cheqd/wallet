@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
@@ -40,7 +40,7 @@ const Governance = (): JSX.Element => {
 
 	const { t } = useTranslation();
 	const { proposalId } = useParams<{ proposalId: string }>();
-	const history = useHistory();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		const ref = modalRef.current;
@@ -86,7 +86,7 @@ const Governance = (): JSX.Element => {
 	}, [proposalId, proposals]);
 
 	const onDetails = (proposal: Proposal) => {
-		history.push(`/governance/proposal/${proposal.proposalId}`);
+		navigate(`/governance/proposal/${proposal.proposalId}`);
 	};
 
 	const onVote = (proposal: Proposal) => {
@@ -128,7 +128,7 @@ const Governance = (): JSX.Element => {
 									{onScreenProposal ? (
 										<button
 											type="button"
-											onClick={() => history.goBack()}
+											onClick={() => navigate(-1)}
 											className="close-btn bg-white rounded-circle mt-2"
 											aria-label={t('common.close')}
 										>
@@ -198,9 +198,8 @@ const Governance = (): JSX.Element => {
 								<>
 									<h3 className="fw-bolder mx-3">
 										{t('governance.confirmingTitle', {
-											proposal: `#${proposalToVote.proposalId.toString()} ${
-												proposalToVote.content.title
-											}`,
+											proposal: `#${proposalToVote.proposalId.toString()} ${proposalToVote.content.title
+												}`,
 										})}
 									</h3>
 									<div className="my-4">
@@ -217,9 +216,8 @@ const Governance = (): JSX.Element => {
 										<button
 											type="button"
 											onClick={() => setVote(VoteOption.VOTE_OPTION_YES)}
-											className={`import-software-btn mb-4 ${
-												vote === VoteOption.VOTE_OPTION_YES && 'selected'
-											}`}
+											className={`import-software-btn mb-4 ${vote === VoteOption.VOTE_OPTION_YES && 'selected'
+												}`}
 										>
 											<p className="d-flex fw-normal align-items-center justify-content-center">
 												{t('governance.votes.yes')}
@@ -228,9 +226,8 @@ const Governance = (): JSX.Element => {
 										<button
 											type="button"
 											onClick={() => setVote(VoteOption.VOTE_OPTION_NO)}
-											className={`import-software-btn mb-4 ${
-												vote === VoteOption.VOTE_OPTION_NO && 'selected'
-											}`}
+											className={`import-software-btn mb-4 ${vote === VoteOption.VOTE_OPTION_NO && 'selected'
+												}`}
 										>
 											<p className="d-flex fw-normal align-items-center justify-content-center">
 												{t('governance.votes.no')}
@@ -239,9 +236,8 @@ const Governance = (): JSX.Element => {
 										<button
 											type="button"
 											onClick={() => setVote(VoteOption.VOTE_OPTION_NO_WITH_VETO)}
-											className={`import-software-btn mb-4 ${
-												vote === VoteOption.VOTE_OPTION_NO_WITH_VETO && 'selected'
-											}`}
+											className={`import-software-btn mb-4 ${vote === VoteOption.VOTE_OPTION_NO_WITH_VETO && 'selected'
+												}`}
 										>
 											<p className="d-flex fw-normal align-items-center justify-content-center">
 												{t('governance.votes.noWithVeto')}
@@ -250,9 +246,8 @@ const Governance = (): JSX.Element => {
 										<button
 											type="button"
 											onClick={() => setVote(VoteOption.VOTE_OPTION_ABSTAIN)}
-											className={`import-software-btn mb-4 ${
-												vote === VoteOption.VOTE_OPTION_ABSTAIN && 'selected'
-											}`}
+											className={`import-software-btn mb-4 ${vote === VoteOption.VOTE_OPTION_ABSTAIN && 'selected'
+												}`}
 										>
 											<p className="d-flex fw-normal align-items-center justify-content-center">
 												{t('governance.votes.abstain')}
@@ -271,8 +266,8 @@ const Governance = (): JSX.Element => {
 									onClick={
 										confirming
 											? () => {
-													if (vote) onSubmitVote(proposalToVote.proposalId.toString(), vote);
-											  }
+												if (vote) onSubmitVote(proposalToVote.proposalId.toString(), vote);
+											}
 											: () => setConfirming(true)
 									}
 								>

@@ -4,7 +4,7 @@ import ClipboardJS from 'clipboard';
 import printJS from 'print-js';
 
 import assets from 'assets';
-import { Card, CodeQr } from 'frontend-elements';
+import { Card, QRCode as CodeQr } from '@cheqd/wallet-frontend-elements';
 
 import Modal from '../Modals/Modal';
 import { showErrorToast, showSuccessToast } from 'utils';
@@ -70,7 +70,7 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
 				</div>
 			</Card>
 			<Modal id="qrModal">
-				<CodeQr content={address} size={256} />
+				<CodeQr content={address} size={100} />
 			</Modal>
 		</>
 	);
