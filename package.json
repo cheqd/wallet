@@ -56,7 +56,7 @@
         "@rematch/core": "^2.2.0",
         "@rematch/loading": "^2.1.2",
         "axios": "^0.27.2",
-        "bootstrap": "^5.1.2",
+        "bootstrap": "^5.2.1",
         "clipboard": "^2.0.11",
         "cosmjs-types": "0.5.1",
         "dayjs": "^1.11.5",
