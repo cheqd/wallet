@@ -39,6 +39,7 @@ import {
 	DelayedVestingAccount,
 	PeriodicVestingAccount
 } from 'cosmjs-types/cosmos/vesting/v1beta1/vesting';
+import { MsgTransfer } from 'cosmjs-types/ibc/applications/transfer/v1/tx';
 import {
 	MsgAcknowledgement,
 	MsgChannelCloseConfirm,
@@ -130,6 +131,7 @@ const registryTypes: Iterable<[string, GeneratedType]> = [
 	['/ibc.core.connection.v1.MsgConnectionOpenTry', MsgConnectionOpenTry],
 	['/ibc.core.connection.v1.MsgConnectionOpenAck', MsgConnectionOpenAck],
 	['/ibc.core.connection.v1.MsgConnectionOpenConfirm', MsgConnectionOpenConfirm],
+	['/ibc.applications.transfer.v1.MsgTransfer', MsgTransfer],
 ];
 
 class ExtendedRegistry extends Registry {
