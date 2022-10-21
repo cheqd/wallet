@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/cheqd/wallet/compare/1.0.1...1.1.0) (2022-10-21)
+
+
+### Features
+
+* Register IBC MsgTransfer type in protobuf registry ([#88](https://github.com/cheqd/wallet/issues/88)) ([5f78fc0](https://github.com/cheqd/wallet/commit/5f78fc0937ca58ab0ecc8dae99d8a20c57881d61))
+
 ## [1.0.1](https://github.com/cheqd/wallet/compare/1.0.0...1.0.1) (2022-10-18)
 
 
