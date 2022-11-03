@@ -394,8 +394,8 @@
         "get": {
             "title": "Get a credential",
             "description": "Get a new credential issued by cheqd",
-            "get": "Get",
-
+            "get": "Get social media credential",
+            "getTicket": "Get an IIW event ticket",
             "connections": {
                 "title": "Connected social media accounts",
                 "connect": "Connect social account"

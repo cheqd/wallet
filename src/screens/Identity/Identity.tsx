@@ -124,7 +124,7 @@ const Identity = (): JSX.Element => {
 		return profileName
 	}
 
-	const handleGetCredential = async () => {
+	const handleGetCredential = async (type: string) => {
 		try {
 			if (!identityWallet) {
 				showErrorToast(t('identity.wallet.error.locked'));
@@ -137,7 +137,7 @@ const Identity = (): JSX.Element => {
 				return;
 			}
 
-			const cred = await getCredential(getSubjectId(wallet), claims[0].accessToken);
+			const cred = await getCredential(getSubjectId(wallet), claims[0].accessToken, type);
 
 			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
 
@@ -343,8 +343,13 @@ const Identity = (): JSX.Element => {
 										</CustomButton>
 									</div>
 									<div>
-										<CustomButton className="px-5" onClick={handleGetCredential}>
+										<CustomButton className="px-5" onClick={()=>handleGetCredential('Person')}>
 											{t('identity.get.get')}
+										</CustomButton>
+									</div>
+									<div>
+										<CustomButton className="px-5" onClick={()=>handleGetCredential('Ticket')}>
+											{t('identity.get.getTicket')}
 										</CustomButton>
 									</div>
 								</Card>
