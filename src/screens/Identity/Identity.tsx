@@ -514,7 +514,7 @@ const Identity = (): JSX.Element => {
 								<div className="d-flex flex-row align-items-left tabs my-3">
 									<a
 										href="#formatted"
-										className="app-btn app-btn-plain bg-transparent text-btn p-0 me-4 h-auto active"
+										className="app-btn-plain bg-transparent text-btn p-0 me-4 h-auto active"
 										id="tab-formatted"
 										onClick={() => changeActiveTab('tab-formatted')}
 									>
@@ -523,7 +523,7 @@ const Identity = (): JSX.Element => {
 									</a>
 									<a
 										href="#json"
-										className="app-btn  app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+										className="app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
 										id="tab-json"
 										onClick={() => changeActiveTab('tab-json')}
 									>
@@ -532,7 +532,7 @@ const Identity = (): JSX.Element => {
 									</a>
 									<a
 										href="#qr-code"
-										className="app-btn  app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+										className="app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
 										id="tab-qr"
 										onClick={() => changeActiveTab('tab-qr')}
 									>
