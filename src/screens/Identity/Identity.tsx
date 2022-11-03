@@ -26,11 +26,15 @@ import type { User as Auth0User } from "@auth0/auth0-spa-js";
 import { loadUrlInIframe } from "../../utils/iframe";
 import axios, { AxiosResponse } from 'axios';
 import CredentialList from './components/CredentialList';
+import { Html5Qrcode } from 'html5-qrcode';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
 	const [activeVC, setActiveVC] = useState<VerifiableCredential | null>(null);
 	const credentialDetailedRef = useRef<HTMLDivElement>(null);
+	const credentialSelectionRef = useRef<HTMLInputElement>(null);
+	const [qrCodeParsedData, setQrCodeParsedData] = useState('');
+
 	// Redux hooks
 	const { wallet, identityWallet, authToken, passphrase, claims } = useSelector((state: RootState) => ({
 		wallet: state.wallet.currentWallet,
@@ -310,6 +314,25 @@ const Identity = (): JSX.Element => {
 		});
 	}
 
+	function onChangeCredentialFile(e: any) {
+		const html5QrCode = new Html5Qrcode('credential-file-input');
+		const files = (e.target as HTMLInputElement).files
+		if (!files || files.length == 0) {
+			showErrorToast('no files selected')
+			return;
+		}
+
+		const imageFile = files[0];
+		html5QrCode.scanFile(imageFile, true).then(decodedText => {
+			console.log('decodedText', decodedText);
+			setQrCodeParsedData(decodedText)
+			showSuccessToast(`data: ${decodedText}`)
+		}).catch(err => {
+			console.log(`Error scanning file. Reason: ${err}`)
+			showErrorToast(`Error scanning file: ${err}`)
+		});
+	}
+
 	return (
 		<>
 			<>
@@ -317,35 +340,56 @@ const Identity = (): JSX.Element => {
 					<div className="container">
 						<div className="row gy-4">
 							<div className="col-12">
-								<Card className="d-flex flex-column h-100 justify-content-between gap-4">
-									<div>
-										<h2>{t('identity.get.title')}</h2>
-										<div className="mt-3">{t('identity.get.description')}</div>
-									</div>
-									<div className="px-3">
-										<h3>{t('identity.get.connections.title')}</h3>
-										<div className="mt-2">
-											{claims.map((claim) => {
-												return (
-													<div key={claim.profileName} className="claim d-flex flex-row">
-														<div title={claim.accessToken}>{claim.service}: @{claim.profileName}</div>
-														<div className="delete mx-3 btn-link pointer" onClick={() => removeClaim(claim)}>remove</div>
-													</div>
-												)
-											}
-											)}
+								<Card className="d-flex flex-row h-100 justify-content-between">
+									<div className="d-flex flex-column h-100 justify-content-between gap-4">
+										<div>
+											<h2>{t('identity.get.title')}</h2>
+											<div className="mt-3">{t('identity.get.description')}</div>
 										</div>
-										<CustomButton
-											className="px-5 btn-sm btn-outline-secondary outline border-1"
-											onClick={handleConnectSocialAccount}
-										>
-											{t('identity.get.connections.connect')}
-										</CustomButton>
-									</div>
-									<div>
-										<CustomButton className="px-5" onClick={handleGetCredential}>
-											{t('identity.get.get')}
-										</CustomButton>
+										<div className="px-3">
+											<h3>{t('identity.get.connections.title')}</h3>
+											<div className="mt-2">
+												{claims.map((claim) => {
+													return (
+														<div key={claim.profileName} className="claim d-flex flex-row">
+															<div title={claim.accessToken}>{claim.service}: @{claim.profileName}</div>
+															<div className="delete mx-3 btn-link pointer" onClick={() => removeClaim(claim)}>remove</div>
+														</div>
+													)
+												}
+												)}
+											</div>
+											<CustomButton
+												className="px-5 btn-sm btn-outline-secondary outline border-1"
+												onClick={handleConnectSocialAccount}
+											>
+												{t('identity.get.connections.connect')}
+											</CustomButton>
+										</div>
+										<div className="d-flex gap-4">
+											<CustomButton className="px-5" onClick={handleGetCredential}>
+												{t('identity.get.get')}
+											</CustomButton>
+											<CustomButton
+												className="px-5"
+												onClick={() => {
+													if (credentialSelectionRef.current) {
+														credentialSelectionRef.current.click()
+													}
+												}}
+											>
+												<img src={Assets.images.iiwLogo} height="32" className="me-3" />
+												{t('identity.get.importIIW')}
+											</CustomButton>
+											<input
+												hidden
+												ref={credentialSelectionRef}
+												onChange={onChangeCredentialFile}
+												type="file"
+												id="credential-file-input"
+												accept="image/*"
+											/>
+										</div>
 									</div>
 								</Card>
 							</div>
@@ -376,7 +420,7 @@ const Identity = (): JSX.Element => {
 							</div>
 						</div>
 					</div>
-				</div>
+				</div >
 				<Modal
 					id="authTokenModal"
 					ref={authTokenRef}

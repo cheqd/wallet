@@ -395,16 +395,14 @@
             "title": "Get a credential",
             "description": "Get a new credential issued by cheqd",
             "get": "Get",
-
+			"importIIW": "Import IIW credential",
             "connections": {
                 "title": "Connected social media accounts",
                 "connect": "Connect social account"
             },
-
             "message": {
                 "connectionNeeded": "Please connect your social media account to get a credential"
             },
-
             "error": {
                 "serviceIsAlreadyConnected": "Service already connected"
             }

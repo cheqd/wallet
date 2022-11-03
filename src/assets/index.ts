@@ -54,6 +54,7 @@ import warningHoverIcon from './images/warningHoverIcon.svg';
 import crossIcon from './images/cross.svg';
 import votePeriod from './images/votePeriod.svg';
 import depositPeriod from './images/depositPeriod.svg';
+import iiwLogo from './images/iiw-logo.png';
 
 export default {
 	images: {
@@ -93,6 +94,7 @@ export default {
 		warningHoverIcon,
 		votePeriod,
 		depositPeriod,
+		iiwLogo,
 		messageTypes: {
 			createValidator,
 			delegate,
