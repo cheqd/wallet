@@ -378,7 +378,7 @@ const Identity = (): JSX.Element => {
 													}
 												}}
 											>
-												<img src={Assets.images.iiwLogo} height="32" className="me-3" />
+												<img src={Assets.images.iiwLogo} height="32" className="" />
 												{t('identity.get.importIIW')}
 											</CustomButton>
 											<input
