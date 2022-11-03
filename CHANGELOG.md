@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/cheqd/wallet/compare/1.1.0...1.1.1) (2022-11-03)
+
+
+### Bug Fixes
+
+* Background and text color overlap on creds ([#101](https://github.com/cheqd/wallet/issues/101)) ([346eb58](https://github.com/cheqd/wallet/commit/346eb58179bbc1197a27317febbb5087f93d8db7))
+
 ## [1.1.0](https://github.com/cheqd/wallet/compare/1.0.1...1.1.0) (2022-10-21)
 
 
