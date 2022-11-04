@@ -12,7 +12,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = (props: ButtonProps): JSX.Element => {
 	const { children, className, noScale, isLoading, outline, buttonType = 'normal', ...rest } = props;
-	let normalButtonClasses = 'normal-btn scale-anim d-flex gap-2 justify-content-center align-items-center px-5 py-2 rounded-pill';
+	let normalButtonClasses = 'normal-btn d-flex gap-2 justify-content-center align-items-center px-5 py-2 rounded-pill';
 
 	return (
 		<button

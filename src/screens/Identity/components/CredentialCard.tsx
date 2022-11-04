@@ -11,6 +11,14 @@ type Props = {
 	cred: VerifiableCredential;
 	handleShowCredential: (cred: VerifiableCredential) => void;
 	handleRemoveCredential: (cred: VerifiableCredential) => void;
+	handleSelectCredential: (cred: VerifiableCredential) => void;
+	isCredentialSelected: (cred: VerifiableCredential) => boolean;
+	mode: CredentialMode
+}
+
+export enum CredentialMode {
+	View = "VIEW",
+	Presentation = "PRESENTATION"
 }
 
 export enum CredentialVerificationState {
@@ -21,7 +29,8 @@ export enum CredentialVerificationState {
 }
 
 const CredentialCard: React.FC<Props> = ({
-	cred, handleRemoveCredential, handleShowCredential,
+	cred, handleRemoveCredential, handleShowCredential, handleSelectCredential, isCredentialSelected,
+	mode = CredentialMode.View,
 }): JSX.Element => {
 
 	const { t } = useTranslation();
@@ -56,22 +65,41 @@ const CredentialCard: React.FC<Props> = ({
 							/>
 							Credential
 						</h2>
-						<div className="d-flex align-items-center justify-content-center gap-2">
-							{
-								state.isVerified === CredentialVerificationState.Success ||
-									state.isVerified === CredentialVerificationState.Failed ?
-									<div className="outline d-flex flex-row align-items-center">
-										<CredentialVerificationBadge verified={state.isVerified} />
-									</div> :
+						{mode === CredentialMode.Presentation ?
+							<div className="d-flex align-items-center justify-content-center gap-2">
+								{
 									<CustomButton
 										outline={true}
-										onClick={() => handleVerifyCredential(cred)}
-										isLoading={state.isVerified === CredentialVerificationState.InProgress}
+										onClick={() => handleSelectCredential(cred)}
 									>
-										Verify
+										{isCredentialSelected(cred) ?
+											<>
+												<img src={Assets.images.checkmarkIcon} height="18" />
+												Selected
+											</> :
+											"Select"
+										}
 									</CustomButton>
-							}
-						</div>
+								}
+							</div>
+							:
+							<div className="d-flex align-items-center justify-content-center gap-2">
+								{
+									state.isVerified === CredentialVerificationState.Success ||
+										state.isVerified === CredentialVerificationState.Failed ?
+										<div className="outline d-flex flex-row align-items-center">
+											<CredentialVerificationBadge verified={state.isVerified} />
+										</div> :
+										<CustomButton
+											outline={true}
+											onClick={() => handleVerifyCredential(cred)}
+											isLoading={state.isVerified === CredentialVerificationState.InProgress}
+										>
+											Verify
+										</CustomButton>
+								}
+							</div>
+						}
 					</div>
 					<>
 						<p> <b>Type:</b> {cred.type.join(', ')} </p>
