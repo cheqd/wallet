@@ -7,6 +7,7 @@ import { staking } from '../redux/models/staking';
 import { wallet } from '../redux/models/wallet';
 import { identity } from '../redux/models/identity';
 import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
+import { VerifiableCredential } from '@veramo/core';
 
 export interface RootModel extends Models<RootModel> {
 	wallet: typeof wallet;
@@ -131,7 +132,7 @@ export interface IdentityWallet {
 	credentials: Credential[];
 }
 
-export interface Credential {
+export interface Credential extends VerifiableCredential{
 	name: string | undefined;
 	WebPage: WebPage[] | undefined;
 	type: string[];

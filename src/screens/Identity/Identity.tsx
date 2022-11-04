@@ -26,6 +26,7 @@ import type { User as Auth0User } from "@auth0/auth0-spa-js";
 import { loadUrlInIframe } from "../../utils/iframe";
 import axios, { AxiosResponse } from 'axios';
 import CredentialList from './components/CredentialList';
+import { agent, createPresentation } from 'utils/veramo';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
@@ -137,7 +138,7 @@ const Identity = (): JSX.Element => {
 				return;
 			}
 
-			const cred = await getCredential(getSubjectId(wallet), claims[0].accessToken, type);
+			const cred = await getCredential(await getVeramoSubjectId(), claims[0].accessToken, type);
 
 			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
 
@@ -158,6 +159,14 @@ const Identity = (): JSX.Element => {
 		).toString();
 
 		return 'did:key:' + identifier;
+	}
+
+	async function getVeramoSubjectId(): Promise<string> {
+		return (await agent.didManagerGetOrCreate({alias: getSubjectId(wallet!)})).did
+	}
+
+	const handleGetPresentation = async (creds: VerifiableCredential[]) => {
+		return await createPresentation(await getVeramoSubjectId(), creds)
 	}
 
 	const handleUnlock = async () => {

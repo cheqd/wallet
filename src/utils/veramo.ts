@@ -5,30 +5,20 @@ import type {
     IDIDManager,
     IKeyManager,
     IResolver,
-    VerifiableCredential,
 } from '@veramo/core'
 
-import {DataSource} from 'typeorm'
 import { createAgent } from '@veramo/core'
-import { Entities, KeyStore, PrivateKeyStore, DIDStore, migrations } from '@veramo/data-store'
+import { DataStoreJson, DIDStoreJson, KeyStoreJson, PrivateKeyStoreJson } from '@veramo/data-store-json'
 import { KeyManagementSystem, SecretBox } from '@veramo/kms-local'
 import { KeyManager } from '@veramo/key-manager'
 import { DIDManager } from '@veramo/did-manager'
 import { KeyDIDProvider } from '@veramo/did-provider-key'
-import { randomUUID } from 'crypto'
+import { Credential } from '../models'
+import { v4 as uuid } from 'uuid'
 
-const DATA_BASE = 'database.sqlite'
-
-const dbConnection = new DataSource({
-  name: 'test1',
-  type: 'sqlite',
-  database: DATA_BASE,
-  synchronize: false,
-  migrations,
-  migrationsRun: true,
-  logging: ['error', 'info', 'warn'],
-  entities: Entities
-})
+const memoryJsonStore = {
+  notifyUpdate: () => Promise.resolve(),
+}
 
 export type EnabledInterfaces = IDIDManager &
   IKeyManager &
@@ -40,27 +30,28 @@ export type EnabledInterfaces = IDIDManager &
 export const agent = createAgent<EnabledInterfaces>({
   plugins: [
     new KeyManager({
-        store: new KeyStore(dbConnection),
+        store: new KeyStoreJson(memoryJsonStore),
         kms: {
-            local: new KeyManagementSystem(new PrivateKeyStore(dbConnection, new SecretBox("7d4140d78e05691866c1dd2b4bda86b0b4d0e09eb86d5887faf089578ed5d7e8")))
+            local: new KeyManagementSystem(new PrivateKeyStoreJson(memoryJsonStore, new SecretBox("7d4140d78e05691866c1dd2b4bda86b0b4d0e09eb86d5887faf089578ed5d7e8")))
         }
     }),
     new DIDManager({
-      store: new DIDStore(dbConnection),
+      store: new DIDStoreJson(memoryJsonStore),
       defaultProvider: "did:key",
       providers: {
         "did:key": new KeyDIDProvider({ defaultKms: "local" })
       }
     }),
+    new DataStoreJson(memoryJsonStore)
 ]
 })
 
-export async function createPresentation (did: string, credentials: VerifiableCredential[]) {
+export async function createPresentation (did: string, credentials: Credential[]) {
   return await agent.createVerifiablePresentation({
     presentation: {
     verifiableCredential: credentials,
     holder: did,
-    nonce: randomUUID(),
+    nonce: uuid(),
     issuanceDate: new Date().toISOString()
   },
   proofFormat: 'jwt'
