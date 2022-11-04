@@ -27,9 +27,12 @@ import { loadUrlInIframe } from "../../utils/iframe";
 import axios, { AxiosResponse } from 'axios';
 import CredentialList from './components/CredentialList';
 import { Html5Qrcode } from 'html5-qrcode';
+import { CredentialMode } from './components/CredentialCard';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
+	const [credentialMode, setCredentailMode] = useState("VIEW" as CredentialMode);
+	const [selectedCredentials, setSelectedCredentials] = useState(new Set());
 	const [activeVC, setActiveVC] = useState<VerifiableCredential | null>(null);
 	const credentialDetailedRef = useRef<HTMLDivElement>(null);
 	const credentialSelectionRef = useRef<HTMLInputElement>(null);
@@ -126,6 +129,23 @@ const Identity = (): JSX.Element => {
 
 
 		return profileName
+	}
+
+	// double click on credential removes it from the Set
+	const handleSelectedCredentials = (cred: VerifiableCredential) => {
+		if (isCredentialSelected(cred)) {
+			setSelectedCredentials(ps => {
+				ps.delete(cred)
+				return new Set([...ps])
+			})
+			return
+		}
+
+		setSelectedCredentials(ps => ps.add(cred))
+	}
+
+	const isCredentialSelected = (cred: VerifiableCredential): boolean => {
+		return selectedCredentials.has(cred)
 	}
 
 	const handleGetCredential = async () => {
@@ -284,6 +304,24 @@ const Identity = (): JSX.Element => {
 		["invalid", "btn-outline-danger"]
 	]);
 
+	const handleCredentialMode = async () => {
+		if (credentialMode === CredentialMode.View) {
+			setCredentailMode(CredentialMode.Presentation)
+			return
+		}
+
+		setCredentailMode(CredentialMode.View)
+		setSelectedCredentials(new Set())
+	}
+
+	const handleCreatePresentation = () => {
+		let creds: VerifiableCredential[];
+		selectedCredentials.forEach(cred => creds.push(cred as VerifiableCredential))
+
+
+		// Do rest of the work here
+	}
+
 	const handleRemoveCredential = async (cred: VerifiableCredential) => {
 		if (cred == null) return;
 
@@ -395,14 +433,30 @@ const Identity = (): JSX.Element => {
 							</div>
 							<div className="col-12">
 								<Card className="d-flex flex-column h-100 justify-content-between">
-									<div>
-										<h2>{t('identity.wallet.title')}</h2>
-										<div className="my-4">{t('identity.wallet.description')}</div>
+									<div className="d-flex justify-content-between">
+										<div>
+											<h2>{t('identity.wallet.title')}</h2>
+											<div className="my-4">{t('identity.wallet.description')}</div>
+										</div>
+										<div>
+											{
+												selectedCredentials.size > 0 ?
+													<CustomButton className="px-5" onClick={handleCreatePresentation}>
+														Create Presentation
+													</CustomButton> :
+													<CustomButton className="px-5" onClick={handleCredentialMode}>
+														Share Credentials
+													</CustomButton>
+											}
+										</div>
 									</div>
 									<CredentialList
 										handleRemoveCredential={handleRemoveCredential}
 										handleShowCredential={handleShowCredential}
 										credentialList={identityWallet?.credentials}
+										handleSelectCredential={handleSelectedCredentials}
+										isCredentialSelected={isCredentialSelected}
+										mode={credentialMode}
 									/>
 									<div className="d-flex flex-row justify-content-start mt-4 gap-4">
 										{identityWallet == null && (
