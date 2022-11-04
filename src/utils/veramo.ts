@@ -1,11 +1,8 @@
 import type {
-	ICredentialPlugin,
-	IDataStore,
-	IDataStoreORM,
+  ICredentialIssuer,
 	IDIDManager,
-	IKeyManager,
-	IResolver,
-} from '@veramo/core'
+	IKeyManager
+  } from '@veramo/core'
 
 import { createAgent } from '@veramo/core'
 import { DataStoreJson, DIDStoreJson, KeyStoreJson, PrivateKeyStoreJson } from '@veramo/data-store-json'
@@ -15,17 +12,13 @@ import { DIDManager } from '@veramo/did-manager'
 import { KeyDIDProvider } from '@veramo/did-provider-key'
 import { Credential } from '../models'
 import { v4 as uuid } from 'uuid'
+import { CredentialIssuer } from '@veramo/credential-w3c'
 
 const memoryJsonStore = {
 	notifyUpdate: () => Promise.resolve(),
 }
 
-export type EnabledInterfaces = IDIDManager &
-	IKeyManager &
-	IDataStore &
-	IDataStoreORM &
-	IResolver &
-	ICredentialPlugin
+export type EnabledInterfaces =  ICredentialIssuer & IDIDManager & IKeyManager
 
 export const agent = createAgent<EnabledInterfaces>({
 	plugins: [
@@ -42,7 +35,8 @@ export const agent = createAgent<EnabledInterfaces>({
 				"did:key": new KeyDIDProvider({ defaultKms: "local" })
 			}
 		}),
-		new DataStoreJson(memoryJsonStore)
+		new DataStoreJson(memoryJsonStore),
+    new CredentialIssuer()
 	]
 })
 

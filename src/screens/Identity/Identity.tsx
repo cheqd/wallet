@@ -29,15 +29,17 @@ import CredentialList from './components/CredentialList';
 import { agent, createPresentation } from 'utils/veramo';
 import { Html5Qrcode } from 'html5-qrcode';
 import { CredentialMode } from './components/CredentialCard';
+import { VerifiablePresentation } from '@veramo/core';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
 	const [credentialMode, setCredentailMode] = useState("VIEW" as CredentialMode);
-	const [selectedCredentials, setSelectedCredentials] = useState(new Set());
+	const [selectedCredentials, setSelectedCredentials] = useState(new Set<VerifiableCredential>());
 	const [activeVC, setActiveVC] = useState<VerifiableCredential | null>(null);
 	const credentialDetailedRef = useRef<HTMLDivElement>(null);
 	const credentialSelectionRef = useRef<HTMLInputElement>(null);
 	const [qrCodeParsedData, setQrCodeParsedData] = useState('');
+	const [presentation, setPresentation] = useState<VerifiablePresentation | null>(null);
 
 	// Redux hooks
 	const { wallet, identityWallet, authToken, passphrase, claims } = useSelector((state: RootState) => ({
@@ -190,11 +192,6 @@ const Identity = (): JSX.Element => {
 		return identifier.did
 	}
 
-	const handleGetPresentation = async (creds: VerifiableCredential[]) => {
-		const subjectId = await getVeramoSubjectId()
-		return await createPresentation(subjectId, creds)
-	}
-
 	const handleUnlock = async () => {
 		if (authToken == null) {
 			showModal('authToken', true);
@@ -325,12 +322,12 @@ const Identity = (): JSX.Element => {
 		setSelectedCredentials(new Set())
 	}
 
-	const handleCreatePresentation = () => {
-		let creds: VerifiableCredential[];
+	const handleCreatePresentation = async () => {
+		let creds: VerifiableCredential[] = [];
 		selectedCredentials.forEach(cred => creds.push(cred as VerifiableCredential))
-
-
-		// Do rest of the work here
+		const pres = await createPresentation(await getVeramoSubjectId(), creds)
+		console.log(pres)
+		setPresentation(pres)
 	}
 
 	const handleRemoveCredential = async (cred: VerifiableCredential) => {
@@ -441,6 +438,18 @@ const Identity = (): JSX.Element => {
 												id="credential-file-input"
 												accept="image/*"
 											/>
+										</div>
+										<div>
+											{ 
+											presentation !=null && (<QRCodeSVG
+												value={JSON.stringify(presentation.proof, null, 1)}
+												size={300}
+												bgColor="#ffffff"
+												fgColor="#000000"
+												level="L"
+												includeMargin={false}
+											/>)
+											}
 										</div>
 									</div>
 									<div>
