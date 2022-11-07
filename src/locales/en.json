@@ -441,6 +441,13 @@
 			"close": "Close",
 			"verified": "Verified",
 			"notVerified": "Not verified"
+        },
+
+        "presentation": {
+            "title": "Presentation",
+            "notFound": "Presentation is not found",
+            "noQR": "QR payload is too big",
+            "close": "Close"
         }
     }
 }

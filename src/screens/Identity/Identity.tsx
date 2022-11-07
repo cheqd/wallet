@@ -26,6 +26,7 @@ import type { User as Auth0User } from "@auth0/auth0-spa-js";
 import { loadUrlInIframe } from "../../utils/iframe";
 import axios, { AxiosResponse } from 'axios';
 import CredentialList from './components/CredentialList';
+import DetailsPopup from './components/DetailsPopup';
 import { agent, createPresentation } from 'utils/veramo';
 import { Html5Qrcode } from 'html5-qrcode';
 import { CredentialMode } from './components/CredentialCard';
@@ -38,6 +39,7 @@ const Identity = (): JSX.Element => {
 	const [activeVC, setActiveVC] = useState<VerifiableCredential | null>(null);
 	const credentialDetailedRef = useRef<HTMLDivElement>(null);
 	const credentialSelectionRef = useRef<HTMLInputElement>(null);
+	const presentationDetailedRef = useRef<HTMLDivElement>(null);
 	const [qrCodeParsedData, setQrCodeParsedData] = useState('');
 	const [presentation, setPresentation] = useState<VerifiablePresentation | null>(null);
 
@@ -272,7 +274,7 @@ const Identity = (): JSX.Element => {
 	};
 
 	const showModal = (
-		id: 'authToken' | 'passphrase' | 'invalidPassphrase' | 'resetConfirmation' | 'credentialDetails',
+		id: 'authToken' | 'passphrase' | 'invalidPassphrase' | 'resetConfirmation' | 'credentialDetails' | 'presentationDetails',
 		toggle: boolean,
 	) => {
 		if (id === 'authToken' && authTokenRef.current) {
@@ -289,6 +291,9 @@ const Identity = (): JSX.Element => {
 			return toggle ? modal.show() : modal.hide();
 		} else if (id === 'credentialDetails' && credentialDetailedRef.current) {
 			const modal = BSModal.getOrCreateInstance(credentialDetailedRef.current);
+			return toggle ? modal.show() : modal.hide();
+		} else if (id === 'presentationDetails' && presentationDetailedRef.current) {
+			const modal = BSModal.getOrCreateInstance(presentationDetailedRef.current);
 			return toggle ? modal.show() : modal.hide();
 		}
 	};
@@ -326,8 +331,8 @@ const Identity = (): JSX.Element => {
 		let creds: VerifiableCredential[] = [];
 		selectedCredentials.forEach(cred => creds.push(cred as VerifiableCredential))
 		const pres = await createPresentation(await getVeramoSubjectId(), creds)
-		console.log(pres)
 		setPresentation(pres)
+		showModal('presentationDetails', true)
 	}
 
 	const handleRemoveCredential = async (cred: VerifiableCredential) => {
@@ -346,19 +351,6 @@ const Identity = (): JSX.Element => {
 		const encrypted = await encryptIdentityWallet(identityWallet!, passphrase!);
 		await backupCryptoBox(wallet.getAddress(), toBase64(encrypted), authToken!);
 	};
-
-	function changeActiveTab(activeTab: string) {
-		const tabs = ['tab-formatted', 'tab-json', 'tab-qr'];
-
-		tabs.forEach((tab) => {
-			const tabObj = document.getElementById(tab);
-			if (tab === activeTab) {
-				tabObj?.classList.add('active');
-			} else {
-				tabObj?.classList.remove('active');
-			}
-		});
-	}
 
 	function onChangeCredentialFile(e: any) {
 		const html5QrCode = new Html5Qrcode('credential-file-input');
@@ -438,18 +430,6 @@ const Identity = (): JSX.Element => {
 												id="credential-file-input"
 												accept="image/*"
 											/>
-										</div>
-										<div>
-											{ 
-											presentation !=null && (<QRCodeSVG
-												value={JSON.stringify(presentation.proof, null, 1)}
-												size={300}
-												bgColor="#ffffff"
-												fgColor="#000000"
-												level="L"
-												includeMargin={false}
-											/>)
-											}
 										</div>
 									</div>
 									<div>
@@ -634,116 +614,15 @@ const Identity = (): JSX.Element => {
 									<img src={Assets.images.cheqdRoundLogo} height="28" className="me-3" />
 									{t('identity.credential.title')}
 								</h2>
-								<div className="d-flex flex-row align-items-left tabs my-3">
-									<a
-										href="#formatted"
-										className="app-btn-plain bg-transparent text-btn p-0 me-4 h-auto active"
-										id="tab-formatted"
-										onClick={() => changeActiveTab('tab-formatted')}
-									>
-										formatted
-										{/*{t('identity.credential.show')}*/}
-									</a>
-									<a
-										href="#json"
-										className="app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
-										id="tab-json"
-										onClick={() => changeActiveTab('tab-json')}
-									>
-										json
-										{/*{t('identity.credential.show')}*/}
-									</a>
-									<a
-										href="#qr-code"
-										className="app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
-										id="tab-qr"
-										onClick={() => changeActiveTab('tab-qr')}
-									>
-										qr-code
-										{/*{t('identity.credential.show')}*/}
-									</a>
-								</div>
-								<div className="tabs-content">
-									<ul>
-										<li id="formatted">
-											<table className="table app-table-striped table-borderless">
-												<tbody>
-													<tr>
-														<td>
-															<b>TYPE</b>
-														</td>
-														<td> {activeVC.type.join(', ')}</td>
-													</tr>
-													<tr>
-														<td>
-															<b>ISSUANCE DATE</b>
-														</td>
-														<td> {new Date(activeVC.issuanceDate).toUTCString()}</td>
-													</tr>
-													<tr>
-														<td>
-															<b>ISSUER</b>
-														</td>
-														<td> {activeVC.issuer.id}</td>
-													</tr>
-													{
-														activeVC.name ?
-															<tr className={activeVC.name ? "" : "visually-hidden"}>
-																<td>
-																	<b>NAME</b>
-																</td>
-																<td> {activeVC.name}</td>
-															</tr>
-															: null
-													}
-													{
-														activeVC.WebPage ? activeVC.WebPage.map((webpage) => {
-															return (
-																<tr>
-																	<td>
-																		<b>{webpage.description}</b>
-																	</td>
-																	<td> {webpage.name}</td>
-																</tr>
-															)
-														}) : null
-													}
-												</tbody>
-											</table>
-										</li>
-										<li id="json" className="container tab-pane">
-											<textarea
-												readOnly
-												className="w-100 p-2"
-												value={JSON.stringify(activeVC, null, 2)}
-												rows={25}
-											/>
-										</li>
-										<li id="qr-code" className="container tab-pane">
-											<QRCodeSVG
-												value={JSON.stringify(activeVC, null, 1)}
-												size={300}
-												bgColor="#ffffff"
-												fgColor="#000000"
-												level="L"
-												includeMargin={false}
-												imageSettings={{
-													src: Assets.images.cheqdRoundLogo,
-													height: 30,
-													width: 30,
-													excavate: true,
-												}}
-											/>
-										</li>
-									</ul>
-								</div>
+								<DetailsPopup formatted={{
+										type: activeVC.type, 
+										issuanceDate: new Date(activeVC.issuanceDate!).toUTCString(), 
+										issuer: activeVC.issuer.id
+									}} 
+									data={activeVC}
+									qr={activeVC.proof.jwt}
+								/>
 								<div className="d-flex flex-row gap-4 align-items-center justify-content-center">
-									<CustomButton
-										className="mt-5"
-										onClick={async () => await handleRemoveCredential(activeVC)}
-									>
-										{t('identity.credential.remove')}
-									</CustomButton>
 									<CustomButton
 										className="mt-5"
 										onClick={() => showModal('credentialDetails', false)}
@@ -755,6 +634,39 @@ const Identity = (): JSX.Element => {
 						</>
 					)}
 				</Modal>
+				<Modal
+					ref={presentationDetailedRef}
+					id="presentationDetails"
+					withCloseButton={true}
+					dataBsBackdrop="static"
+					dataBsKeyboard={false}
+					contentClassName="p-3 w-auto"
+				>
+				<div className="d-flex flex-column align-items-center">
+					<h2 className="text-center">
+						<img src={Assets.images.cheqdRoundLogo} height="28" className="me-3" />
+						{t('identity.presentation.title')}
+					</h2>																							
+					{ presentation && 
+					(<DetailsPopup 
+						formatted={{
+							type: presentation.type, 
+							issuanceDate: new Date(presentation.issuanceDate!).toUTCString(), 
+							subject: presentation.holder
+						}} 
+						data={presentation}
+						qr={presentation.proof.jwt}
+					/>) }
+					<div className="d-flex flex-row gap-4 align-items-center justify-content-center">
+						<CustomButton
+							className="mt-5"
+							onClick={() => showModal('presentationDetails', false)}
+						>
+							{t('identity.presentation.close')}
+						</CustomButton>
+					</div>
+				</div>
+				</Modal>				
 			</>
 		</>
 	);
