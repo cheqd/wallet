@@ -32,6 +32,7 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { CredentialMode } from './components/CredentialCard';
 import { VerifiablePresentation } from '@veramo/core';
 
+
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
 	const [credentialMode, setCredentailMode] = useState("VIEW" as CredentialMode);
@@ -153,7 +154,7 @@ const Identity = (): JSX.Element => {
 		return selectedCredentials.has(cred)
 	}
 
-	const handleGetCredential = async (type: string) => {
+	const handleGetCredential = async (type: string, data?: any) => {
 		try {
 			if (!identityWallet) {
 				showErrorToast(t('identity.wallet.error.locked'));
@@ -166,7 +167,7 @@ const Identity = (): JSX.Element => {
 				return;
 			}
 
-			const cred = await getCredential(await getVeramoSubjectId(), claims[0].accessToken, type);
+			const cred = await getCredential(await getVeramoSubjectId(), claims[0].accessToken, data, type);
 
 			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
 
@@ -352,7 +353,7 @@ const Identity = (): JSX.Element => {
 		await backupCryptoBox(wallet.getAddress(), toBase64(encrypted), authToken!);
 	};
 
-	function onChangeCredentialFile(e: any) {
+	async function onChangeCredentialFile(e: any) {
 		const html5QrCode = new Html5Qrcode('credential-file-input');
 		const files = (e.target as HTMLInputElement).files
 		if (!files || files.length == 0) {
@@ -361,9 +362,9 @@ const Identity = (): JSX.Element => {
 		}
 
 		const imageFile = files[0];
-		html5QrCode.scanFile(imageFile, true).then(decodedText => {
-			console.log('decodedText', decodedText);
+		html5QrCode.scanFile(imageFile, true).then(async (decodedText) => {
 			setQrCodeParsedData(decodedText)
+			await handleGetCredential('Ticket', decodedText)
 			showSuccessToast(`data: ${decodedText}`)
 		}).catch(err => {
 			console.log(`Error scanning file. Reason: ${err}`)
@@ -408,9 +409,6 @@ const Identity = (): JSX.Element => {
 											<CustomButton className="px-5" onClick={() => handleGetCredential('Person')}>
 												{t('identity.get.get')}
 											</CustomButton>
-											<CustomButton className="px-5" onClick={() => handleGetCredential('Ticket')}>
-												{t('identity.get.getTicket')}
-											</CustomButton>
 											<CustomButton
 												className="px-5"
 												onClick={() => {
@@ -420,12 +418,12 @@ const Identity = (): JSX.Element => {
 												}}
 											>
 												<img src={Assets.images.iiwLogo} height="32" className="" />
-												{t('identity.get.importIIW')}
+												{t('identity.get.getTicket')}
 											</CustomButton>
 											<input
 												hidden
 												ref={credentialSelectionRef}
-												onChange={onChangeCredentialFile}
+												onChangeCapture={onChangeCredentialFile}
 												type="file"
 												id="credential-file-input"
 												accept="image/*"
