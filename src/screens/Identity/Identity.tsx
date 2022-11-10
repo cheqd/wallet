@@ -12,7 +12,7 @@ import { getAuthToken } from '../../utils/walletAuth';
 import { fromBase64, toBase64 } from '@lum-network/sdk-javascript/build/utils';
 import { getCredential } from '../../apis/issuer';
 import { useRematchDispatch } from '../../redux/hooks';
-import { Credential as VerifiableCredential, Wallet } from '../../models';
+import { Credential as VerifiableCredential, IdentityWallet, Wallet } from '../../models';
 import { Modal as BSModal } from 'bootstrap';
 import { backupCryptoBox, loadCryptoBox } from '../../apis/storage';
 import { encryptIdentityWallet, tryDecryptIdentityWallet } from '../../utils/identityWalet';
@@ -27,7 +27,7 @@ import { loadUrlInIframe } from "../../utils/iframe";
 import axios, { AxiosResponse } from 'axios';
 import CredentialList from './components/CredentialList';
 import DetailsPopup from './components/DetailsPopup';
-import { agent, createPresentation } from 'utils/veramo';
+import { agent, createAndImportDID, createKeyPairHex, createPresentation, importDID } from 'utils/veramo';
 import { Html5Qrcode } from 'html5-qrcode';
 import { CredentialMode } from './components/CredentialCard';
 import { VerifiablePresentation } from '@veramo/core';
@@ -166,33 +166,41 @@ const Identity = (): JSX.Element => {
 				showInfoToast(t("identity.get.message.connectionNeeded"));
 				return;
 			}
+			const subjectDid = await getVeramoSubjectId()
+			if(!subjectDid) {
+				showErrorToast(t('identity.wallet.error.locked'));
+				return
+			}
 
-			const cred = await getCredential(await getVeramoSubjectId(), claims[0].accessToken, data, type);
-
+			const cred = await getCredential(subjectDid, claims[0].accessToken, data, type);
 			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
 
 			// Backup wallet
 			const encrypted = await encryptIdentityWallet(newWallet, passphrase!);
 			await backupCryptoBox(wallet.getAddress(), toBase64(encrypted), authToken!);
-
-			setWallet(newWallet);
+			setWallet(newWallet)
 			showSuccessToast('Credential added');
 		} catch (e) {
 			showErrorToast((e as Error).message);
 		}
 	};
 
-	function getSubjectId(wallet: Wallet): string {
-		const identifier = Buffer.from(
-			Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey()))),
-		).toString();
+	// function getSubjectId(wallet: Wallet): string {
+	// 	const identifier = Buffer.from(
+	// 		Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey()))),
+	// 	).toString();
 
-		return 'did:key:' + identifier;
-	}
+	// 	return 'did:key:' + identifier;
+	// }
 
-	async function getVeramoSubjectId(): Promise<string> {
-		const identifier = await agent.didManagerGetOrCreate({ alias: getSubjectId(wallet!) })
-		return identifier.did
+	async function getVeramoSubjectId() {
+		if (!identityWallet || !wallet) {
+			return;
+		}
+
+		return agent.didManagerGetByAlias({alias: 'key-1'}).then((identifier)=>{
+			return identifier.did
+		})
 	}
 
 	const handleUnlock = async () => {
@@ -234,15 +242,17 @@ const Identity = (): JSX.Element => {
 
 			// Create a new wallet
 			if (cryptoBox == null) {
+				const identifier = await createAndImportDID(createKeyPairHex())
 				setPassphrase(passphrase);
 				setWallet({
 					credentials: [],
+					dids: [identifier]
 				});
 				showSuccessToast(t('identity.wallet.message.created'));
 				return;
 			}
 
-			const decryptedWallet = await tryDecryptIdentityWallet(fromBase64(cryptoBox), passphrase);
+			let decryptedWallet = await tryDecryptIdentityWallet(fromBase64(cryptoBox), passphrase);
 
 			// Invalid passphrase
 			if (decryptedWallet == null) {
@@ -250,9 +260,23 @@ const Identity = (): JSX.Element => {
 				return;
 			}
 
+			if (!decryptedWallet.dids?.length) {
+				const identifier = await createAndImportDID(createKeyPairHex())
+				decryptedWallet = update(decryptedWallet, { dids: { $push: [identifier] }})
+			}
+			
 			// Success
 			setPassphrase(passphrase);
 			setWallet(decryptedWallet);
+			
+			// import dids if the local kms is empty
+			agent.didManagerGetByAlias({alias: 'key-1'})
+			.catch(async ()=>{
+				for (var did of decryptedWallet!.dids) {
+					await importDID(did) 
+				}
+			})
+
 			showSuccessToast(t('identity.wallet.message.unlocked'));
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -260,9 +284,11 @@ const Identity = (): JSX.Element => {
 	};
 
 	const handleReset = async () => {
+		const identifier = await createAndImportDID(createKeyPairHex())
 		setPassphrase(passphraseInput);
 		setWallet({
 			credentials: [],
+			dids: [identifier]
 		});
 		showSuccessToast(t('identity.wallet.message.reset'));
 	};
@@ -331,7 +357,12 @@ const Identity = (): JSX.Element => {
 	const handleCreatePresentation = async () => {
 		let creds: VerifiableCredential[] = [];
 		selectedCredentials.forEach(cred => creds.push(cred as VerifiableCredential))
-		const pres = await createPresentation(await getVeramoSubjectId(), creds)
+		const subjectDid = await getVeramoSubjectId()
+		if(!subjectDid) {
+			showErrorToast(t('identity.wallet.error.locked'));
+			return
+		}
+		const pres = await createPresentation(subjectDid, creds)
 		setPresentation(pres)
 		showModal('presentationDetails', true)
 	}
