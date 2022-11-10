@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.1.3](https://github.com/cheqd/wallet/compare/1.1.2...1.1.3) (2022-11-10)
+
 ## [1.1.2](https://github.com/cheqd/wallet/compare/1.1.1...1.1.2) (2022-11-10)
 
 
