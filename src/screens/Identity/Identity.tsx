@@ -31,6 +31,7 @@ const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
 	const [activeVC, setActiveVC] = useState<VerifiableCredential | null>(null);
 	const credentialDetailedRef = useRef<HTMLDivElement>(null);
+	const [selectedAuth0Provider, setSelectedAuth0Provider] = useState(0);
 	// Redux hooks
 	const { wallet, identityWallet, authToken, passphrase, claims } = useSelector((state: RootState) => ({
 		wallet: state.wallet.currentWallet,
@@ -132,12 +133,12 @@ const Identity = (): JSX.Element => {
 			}
 
 			// Get credential
-			if (claims.length !== 1) {
+			if (claims.length == 0) {
 				showInfoToast(t("identity.get.message.connectionNeeded"));
 				return;
 			}
 
-			const cred = await getCredential(getSubjectId(wallet), claims[0].accessToken);
+			const cred = await getCredential(getSubjectId(wallet), claims[0].accessToken, claims[0].service);
 
 			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
 
@@ -339,7 +340,7 @@ const Identity = (): JSX.Element => {
 									</div>
 									<div className="px-3">
 										<h3>{t('identity.get.connections.title')}</h3>
-										<div className="mt-2">
+										<div className="mt-2 mb-2">
 											{claims.map((claim) => {
 												return (
 													<div key={claim.profileName} className="claim d-flex flex-row">
