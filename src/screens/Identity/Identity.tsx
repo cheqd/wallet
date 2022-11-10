@@ -379,6 +379,47 @@ const Identity = (): JSX.Element => {
 					<div className="container">
 						<div className="row gy-4">
 							<div className="col-12">
+								<Card className="d-flex flex-column h-100 justify-content-between">
+									<div className="d-flex justify-content-between">
+										<div>
+											<h2>{t('identity.wallet.title')}</h2>
+											<div className="my-4">{t('identity.wallet.description')}</div>
+										</div>
+										<div>
+											{
+												selectedCredentials.size > 0 ?
+													<CustomButton className="px-5" onClick={handleCreatePresentation}>
+														Create Presentation
+													</CustomButton> :
+													<CustomButton className="px-5" onClick={handleCredentialMode}>
+														Share Credentials
+													</CustomButton>
+											}
+										</div>
+									</div>
+									<CredentialList
+										handleRemoveCredential={handleRemoveCredential}
+										handleShowCredential={handleShowCredential}
+										credentialList={identityWallet?.credentials}
+										handleSelectCredential={handleSelectedCredentials}
+										isCredentialSelected={isCredentialSelected}
+										mode={credentialMode}
+									/>
+									<div className="d-flex flex-row justify-content-start mt-4 gap-4">
+										{identityWallet == null && (
+											<CustomButton className="px-5" onClick={handleUnlock}>
+												{t('identity.wallet.unlock')}
+											</CustomButton>
+										)}
+										{identityWallet != null && (
+											<CustomButton className="px-5" onClick={handleLock}>
+												{t('identity.wallet.lock')}
+											</CustomButton>
+										)}
+									</div>
+								</Card>
+							</div>
+							<div className="col-12">
 								<Card className="d-flex flex-row h-100 justify-content-between">
 									<div className="d-flex flex-column h-100 justify-content-between gap-4">
 										<div>
@@ -434,47 +475,6 @@ const Identity = (): JSX.Element => {
 									</div>
 								</Card >
 							</div >
-							<div className="col-12">
-								<Card className="d-flex flex-column h-100 justify-content-between">
-									<div className="d-flex justify-content-between">
-										<div>
-											<h2>{t('identity.wallet.title')}</h2>
-											<div className="my-4">{t('identity.wallet.description')}</div>
-										</div>
-										<div>
-											{
-												selectedCredentials.size > 0 ?
-													<CustomButton className="px-5" onClick={handleCreatePresentation}>
-														Create Presentation
-													</CustomButton> :
-													<CustomButton className="px-5" onClick={handleCredentialMode}>
-														Share Credentials
-													</CustomButton>
-											}
-										</div>
-									</div>
-									<CredentialList
-										handleRemoveCredential={handleRemoveCredential}
-										handleShowCredential={handleShowCredential}
-										credentialList={identityWallet?.credentials}
-										handleSelectCredential={handleSelectedCredentials}
-										isCredentialSelected={isCredentialSelected}
-										mode={credentialMode}
-									/>
-									<div className="d-flex flex-row justify-content-start mt-4 gap-4">
-										{identityWallet == null && (
-											<CustomButton className="px-5" onClick={handleUnlock}>
-												{t('identity.wallet.unlock')}
-											</CustomButton>
-										)}
-										{identityWallet != null && (
-											<CustomButton className="px-5" onClick={handleLock}>
-												{t('identity.wallet.lock')}
-											</CustomButton>
-										)}
-									</div>
-								</Card>
-							</div>
 						</div >
 					</div >
 				</div >
@@ -613,10 +613,10 @@ const Identity = (): JSX.Element => {
 									{t('identity.credential.title')}
 								</h2>
 								<DetailsPopup formatted={{
-										type: activeVC.type, 
-										issuanceDate: new Date(activeVC.issuanceDate!).toUTCString(), 
-										issuer: activeVC.issuer.id
-									}} 
+									type: activeVC.type,
+									issuanceDate: new Date(activeVC.issuanceDate!).toUTCString(),
+									issuer: activeVC.issuer.id
+								}}
 									data={activeVC}
 									qr={activeVC.proof.jwt}
 								/>
@@ -640,31 +640,31 @@ const Identity = (): JSX.Element => {
 					dataBsKeyboard={false}
 					contentClassName="p-3 w-auto"
 				>
-				<div className="d-flex flex-column align-items-center">
-					<h2 className="text-center">
-						<img src={Assets.images.cheqdRoundLogo} height="28" className="me-3" />
-						{t('identity.presentation.title')}
-					</h2>																							
-					{ presentation && 
-					(<DetailsPopup 
-						formatted={{
-							type: presentation.type, 
-							issuanceDate: new Date(presentation.issuanceDate!).toUTCString(), 
-							subject: presentation.holder
-						}} 
-						data={presentation}
-						qr={presentation.proof.jwt}
-					/>) }
-					<div className="d-flex flex-row gap-4 align-items-center justify-content-center">
-						<CustomButton
-							className="mt-5"
-							onClick={() => showModal('presentationDetails', false)}
-						>
-							{t('identity.presentation.close')}
-						</CustomButton>
+					<div className="d-flex flex-column align-items-center">
+						<h2 className="text-center">
+							<img src={Assets.images.cheqdRoundLogo} height="28" className="me-3" />
+							{t('identity.presentation.title')}
+						</h2>
+						{presentation &&
+							(<DetailsPopup
+								formatted={{
+									type: presentation.type,
+									issuanceDate: new Date(presentation.issuanceDate!).toUTCString(),
+									subject: presentation.holder
+								}}
+								data={presentation}
+								qr={presentation.proof.jwt}
+							/>)}
+						<div className="d-flex flex-row gap-4 align-items-center justify-content-center">
+							<CustomButton
+								className="mt-5"
+								onClick={() => showModal('presentationDetails', false)}
+							>
+								{t('identity.presentation.close')}
+							</CustomButton>
+						</div>
 					</div>
-				</div>
-				</Modal>				
+				</Modal>
 			</>
 		</>
 	);
