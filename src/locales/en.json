@@ -395,7 +395,7 @@
             "title": "Get a credential",
             "description": "Get a new credential issued by cheqd",
             "get": "Get social media credential",
-            "getTicket": "Get an IIW event ticket",
+            "getTicket": "Import Eventbrite QR code",
 			"importIIW": "Import IIW credential",
             "connections": {
                 "title": "Connected social media accounts",
