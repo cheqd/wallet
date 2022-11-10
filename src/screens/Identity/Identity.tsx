@@ -9,7 +9,6 @@ import { RootDispatch, RootState } from 'redux/store';
 import './styles/Identity.scss';
 import { showErrorToast, showInfoToast, showSuccessToast, trunc } from 'utils';
 import { getAuthToken } from '../../utils/walletAuth';
-import { fromBase64, toBase64 } from '@lum-network/sdk-javascript/build/utils';
 import { getCredential } from '../../apis/issuer';
 import { useRematchDispatch } from '../../redux/hooks';
 import { Credential as VerifiableCredential, IdentityWallet, Wallet } from '../../models';
@@ -31,7 +30,7 @@ import { agent, createAndImportDID, createKeyPairHex, createPresentation, import
 import { Html5Qrcode } from 'html5-qrcode';
 import { CredentialMode } from './components/CredentialCard';
 import { VerifiablePresentation } from '@veramo/core';
-
+import { fromBase64, toBase64 } from '@cosmjs/encoding';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
@@ -204,7 +203,7 @@ const Identity = (): JSX.Element => {
 	}
 
 	const handleUnlock = async () => {
-		if (authToken == null) {
+		if (!authToken || authToken === '') {
 			showModal('authToken', true);
 			return;
 		}
@@ -227,7 +226,7 @@ const Identity = (): JSX.Element => {
 	};
 
 	const handlePassphrase = async (authToken: string) => {
-		if (passphrase == null) {
+		if (!passphrase) {
 			setPassphraseInput('');
 			showModal('passphrase', true);
 			return;
@@ -238,24 +237,37 @@ const Identity = (): JSX.Element => {
 
 	const handleDecryptWallet = async (authToken: string, passphrase: string) => {
 		try {
-			const cryptoBox = await loadCryptoBox<string>(wallet.getAddress(), authToken);
+			const cryptoBoxResp = await loadCryptoBox(wallet.getAddress(), authToken);
 
 			// Create a new wallet
-			if (cryptoBox == null) {
-				const identifier = await createAndImportDID(createKeyPairHex())
-				setPassphrase(passphrase);
-				setWallet({
-					credentials: [],
-					dids: [identifier]
-				});
-				showSuccessToast(t('identity.wallet.message.created'));
-				return;
+			if (axios.isAxiosError(cryptoBoxResp)) {
+				// if the wallet doesn't exist in the KV store, we create a new one.
+				// This doesn't store anything though, just initializes the wallet
+				if (cryptoBoxResp.response?.data === 'value not found') {
+					setPassphrase(passphrase);
+					setWallet({
+						credentials: [],
+					});
+					showSuccessToast(t('identity.wallet.message.created'));
+					return;
+				}
+
+				if (cryptoBoxResp.response?.status === 400) {
+					setAuthToken('')
+					// const errMsg = `${cryptoBoxResp.response?.data as string}. Please try unlocking again`
+					// showErrorToast(errMsg);
+					await handleAuthToken()
+					return
+				}
+
+				showErrorToast(cryptoBoxResp.response?.data as string);
+				return
 			}
 
-			let decryptedWallet = await tryDecryptIdentityWallet(fromBase64(cryptoBox), passphrase);
+			const decryptedWallet = await tryDecryptIdentityWallet(fromBase64(cryptoBoxResp as string), passphrase);
 
 			// Invalid passphrase
-			if (decryptedWallet == null) {
+			if (!decryptedWallet) {
 				showModal('invalidPassphrase', true);
 				return;
 			}
@@ -331,7 +343,7 @@ const Identity = (): JSX.Element => {
 			set.add(c)
 		})
 
-		if (cred == null || !set.has(cred)) return;
+		if (!cred || !set.has(cred)) return;
 
 		setActiveVC(cred);
 		showModal('credentialDetails', true);
@@ -368,10 +380,10 @@ const Identity = (): JSX.Element => {
 	}
 
 	const handleRemoveCredential = async (cred: VerifiableCredential) => {
-		if (cred == null) return;
+		if (!cred) return;
 
 		identityWallet?.credentials.forEach((element, index) => {
-			if (element == cred) identityWallet?.credentials.splice(index, 1);
+			if (element === cred) identityWallet?.credentials.splice(index, 1);
 		});
 		setWallet(identityWallet);
 		if (credentialDetailedRef.current) {
@@ -437,12 +449,12 @@ const Identity = (): JSX.Element => {
 										mode={credentialMode}
 									/>
 									<div className="d-flex flex-row justify-content-start mt-4 gap-4">
-										{identityWallet == null && (
+										{!identityWallet && (
 											<CustomButton className="px-5" onClick={handleUnlock}>
 												{t('identity.wallet.unlock')}
 											</CustomButton>
 										)}
-										{identityWallet != null && (
+										{identityWallet && (
 											<CustomButton className="px-5" onClick={handleLock}>
 												{t('identity.wallet.lock')}
 											</CustomButton>
