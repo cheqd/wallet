@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/cheqd/wallet/compare/1.1.1...1.1.2) (2022-11-10)
+
+
+### Bug Fixes
+
+* Restoring previously-saved credentials from secret-box-service [DEV-1898] ([#112](https://github.com/cheqd/wallet/issues/112)) ([00fc6b8](https://github.com/cheqd/wallet/commit/00fc6b88ae007495de790f0d57669fa37d1ce8d4))
+
 ## [1.1.1](https://github.com/cheqd/wallet/compare/1.1.0...1.1.1) (2022-11-03)
 
 
