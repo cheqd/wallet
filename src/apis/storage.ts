@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
-export interface LoadCryptoBoxResp<T> {
-	cryptoBox: T;
+export type LoadCryptoBoxResp = {
+	cryptoBox: string;
 }
 
 export const backupCryptoBox = async <T>(accountId: string, data: T, authToken: string): Promise<void> => {
@@ -19,21 +19,19 @@ export const backupCryptoBox = async <T>(accountId: string, data: T, authToken: 
 	);
 };
 
-export const loadCryptoBox = async <T>(accountId: string, authToken: string): Promise<T | null> => {
-	const resp = await axios.get<LoadCryptoBoxResp<T>>(
+export const loadCryptoBox = async <T>(accountId: string, authToken: string): Promise<string | AxiosError> => {
+	const cryptoBoxResp = axios.get(
 		import.meta.env.VITE_STORAGE_ENDPOINT + `/api/authentication/cryptoBox/${accountId}`,
-		{
-			headers: {
-				Authorization: authToken,
-			},
-			validateStatus: (status) => status === 200 || status === 400,
-		},
-	);
-	console.log(resp.status);
+		{ headers: { Authorization: authToken, } },
+	).then(resp => {
+		return (resp.data as LoadCryptoBoxResp).cryptoBox
+	}).catch((err: Error | AxiosError) => {
+		if (axios.isAxiosError(err)) {
+			return err
+		}
 
-	if (resp.status === 400) {
-		return null;
-	}
+		throw err;
+	})
 
-	return resp.data.cryptoBox;
+	return cryptoBoxResp;
 };
