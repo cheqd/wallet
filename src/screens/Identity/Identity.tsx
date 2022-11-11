@@ -166,7 +166,7 @@ const Identity = (): JSX.Element => {
 				return;
 			}
 			const subjectDid = await getVeramoSubjectId()
-			if(!subjectDid) {
+			if (!subjectDid) {
 				showErrorToast(t('identity.wallet.error.locked'));
 				return
 			}
@@ -197,7 +197,7 @@ const Identity = (): JSX.Element => {
 			return;
 		}
 
-		return agent.didManagerGetByAlias({alias: 'key-1'}).then((identifier)=>{
+		return agent.didManagerGetByAlias({ alias: 'key-1' }).then((identifier) => {
 			return identifier.did
 		})
 	}
@@ -247,6 +247,7 @@ const Identity = (): JSX.Element => {
 					setPassphrase(passphrase);
 					setWallet({
 						credentials: [],
+						dids: [],
 					});
 					showSuccessToast(t('identity.wallet.message.created'));
 					return;
@@ -264,7 +265,7 @@ const Identity = (): JSX.Element => {
 				return
 			}
 
-			const decryptedWallet = await tryDecryptIdentityWallet(fromBase64(cryptoBoxResp as string), passphrase);
+			let decryptedWallet = await tryDecryptIdentityWallet(fromBase64(cryptoBoxResp as string), passphrase);
 
 			// Invalid passphrase
 			if (!decryptedWallet) {
@@ -274,20 +275,20 @@ const Identity = (): JSX.Element => {
 
 			if (!decryptedWallet.dids?.length) {
 				const identifier = await createAndImportDID(createKeyPairHex())
-				decryptedWallet = update(decryptedWallet, { dids: { $push: [identifier] }})
+				decryptedWallet = update(decryptedWallet, { dids: { $push: [identifier] } })
 			}
-			
+
 			// Success
 			setPassphrase(passphrase);
 			setWallet(decryptedWallet);
-			
+
 			// import dids if the local kms is empty
-			agent.didManagerGetByAlias({alias: 'key-1'})
-			.catch(async ()=>{
-				for (var did of decryptedWallet!.dids) {
-					await importDID(did) 
-				}
-			})
+			agent.didManagerGetByAlias({ alias: 'key-1' })
+				.catch(async () => {
+					for (var did of decryptedWallet!.dids) {
+						await importDID(did)
+					}
+				})
 
 			showSuccessToast(t('identity.wallet.message.unlocked'));
 		} catch (e) {
@@ -370,7 +371,7 @@ const Identity = (): JSX.Element => {
 		let creds: VerifiableCredential[] = [];
 		selectedCredentials.forEach(cred => creds.push(cred as VerifiableCredential))
 		const subjectDid = await getVeramoSubjectId()
-		if(!subjectDid) {
+		if (!subjectDid) {
 			showErrorToast(t('identity.wallet.error.locked'));
 			return
 		}
