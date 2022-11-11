@@ -9,5 +9,6 @@ interface ImportMetaEnv {
 	VITE_ISSUER_ENDPOINT: string;
 	VITE_AUTH0_DOMAIN: string;
 	VITE_AUTH0_CLIENT_ID: string;
+	VITE_KMS_SECRET_KEY: string;
 }
 

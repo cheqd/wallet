@@ -9,10 +9,9 @@ import { RootDispatch, RootState } from 'redux/store';
 import './styles/Identity.scss';
 import { showErrorToast, showInfoToast, showSuccessToast, trunc } from 'utils';
 import { getAuthToken } from '../../utils/walletAuth';
-import { fromBase64, toBase64 } from '@lum-network/sdk-javascript/build/utils';
 import { getCredential } from '../../apis/issuer';
 import { useRematchDispatch } from '../../redux/hooks';
-import { Credential as VerifiableCredential, Wallet } from '../../models';
+import { Credential as VerifiableCredential, IdentityWallet, Wallet } from '../../models';
 import { Modal as BSModal } from 'bootstrap';
 import { backupCryptoBox, loadCryptoBox } from '../../apis/storage';
 import { encryptIdentityWallet, tryDecryptIdentityWallet } from '../../utils/identityWalet';
@@ -27,10 +26,11 @@ import { loadUrlInIframe } from "../../utils/iframe";
 import axios, { AxiosResponse } from 'axios';
 import CredentialList from './components/CredentialList';
 import DetailsPopup from './components/DetailsPopup';
-import { agent, createPresentation } from 'utils/veramo';
+import { agent, createAndImportDID, createKeyPairHex, createPresentation, importDID } from 'utils/veramo';
 import { Html5Qrcode } from 'html5-qrcode';
 import { CredentialMode } from './components/CredentialCard';
 import { VerifiablePresentation } from '@veramo/core';
+import { fromBase64, toBase64 } from '@cosmjs/encoding';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
@@ -153,7 +153,7 @@ const Identity = (): JSX.Element => {
 		return selectedCredentials.has(cred)
 	}
 
-	const handleGetCredential = async (type: string) => {
+	const handleGetCredential = async (type: string, data?: any) => {
 		try {
 			if (!identityWallet) {
 				showErrorToast(t('identity.wallet.error.locked'));
@@ -165,37 +165,45 @@ const Identity = (): JSX.Element => {
 				showInfoToast(t("identity.get.message.connectionNeeded"));
 				return;
 			}
+			const subjectDid = await getVeramoSubjectId()
+			if (!subjectDid) {
+				showErrorToast(t('identity.wallet.error.locked'));
+				return
+			}
 
-			const cred = await getCredential(await getVeramoSubjectId(), claims[0].accessToken, type);
-
+			const cred = await getCredential(subjectDid, claims[0].accessToken, data, type);
 			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
 
 			// Backup wallet
 			const encrypted = await encryptIdentityWallet(newWallet, passphrase!);
 			await backupCryptoBox(wallet.getAddress(), toBase64(encrypted), authToken!);
-
-			setWallet(newWallet);
+			setWallet(newWallet)
 			showSuccessToast('Credential added');
 		} catch (e) {
 			showErrorToast((e as Error).message);
 		}
 	};
 
-	function getSubjectId(wallet: Wallet): string {
-		const identifier = Buffer.from(
-			Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey()))),
-		).toString();
+	// function getSubjectId(wallet: Wallet): string {
+	// 	const identifier = Buffer.from(
+	// 		Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey()))),
+	// 	).toString();
 
-		return 'did:key:' + identifier;
-	}
+	// 	return 'did:key:' + identifier;
+	// }
 
-	async function getVeramoSubjectId(): Promise<string> {
-		const identifier = await agent.didManagerGetOrCreate({ alias: getSubjectId(wallet!) })
-		return identifier.did
+	async function getVeramoSubjectId() {
+		if (!identityWallet || !wallet) {
+			return;
+		}
+
+		return agent.didManagerGetByAlias({ alias: 'key-1' }).then((identifier) => {
+			return identifier.did
+		})
 	}
 
 	const handleUnlock = async () => {
-		if (authToken == null) {
+		if (!authToken || authToken === '') {
 			showModal('authToken', true);
 			return;
 		}
@@ -218,7 +226,7 @@ const Identity = (): JSX.Element => {
 	};
 
 	const handlePassphrase = async (authToken: string) => {
-		if (passphrase == null) {
+		if (!passphrase) {
 			setPassphraseInput('');
 			showModal('passphrase', true);
 			return;
@@ -229,29 +237,59 @@ const Identity = (): JSX.Element => {
 
 	const handleDecryptWallet = async (authToken: string, passphrase: string) => {
 		try {
-			const cryptoBox = await loadCryptoBox<string>(wallet.getAddress(), authToken);
+			const cryptoBoxResp = await loadCryptoBox(wallet.getAddress(), authToken);
 
 			// Create a new wallet
-			if (cryptoBox == null) {
-				setPassphrase(passphrase);
-				setWallet({
-					credentials: [],
-				});
-				showSuccessToast(t('identity.wallet.message.created'));
+			if (axios.isAxiosError(cryptoBoxResp)) {
+				// if the wallet doesn't exist in the KV store, we create a new one.
+				// This doesn't store anything though, just initializes the wallet
+				if (cryptoBoxResp.response?.data === 'value not found') {
+					setPassphrase(passphrase);
+					setWallet({
+						credentials: [],
+						dids: [],
+					});
+					showSuccessToast(t('identity.wallet.message.created'));
+					return;
+				}
+
+				if (cryptoBoxResp.response?.status === 400) {
+					setAuthToken('')
+					// const errMsg = `${cryptoBoxResp.response?.data as string}. Please try unlocking again`
+					// showErrorToast(errMsg);
+					await handleAuthToken()
+					return
+				}
+
+				showErrorToast(cryptoBoxResp.response?.data as string);
+				return
+			}
+
+			let decryptedWallet = await tryDecryptIdentityWallet(fromBase64(cryptoBoxResp as string), passphrase);
+
+			// Invalid passphrase
+			if (!decryptedWallet) {
+				showModal('invalidPassphrase', true);
 				return;
 			}
 
-			const decryptedWallet = await tryDecryptIdentityWallet(fromBase64(cryptoBox), passphrase);
-
-			// Invalid passphrase
-			if (decryptedWallet == null) {
-				showModal('invalidPassphrase', true);
-				return;
+			if (!decryptedWallet.dids?.length) {
+				const identifier = await createAndImportDID(createKeyPairHex())
+				decryptedWallet = update(decryptedWallet, { dids: { $push: [identifier] } })
 			}
 
 			// Success
 			setPassphrase(passphrase);
 			setWallet(decryptedWallet);
+
+			// import dids if the local kms is empty
+			agent.didManagerGetByAlias({ alias: 'key-1' })
+				.catch(async () => {
+					for (var did of decryptedWallet!.dids) {
+						await importDID(did)
+					}
+				})
+
 			showSuccessToast(t('identity.wallet.message.unlocked'));
 		} catch (e) {
 			showErrorToast((e as Error).message);
@@ -259,9 +297,11 @@ const Identity = (): JSX.Element => {
 	};
 
 	const handleReset = async () => {
+		const identifier = await createAndImportDID(createKeyPairHex())
 		setPassphrase(passphraseInput);
 		setWallet({
 			credentials: [],
+			dids: [identifier]
 		});
 		showSuccessToast(t('identity.wallet.message.reset'));
 	};
@@ -304,7 +344,7 @@ const Identity = (): JSX.Element => {
 			set.add(c)
 		})
 
-		if (cred == null || !set.has(cred)) return;
+		if (!cred || !set.has(cred)) return;
 
 		setActiveVC(cred);
 		showModal('credentialDetails', true);
@@ -330,16 +370,21 @@ const Identity = (): JSX.Element => {
 	const handleCreatePresentation = async () => {
 		let creds: VerifiableCredential[] = [];
 		selectedCredentials.forEach(cred => creds.push(cred as VerifiableCredential))
-		const pres = await createPresentation(await getVeramoSubjectId(), creds)
+		const subjectDid = await getVeramoSubjectId()
+		if (!subjectDid) {
+			showErrorToast(t('identity.wallet.error.locked'));
+			return
+		}
+		const pres = await createPresentation(subjectDid, creds)
 		setPresentation(pres)
 		showModal('presentationDetails', true)
 	}
 
 	const handleRemoveCredential = async (cred: VerifiableCredential) => {
-		if (cred == null) return;
+		if (!cred) return;
 
 		identityWallet?.credentials.forEach((element, index) => {
-			if (element == cred) identityWallet?.credentials.splice(index, 1);
+			if (element === cred) identityWallet?.credentials.splice(index, 1);
 		});
 		setWallet(identityWallet);
 		if (credentialDetailedRef.current) {
@@ -352,7 +397,7 @@ const Identity = (): JSX.Element => {
 		await backupCryptoBox(wallet.getAddress(), toBase64(encrypted), authToken!);
 	};
 
-	function onChangeCredentialFile(e: any) {
+	async function onChangeCredentialFile(e: any) {
 		const html5QrCode = new Html5Qrcode('credential-file-input');
 		const files = (e.target as HTMLInputElement).files
 		if (!files || files.length == 0) {
@@ -361,9 +406,9 @@ const Identity = (): JSX.Element => {
 		}
 
 		const imageFile = files[0];
-		html5QrCode.scanFile(imageFile, true).then(decodedText => {
-			console.log('decodedText', decodedText);
+		html5QrCode.scanFile(imageFile, true).then(async (decodedText) => {
 			setQrCodeParsedData(decodedText)
+			await handleGetCredential('Ticket', decodedText)
 			showSuccessToast(`data: ${decodedText}`)
 		}).catch(err => {
 			console.log(`Error scanning file. Reason: ${err}`)
@@ -377,6 +422,47 @@ const Identity = (): JSX.Element => {
 				<div className="mt-4">
 					<div className="container">
 						<div className="row gy-4">
+							<div className="col-12">
+								<Card className="d-flex flex-column h-100 justify-content-between">
+									<div className="d-flex justify-content-between">
+										<div>
+											<h2>{t('identity.wallet.title')}</h2>
+											<div className="my-4">{t('identity.wallet.description')}</div>
+										</div>
+										<div>
+											{
+												selectedCredentials.size > 0 ?
+													<CustomButton className="px-5" onClick={handleCreatePresentation}>
+														Create Presentation
+													</CustomButton> :
+													<CustomButton className="px-5" onClick={handleCredentialMode}>
+														Share Credentials
+													</CustomButton>
+											}
+										</div>
+									</div>
+									<CredentialList
+										handleRemoveCredential={handleRemoveCredential}
+										handleShowCredential={handleShowCredential}
+										credentialList={identityWallet?.credentials}
+										handleSelectCredential={handleSelectedCredentials}
+										isCredentialSelected={isCredentialSelected}
+										mode={credentialMode}
+									/>
+									<div className="d-flex flex-row justify-content-start mt-4 gap-4">
+										{!identityWallet && (
+											<CustomButton className="px-5" onClick={handleUnlock}>
+												{t('identity.wallet.unlock')}
+											</CustomButton>
+										)}
+										{identityWallet && (
+											<CustomButton className="px-5" onClick={handleLock}>
+												{t('identity.wallet.lock')}
+											</CustomButton>
+										)}
+									</div>
+								</Card>
+							</div>
 							<div className="col-12">
 								<Card className="d-flex flex-row h-100 justify-content-between">
 									<div className="d-flex flex-column h-100 justify-content-between gap-4">
@@ -408,9 +494,6 @@ const Identity = (): JSX.Element => {
 											<CustomButton className="px-5" onClick={() => handleGetCredential('Person')}>
 												{t('identity.get.get')}
 											</CustomButton>
-											<CustomButton className="px-5" onClick={() => handleGetCredential('Ticket')}>
-												{t('identity.get.getTicket')}
-											</CustomButton>
 											<CustomButton
 												className="px-5"
 												onClick={() => {
@@ -420,12 +503,12 @@ const Identity = (): JSX.Element => {
 												}}
 											>
 												<img src={Assets.images.iiwLogo} height="32" className="" />
-												{t('identity.get.importIIW')}
+												{t('identity.get.getTicket')}
 											</CustomButton>
 											<input
 												hidden
 												ref={credentialSelectionRef}
-												onChange={onChangeCredentialFile}
+												onChangeCapture={onChangeCredentialFile}
 												type="file"
 												id="credential-file-input"
 												accept="image/*"
@@ -436,47 +519,6 @@ const Identity = (): JSX.Element => {
 									</div>
 								</Card >
 							</div >
-							<div className="col-12">
-								<Card className="d-flex flex-column h-100 justify-content-between">
-									<div className="d-flex justify-content-between">
-										<div>
-											<h2>{t('identity.wallet.title')}</h2>
-											<div className="my-4">{t('identity.wallet.description')}</div>
-										</div>
-										<div>
-											{
-												selectedCredentials.size > 0 ?
-													<CustomButton className="px-5" onClick={handleCreatePresentation}>
-														Create Presentation
-													</CustomButton> :
-													<CustomButton className="px-5" onClick={handleCredentialMode}>
-														Share Credentials
-													</CustomButton>
-											}
-										</div>
-									</div>
-									<CredentialList
-										handleRemoveCredential={handleRemoveCredential}
-										handleShowCredential={handleShowCredential}
-										credentialList={identityWallet?.credentials}
-										handleSelectCredential={handleSelectedCredentials}
-										isCredentialSelected={isCredentialSelected}
-										mode={credentialMode}
-									/>
-									<div className="d-flex flex-row justify-content-start mt-4 gap-4">
-										{identityWallet == null && (
-											<CustomButton className="px-5" onClick={handleUnlock}>
-												{t('identity.wallet.unlock')}
-											</CustomButton>
-										)}
-										{identityWallet != null && (
-											<CustomButton className="px-5" onClick={handleLock}>
-												{t('identity.wallet.lock')}
-											</CustomButton>
-										)}
-									</div>
-								</Card>
-							</div>
 						</div >
 					</div >
 				</div >
@@ -615,10 +657,10 @@ const Identity = (): JSX.Element => {
 									{t('identity.credential.title')}
 								</h2>
 								<DetailsPopup formatted={{
-										type: activeVC.type, 
-										issuanceDate: new Date(activeVC.issuanceDate!).toUTCString(), 
-										issuer: activeVC.issuer.id
-									}} 
+									type: activeVC.type,
+									issuanceDate: new Date(activeVC.issuanceDate!).toUTCString(),
+									issuer: activeVC.issuer.id
+								}}
 									data={activeVC}
 									qr={activeVC.proof.jwt}
 								/>
@@ -642,31 +684,31 @@ const Identity = (): JSX.Element => {
 					dataBsKeyboard={false}
 					contentClassName="p-3 w-auto"
 				>
-				<div className="d-flex flex-column align-items-center">
-					<h2 className="text-center">
-						<img src={Assets.images.cheqdRoundLogo} height="28" className="me-3" />
-						{t('identity.presentation.title')}
-					</h2>																							
-					{ presentation && 
-					(<DetailsPopup 
-						formatted={{
-							type: presentation.type, 
-							issuanceDate: new Date(presentation.issuanceDate!).toUTCString(), 
-							subject: presentation.holder
-						}} 
-						data={presentation}
-						qr={presentation.proof.jwt}
-					/>) }
-					<div className="d-flex flex-row gap-4 align-items-center justify-content-center">
-						<CustomButton
-							className="mt-5"
-							onClick={() => showModal('presentationDetails', false)}
-						>
-							{t('identity.presentation.close')}
-						</CustomButton>
+					<div className="d-flex flex-column align-items-center">
+						<h2 className="text-center">
+							<img src={Assets.images.cheqdRoundLogo} height="28" className="me-3" />
+							{t('identity.presentation.title')}
+						</h2>
+						{presentation &&
+							(<DetailsPopup
+								formatted={{
+									type: presentation.type,
+									issuanceDate: new Date(presentation.issuanceDate!).toUTCString(),
+									subject: presentation.holder
+								}}
+								data={presentation}
+								qr={presentation.proof.jwt}
+							/>)}
+						<div className="d-flex flex-row gap-4 align-items-center justify-content-center">
+							<CustomButton
+								className="mt-5"
+								onClick={() => showModal('presentationDetails', false)}
+							>
+								{t('identity.presentation.close')}
+							</CustomButton>
+						</div>
 					</div>
-				</div>
-				</Modal>				
+				</Modal>
 			</>
 		</>
 	);

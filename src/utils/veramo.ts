@@ -1,18 +1,27 @@
 import type {
   ICredentialIssuer,
+	IDataStore,
+	IDataStoreORM,
 	IDIDManager,
-	IKeyManager
+	IIdentifier,
+	IKeyManager,
+	MinimalImportableIdentifier,
+	TKeyType
   } from '@veramo/core'
 
 import { createAgent } from '@veramo/core'
 import { DataStoreJson, DIDStoreJson, KeyStoreJson, PrivateKeyStoreJson } from '@veramo/data-store-json'
 import { KeyManagementSystem, SecretBox } from '@veramo/kms-local'
-import { KeyManager } from '@veramo/key-manager'
+import { KeyManager, ManagedPrivateKey } from '@veramo/key-manager'
 import { DIDManager } from '@veramo/did-manager'
 import { KeyDIDProvider } from '@veramo/did-provider-key'
 import { Credential } from '../models'
 import { v4 as uuid } from 'uuid'
 import { CredentialIssuer } from '@veramo/credential-w3c'
+import { generateKeyPair } from '@stablelib/ed25519'
+import { toString } from 'uint8arrays'
+import Multibase from 'multibase';
+import Multicodec from 'multicodec';
 
 const memoryJsonStore = {
 	notifyUpdate: () => Promise.resolve(),
@@ -25,7 +34,7 @@ export const agent = createAgent<EnabledInterfaces>({
 		new KeyManager({
 			store: new KeyStoreJson(memoryJsonStore),
 			kms: {
-				local: new KeyManagementSystem(new PrivateKeyStoreJson(memoryJsonStore, new SecretBox("7d4140d78e05691866c1dd2b4bda86b0b4d0e09eb86d5887faf089578ed5d7e8")))
+				local: new KeyManagementSystem(new PrivateKeyStoreJson(memoryJsonStore, new SecretBox(import.meta.env.VITE_KMS_SECRET_KEY)))
 			}
 		}),
 		new DIDManager({
@@ -36,9 +45,18 @@ export const agent = createAgent<EnabledInterfaces>({
 			}
 		}),
 		new DataStoreJson(memoryJsonStore),
-    new CredentialIssuer()
+    new CredentialIssuer(),
 	]
 })
+
+export async function importDID(identifier: MinimalImportableIdentifier) {
+	try {
+		const response = await agent.didManagerImport(identifier)
+		console.log(response, 'import did response')
+	} catch (error) {
+		console.log(error, 'error on importing identifier')
+	}
+}
 
 export async function createPresentation(did: string, credentials: Credential[]) {
 	return await agent.createVerifiablePresentation({
@@ -52,3 +70,41 @@ export async function createPresentation(did: string, credentials: Credential[])
 	})
 }
 
+export async function createAndImportDID(keyPair: any){
+	try {
+
+		const did = `did:key:${Buffer.from(
+			Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(keyPair.publicKey))),
+		).toString()}`
+
+		const identifier: MinimalImportableIdentifier = {
+			services: [],
+			provider: 'did:key',
+			did,
+			alias: 'key-20',
+			controllerKeyId: 'key-2',
+			keys: [
+				{
+					kid: 'key-2',
+					kms: 'local',
+					type: <TKeyType>'Ed25519',
+					publicKeyHex: keyPair.publicKey,
+					privateKeyHex: keyPair.privateKey,
+				}
+			]
+		}
+		await importDID(identifier)
+		return identifier
+	} catch (error: any) {
+		console.log(error)
+		throw new Error(error)
+	}
+}
+
+export function createKeyPairHex() {
+    const keyPair = generateKeyPair()
+    return {
+        publicKey: toString(keyPair.publicKey, 'hex'),
+        privateKey: toString(keyPair.secretKey, 'hex'),
+    }
+}
