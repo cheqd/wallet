@@ -7,7 +7,7 @@ import { QRCodeSVG } from "qrcode.react";
 type Props = {
 	data: VerifiableCredential | VerifiablePresentation,
     formatted: any,
-    qr: any
+    qr: string
 }
 
 const byteSize = (str: string) => new Blob([str]).size
@@ -85,11 +85,11 @@ const DetailsPopup: React.FC<Props> = ({
                     </li>
                     <li id="qr-code" className="container tab-pane">
                         {
-                            byteSize(qr) < 4296 ?
+                            qr.length < 4296 ?
                             (
                                 <QRCodeSVG
-                                value={JSON.stringify(qr, null, 1)}
-                                size={500}
+                                value={qr}
+                                size={400}
                                 bgColor="#ffffff"
                                 fgColor="#000000"
                                 level="L"
