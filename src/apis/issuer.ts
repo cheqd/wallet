@@ -5,7 +5,7 @@ export const getCredential = async (subjectId: string, claim: string, data: any,
 	const resp = await axios.post<Credential>(import.meta.env.VITE_ISSUER_ENDPOINT + '/api/credentials/issue', {
 		subjectId,
 		claim,
-		provider: 'twitter'
+		provider
 	},
 	{
 		params: {
