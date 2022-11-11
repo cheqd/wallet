@@ -1,9 +1,6 @@
 import type {
   ICredentialIssuer,
-	IDataStore,
-	IDataStoreORM,
 	IDIDManager,
-	IIdentifier,
 	IKeyManager,
 	MinimalImportableIdentifier,
 	TKeyType
@@ -12,7 +9,7 @@ import type {
 import { createAgent } from '@veramo/core'
 import { DataStoreJson, DIDStoreJson, KeyStoreJson, PrivateKeyStoreJson } from '@veramo/data-store-json'
 import { KeyManagementSystem, SecretBox } from '@veramo/kms-local'
-import { KeyManager, ManagedPrivateKey } from '@veramo/key-manager'
+import { KeyManager } from '@veramo/key-manager'
 import { DIDManager } from '@veramo/did-manager'
 import { KeyDIDProvider } from '@veramo/did-provider-key'
 import { Credential } from '../models'
@@ -51,10 +48,9 @@ export const agent = createAgent<EnabledInterfaces>({
 
 export async function importDID(identifier: MinimalImportableIdentifier) {
 	try {
-		const response = await agent.didManagerImport(identifier)
-		console.log(response, 'import did response')
+		await agent.didManagerImport(identifier)
 	} catch (error) {
-		console.log(error, 'error on importing identifier')
+		console.log(error)
 	}
 }
 
@@ -81,11 +77,11 @@ export async function createAndImportDID(keyPair: any){
 			services: [],
 			provider: 'did:key',
 			did,
-			alias: 'key-20',
-			controllerKeyId: 'key-2',
+			alias: 'key-1',
+			controllerKeyId: 'key-1',
 			keys: [
 				{
-					kid: 'key-2',
+					kid: 'key-1',
 					kms: 'local',
 					type: <TKeyType>'Ed25519',
 					publicKeyHex: keyPair.publicKey,

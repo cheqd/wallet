@@ -184,14 +184,6 @@ const Identity = (): JSX.Element => {
 		}
 	};
 
-	// function getSubjectId(wallet: Wallet): string {
-	// 	const identifier = Buffer.from(
-	// 		Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(wallet.getPublicKey()))),
-	// 	).toString();
-
-	// 	return 'did:key:' + identifier;
-	// }
-
 	async function getVeramoSubjectId() {
 		if (!identityWallet || !wallet) {
 			return;
@@ -226,6 +218,7 @@ const Identity = (): JSX.Element => {
 	};
 
 	const handlePassphrase = async (authToken: string) => {
+		console.log('passphrase', passphrase)
 		if (!passphrase) {
 			setPassphraseInput('');
 			showModal('passphrase', true);
@@ -244,10 +237,11 @@ const Identity = (): JSX.Element => {
 				// if the wallet doesn't exist in the KV store, we create a new one.
 				// This doesn't store anything though, just initializes the wallet
 				if (cryptoBoxResp.response?.data === 'value not found') {
+					const identifier = await createAndImportDID(createKeyPairHex())
 					setPassphrase(passphrase);
 					setWallet({
 						credentials: [],
-						dids: [],
+						dids: [identifier],
 					});
 					showSuccessToast(t('identity.wallet.message.created'));
 					return;
@@ -275,7 +269,7 @@ const Identity = (): JSX.Element => {
 
 			if (!decryptedWallet.dids?.length) {
 				const identifier = await createAndImportDID(createKeyPairHex())
-				decryptedWallet = update(decryptedWallet, { dids: { $push: [identifier] } })
+				decryptedWallet = update(decryptedWallet, { dids: { $set: [identifier] } })
 			}
 
 			// Success
