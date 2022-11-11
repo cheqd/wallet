@@ -34,7 +34,7 @@ import { fromBase64, toBase64 } from '@cosmjs/encoding';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
-	const [credentialMode, setCredentailMode] = useState("VIEW" as CredentialMode);
+	const [credentialMode, setCredentialMode] = useState("VIEW" as CredentialMode);
 	const [selectedCredentials, setSelectedCredentials] = useState(new Set<VerifiableCredential>());
 	const [activeVC, setActiveVC] = useState<VerifiableCredential | null>(null);
 	const credentialDetailedRef = useRef<HTMLDivElement>(null);
@@ -276,7 +276,7 @@ const Identity = (): JSX.Element => {
 			setPassphrase(passphrase);
 			setWallet(decryptedWallet);
 
-			// import dids if the local kms is empty
+			// import DIDs if the local kms is empty
 			agent.didManagerGetByAlias({ alias: 'key-1' })
 				.catch(async () => {
 					for (var did of decryptedWallet!.dids) {
@@ -353,11 +353,11 @@ const Identity = (): JSX.Element => {
 
 	const handleCredentialMode = async () => {
 		if (credentialMode === CredentialMode.View) {
-			setCredentailMode(CredentialMode.Presentation)
+			setCredentialMode(CredentialMode.Presentation)
 			return
 		}
 
-		setCredentailMode(CredentialMode.View)
+		setCredentialMode(CredentialMode.View)
 		setSelectedCredentials(new Set())
 	}
 
