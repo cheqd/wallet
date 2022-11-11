@@ -85,11 +85,11 @@ const DetailsPopup: React.FC<Props> = ({
                     </li>
                     <li id="qr-code" className="container tab-pane">
                         {
-                            byteSize(qr) < 2500 ?
+                            byteSize(qr) < 4296 ?
                             (
                                 <QRCodeSVG
                                 value={JSON.stringify(qr, null, 1)}
-                                size={300}
+                                size={500}
                                 bgColor="#ffffff"
                                 fgColor="#000000"
                                 level="L"
