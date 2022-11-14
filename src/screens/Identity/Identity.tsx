@@ -9,7 +9,7 @@ import { RootDispatch, RootState } from 'redux/store';
 import './styles/Identity.scss';
 import { showErrorToast, showInfoToast, showSuccessToast, trunc } from 'utils';
 import { getAuthToken } from '../../utils/walletAuth';
-import { getCredential, getPersonCredential, getTicketCredential } from '../../apis/issuer';
+import { getPersonCredential, getTicketCredential } from '../../apis/issuer';
 import { useRematchDispatch } from '../../redux/hooks';
 import { Credential as VerifiableCredential, IdentityWallet, Wallet } from '../../models';
 import { Modal as BSModal } from 'bootstrap';
@@ -73,6 +73,10 @@ const Identity = (): JSX.Element => {
 
 	// Methods
 	const handleConnectSocialAccount = async () => {
+		if (claims.length > 0) {
+			showErrorToast('Social profile is already connected. Try removing the existing profile first')
+			return
+		}
 		try {
 			const auth0 = await createAuth0Client({
 				domain: import.meta.env.VITE_AUTH0_DOMAIN,

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/cheqd/wallet/compare/1.1.3...1.2.0) (2022-11-14)
+
+
+### Features
+
+* Add support for multiple Auth0 providers [DEV-1920] ([#115](https://github.com/cheqd/wallet/issues/115)) ([3dbc555](https://github.com/cheqd/wallet/commit/3dbc555483a2b45ece5280635ea5de05206a4947))
+
 ## [1.1.3](https://github.com/cheqd/wallet/compare/1.1.2...1.1.3) (2022-11-10)
 
 ## [1.1.2](https://github.com/cheqd/wallet/compare/1.1.1...1.1.2) (2022-11-10)
