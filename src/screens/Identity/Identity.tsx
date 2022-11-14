@@ -65,6 +65,10 @@ const Identity = (): JSX.Element => {
 
 	// Methods
 	const handleConnectSocialAccount = async () => {
+		if (claims.length > 0) {
+			showErrorToast('Social profile is already connected. Try removing the existing profile first')
+			return
+		}
 		try {
 			const auth0 = await createAuth0Client({
 				domain: import.meta.env.VITE_AUTH0_DOMAIN,
@@ -351,12 +355,15 @@ const Identity = (): JSX.Element => {
 											}
 											)}
 										</div>
-										<CustomButton
-											className="px-5 btn-sm btn-outline-secondary outline border-1"
-											onClick={handleConnectSocialAccount}
-										>
-											{t('identity.get.connections.connect')}
-										</CustomButton>
+										{claims.length === 0 ?
+											<CustomButton
+												className="px-5 btn-sm btn-outline-secondary outline border-1"
+												onClick={handleConnectSocialAccount}
+											>
+												{t('identity.get.connections.connect')}
+											</CustomButton>
+											: null
+										}
 									</div>
 									<div>
 										<CustomButton className="px-5" onClick={handleGetCredential}>
