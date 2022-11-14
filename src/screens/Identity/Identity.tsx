@@ -9,7 +9,7 @@ import { RootDispatch, RootState } from 'redux/store';
 import './styles/Identity.scss';
 import { showErrorToast, showInfoToast, showSuccessToast, trunc } from 'utils';
 import { getAuthToken } from '../../utils/walletAuth';
-import { getCredential } from '../../apis/issuer';
+import { getCredential, getPersonCredential, getTicketCredential } from '../../apis/issuer';
 import { useRematchDispatch } from '../../redux/hooks';
 import { Credential as VerifiableCredential, IdentityWallet, Wallet } from '../../models';
 import { Modal as BSModal } from 'bootstrap';
@@ -169,7 +169,16 @@ const Identity = (): JSX.Element => {
 				return
 			}
 
-			const cred = await getCredential(subjectDid, data, type, claims.length ? claims[0].accessToken: undefined);
+			let cred: VerifiableCredential
+			switch(type) {
+				case 'Ticket':
+				 	cred = await getTicketCredential(subjectDid, data);
+					break
+				default: 
+					cred = await getPersonCredential(subjectDid, claims[0]);
+					break
+			}
+
 			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
 
 			// Backup wallet

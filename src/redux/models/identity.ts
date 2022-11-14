@@ -2,7 +2,7 @@ import { createModel } from '@rematch/core';
 import { IdentityWallet, RootModel } from '../../models';
 import update from "immutability-helper";
 
-interface Claim {
+export interface Claim {
     service: string;
     profileName: string;
     accessToken: string;
