@@ -158,7 +158,7 @@ const Identity = (): JSX.Element => {
 			}
 
 			// Get credential
-			if (claims.length !== 1) {
+			if (claims.length !== 1 && type=='Person') {
 				showInfoToast(t("identity.get.message.connectionNeeded"));
 				return;
 			}
@@ -168,7 +168,7 @@ const Identity = (): JSX.Element => {
 				return
 			}
 
-			const cred = await getCredential(subjectDid, claims[0].accessToken, data, type);
+			const cred = await getCredential(subjectDid, data, type, claims.length ? claims[0].accessToken: undefined);
 			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
 
 			// Backup wallet
@@ -367,6 +367,7 @@ const Identity = (): JSX.Element => {
 			return
 		}
 		const pres = await createPresentation(subjectDid, creds)
+		console.log(pres)
 		setPresentation(pres)
 		showModal('presentationDetails', true)
 	}
@@ -399,8 +400,9 @@ const Identity = (): JSX.Element => {
 		const imageFile = files[0];
 		html5QrCode.scanFile(imageFile, true).then(async (decodedText) => {
 			setQrCodeParsedData(decodedText)
-			await handleGetCredential('Ticket', decodedText)
+			await handleGetCredential('Ticket', decodedText.slice(0, 10))
 			showSuccessToast(`data: ${decodedText}`)
+			e.target.value = ''
 		}).catch(err => {
 			console.log(`Error scanning file. Reason: ${err}`)
 			showErrorToast(`Error scanning file: ${err}`)

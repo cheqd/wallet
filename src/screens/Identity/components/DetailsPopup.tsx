@@ -10,8 +10,6 @@ type Props = {
     qr: string
 }
 
-const byteSize = (str: string) => new Blob([str]).size
-
 function changeActiveTab(activeTab: string) {
     const tabs = ['tab-formatted', 'tab-json', 'tab-qr'];
 
@@ -89,7 +87,7 @@ const DetailsPopup: React.FC<Props> = ({
                             (
                                 <QRCodeSVG
                                 value={qr}
-                                size={400}
+                                size={300}
                                 bgColor="#ffffff"
                                 fgColor="#000000"
                                 level="L"

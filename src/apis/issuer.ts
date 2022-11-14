@@ -1,16 +1,16 @@
 import axios from 'axios';
 import { Credential } from '../models';
 
-export const getCredential = async (subjectId: string, claim: string, data: any, type: string): Promise<Credential> => {
+export const getCredential = async (subjectId: string, data: any, type: string, claim?: string): Promise<Credential> => {
 	const resp = await axios.post<Credential>(import.meta.env.VITE_ISSUER_ENDPOINT + '/api/credentials/issue', {
 		subjectId,
 		claim,
-		provider: 'twitter'
+		provider: 'twitter',
+		data
 	},
 	{
 		params: {
-			type,
-			data
+			type
 		}
 	});
 	return resp.data;
