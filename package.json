@@ -88,7 +88,7 @@
         "@keplr-wallet/types": "^0.11.16",
         "@rollup/plugin-alias": "^4.0.2",
         "@rollup/plugin-image": "^3.0.1",
-        "@rollup/plugin-inject": "^4.0.4",
+        "@rollup/plugin-inject": "^5.0.2",
         "@semantic-release/changelog": "^6.0.1",
         "@semantic-release/commit-analyzer": "^9.0.2",
         "@semantic-release/git": "^10.0.1",
