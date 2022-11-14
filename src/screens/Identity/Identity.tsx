@@ -92,6 +92,7 @@ const Identity = (): JSX.Element => {
 			const serviceNames: { [key: string]: string } = {
 				'twitter': "Twitter",
 				'discord': "Discord",
+				'github': "GitHub"
 			}
 
 			// sub usually has the format: "<platform-name>|<unique-id>"
