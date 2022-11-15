@@ -30,3 +30,15 @@ export const getTicketCredential = async (subjectId: string, data: string) => {
 	'Ticket'
 	)
 }
+
+export const postJWT = async (data: string) => {
+	try{
+	const resp = await axios.post<Credential>(import.meta.env.VITE_ISSUER_ENDPOINT + '/store', {
+		data
+	})
+	console.log(resp.data.path)
+	return (import.meta.env.VITE_ISSUER_ENDPOINT + '/store/' + resp.data.path)
+	} catch(err) {
+		return 'failed'
+	}
+}
