@@ -22,7 +22,7 @@ import type { User as Auth0User } from "@auth0/auth0-spa-js";
 import { loadUrlInIframe } from "../../utils/iframe";
 import axios, { AxiosResponse } from 'axios';
 import CredentialList from './components/CredentialList';
-import DetailsPopup, { changeActiveTab } from './components/DetailsPopup';
+import DetailsPopup from './components/DetailsPopup';
 import { agent, createAndImportDID, createKeyPairHex, createPresentation, importDID, verifyPresentation } from 'utils/veramo';
 import { Html5Qrcode } from 'html5-qrcode';
 import { CredentialMode } from './components/CredentialCard';
@@ -40,7 +40,7 @@ const Identity = (): JSX.Element => {
 	const presentationDetailedRef = useRef<HTMLDivElement>(null);
 	const [qrCodeParsedData, setQrCodeParsedData] = useState('');
 	const [presentation, setPresentation] = useState<VerifiablePresentation | null>(null);
-	const [isVerified, setIsVerified] = useState<VerificationState>(VerificationState.Noop)
+	const [isVerified, setIsVerified] = useState<VerificationState>(VerificationState.Noop);
 
 	// Redux hooks
 	const { wallet, identityWallet, authToken, passphrase, claims } = useSelector((state: RootState) => ({
@@ -434,7 +434,6 @@ const Identity = (): JSX.Element => {
 	function handleCredentialClose() {
 		setPresentation(null)
 		showModal('credentialDetails', false)
-		changeActiveTab('null')
 	}
 
 	function handlePresentationClose() {
@@ -442,7 +441,6 @@ const Identity = (): JSX.Element => {
 		showModal('presentationDetails', false)
 		setIsVerified(VerificationState.Noop)
 		handleCredentialMode()
-		changeActiveTab('null')
 	}
 
 	function handleCreateFormatted(payload: VerifiableCredential | VerifiablePresentation) {
@@ -716,7 +714,6 @@ const Identity = (): JSX.Element => {
 									formatted={handleCreateFormatted(activeVC)}
 									data={activeVC}
 									qr={activeVC.proof.jwt}
-									changeActiveTab={changeActiveTab}
 									id="credential"
 								/>
 								<div className="d-flex flex-row gap-4 align-items-center justify-content-center">
@@ -750,7 +747,6 @@ const Identity = (): JSX.Element => {
 								formatted={handleCreateFormatted(presentation)}
 								data={presentation}
 								qr={presentation.proof.jwt}
-								changeActiveTab={changeActiveTab}
 								id="presentation"
 							/>)}
 						<div className="d-flex flex-row gap-4 align-items-center justify-content-center">

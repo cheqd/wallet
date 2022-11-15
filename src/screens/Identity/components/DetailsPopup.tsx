@@ -1,5 +1,5 @@
 import { VerifiablePresentation } from "@veramo/core";
-import React from "react";
+import React, { useState } from "react";
 import { Credential as VerifiableCredential } from '../../../models';
 import Assets from '../../../assets';
 import { QRCodeSVG } from "qrcode.react";
@@ -9,51 +9,43 @@ type Props = {
 	data: VerifiableCredential | VerifiablePresentation
 	formatted: any
 	qr: string
-	changeActiveTab: (activeTab: string) => void
 	id: string
 }
 
-export function changeActiveTab(activeTab: string) {
-	const tabs = ['tab-formatted', 'tab-json', 'tab-qr'];
-	tabs.forEach((tab) => {
-		const tabObj = document.getElementById(tab);
-		if (tab === activeTab) {
-			tabObj?.classList.add('active');
-		} else {
-			tabObj?.classList.remove('active');
-		}
-	});
-}
-
 const DetailsPopup: React.FC<Props> = ({
-	id, data, formatted, qr, changeActiveTab
+	id, data, formatted, qr
 }): JSX.Element => {
 	const { t } = useTranslation();
+	const [activeTab, setActiveTab] = useState(0);
+
+	const handleActiveTab = (tabIndex: number) => {
+		setActiveTab(tabIndex)
+	}
 
 	return (
 		<>
 			<div className="d-flex flex-row align-items-left tabs my-3">
 				<a
 					href={`#formatted-${id}`}
-					className="app-btn-plain bg-transparent text-btn p-0 me-4 h-auto active"
+					className={`app-btn-plain bg-transparent text-btn p-0 me-4 h-auto ${activeTab === 0 ? 'active' : ''}`}
 					id={`tab-formatted-${id}`}
-					onClick={() => changeActiveTab('tab-formatted')}
+					onClick={() => handleActiveTab(0)}
 				>
 					{t('identity.credential.formatted')}
 				</a>
 				<a
 					href={`#json-${id}`}
-					className="app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+					className={`app-btn-plain bg-transparent text-btn p-0 me-4 h-auto ${activeTab === 1 ? 'active' : ''}`}
 					id={`tab-json-${id}`}
-					onClick={() => changeActiveTab('tab-json')}
+					onClick={() => handleActiveTab(1)}
 				>
 					{t('identity.credential.json')}
 				</a>
 				<a
 					href={`#qr-code-${id}`}
-					className="app-btn-plain bg-transparent text-btn p-0 me-4 h-auto"
+					className={`app-btn-plain bg-transparent text-btn p-0 me-4 h-auto ${activeTab === 2 ? 'active' : ''}`}
 					id={`tab-qr-${id}`}
-					onClick={() => changeActiveTab('tab-qr')}
+					onClick={() => handleActiveTab(2)}
 				>
 					{t('identity.credential.qrCode')}
 				</a>
