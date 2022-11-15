@@ -441,6 +441,32 @@ const Identity = (): JSX.Element => {
 		changeActiveTab('null')
 	}
 
+	function handleCreateFormatted(payload: VerifiableCredential | VerifiablePresentation) {
+		let result: any = {
+			type: payload.type,
+			issuanceDate: new Date(payload.issuanceDate!).toUTCString(),
+			subject: payload.credentialSubject?.id || payload.holder,
+		}
+
+		if((payload.type!).includes('Person')) {
+			result.provider=payload.WebPage[0].description
+			result.username=payload.WebPage[0].identifier
+			result.lastReviewed=new Date(payload.issuanceDate!).toUTCString()
+			result.issuer=payload.issuer.id
+		} else if((payload.type!).includes('EventReservation')) {
+			result.reservationId=payload.reservationId
+			result.eventName=payload.reservationFor.name
+			result.startDate=new Date(payload.reservationFor.startDate).toUTCString()
+			result.endDate=new Date(payload.reservationFor.endDate).toUTCString()
+			result.location=payload.reservationFor.location
+			result.issuer=payload.issuer.id
+		} else if (payload.type=['VerifiablePresentation']) {
+			result.numberOfCredentials=payload.verifiableCredential.length
+		}
+
+		return result
+	}
+
 	return (
 		<>
 			<>
@@ -682,11 +708,7 @@ const Identity = (): JSX.Element => {
 									<img src={Assets.images.cheqdRoundLogo} height="28" className="me-3" />
 									{t('identity.credential.title')}
 								</h2>
-								<DetailsPopup formatted={{
-									type: activeVC.type,
-									issuanceDate: new Date(activeVC.issuanceDate!).toUTCString(),
-									issuer: activeVC.issuer.id
-								}}
+								<DetailsPopup formatted={handleCreateFormatted(activeVC)}
 									data={activeVC}
 									qr={activeVC.proof.jwt}
 								/>
@@ -718,11 +740,7 @@ const Identity = (): JSX.Element => {
 						</h2>
 						{presentation &&
 							(<DetailsPopup
-								formatted={{
-									type: presentation.type,
-									issuanceDate: new Date(presentation.issuanceDate!).toUTCString(),
-									subject: presentation.holder
-								}}
+								formatted={handleCreateFormatted(presentation)}
 								data={presentation}
 								qr={presentation.proof.jwt}
 							/>)}
