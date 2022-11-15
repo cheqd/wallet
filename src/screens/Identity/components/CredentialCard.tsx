@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { trunc } from "utils";
 import { Credential as VerifiableCredential } from '../../../models';
-import CredentialVerificationBadge from "./VerifyBadge";
+import VerificationBadge, {VerificationState as CredentialVerificationState} from "./VerifyBadge";
 
 type Props = {
 	cred: VerifiableCredential;
@@ -19,13 +19,6 @@ type Props = {
 export enum CredentialMode {
 	View = "VIEW",
 	Presentation = "PRESENTATION"
-}
-
-export enum CredentialVerificationState {
-	Noop = "NO_OP",
-	InProgress = 'IN_PROGRESS',
-	Success = 'SUCCESS',
-	Failed = 'FAILED'
 }
 
 const CredentialCard: React.FC<Props> = ({
@@ -88,7 +81,7 @@ const CredentialCard: React.FC<Props> = ({
 									state.isVerified === CredentialVerificationState.Success ||
 										state.isVerified === CredentialVerificationState.Failed ?
 										<div className="outline d-flex flex-row align-items-center">
-											<CredentialVerificationBadge verified={state.isVerified} />
+											<VerificationBadge verified={state.isVerified} />
 										</div> :
 										<CustomButton
 											outline={true}

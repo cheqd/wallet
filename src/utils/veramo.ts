@@ -1,9 +1,11 @@
 import type {
   ICredentialIssuer,
+	ICredentialVerifier,
 	IDIDManager,
 	IKeyManager,
 	MinimalImportableIdentifier,
-	TKeyType
+	TKeyType,
+	VerifiablePresentation
   } from '@veramo/core'
 
 import { createAgent } from '@veramo/core'
@@ -11,20 +13,22 @@ import { DataStoreJson, DIDStoreJson, KeyStoreJson, PrivateKeyStoreJson } from '
 import { KeyManagementSystem, SecretBox } from '@veramo/kms-local'
 import { KeyManager } from '@veramo/key-manager'
 import { DIDManager } from '@veramo/did-manager'
-import { KeyDIDProvider } from '@veramo/did-provider-key'
+import { getDidKeyResolver, KeyDIDProvider } from '@veramo/did-provider-key'
 import { Credential } from '../models'
 import { v4 as uuid } from 'uuid'
-import { CredentialIssuer } from '@veramo/credential-w3c'
+import { Resolver } from 'did-resolver'
 import { generateKeyPair } from '@stablelib/ed25519'
-import { toString } from 'uint8arrays'
+import { DIDResolverPlugin } from '@veramo/did-resolver'
+import { toString, fromString } from 'uint8arrays'
 import Multibase from 'multibase';
 import Multicodec from 'multicodec';
+import { CredentialIssuer } from '@veramo/credential-w3c'
 
 const memoryJsonStore = {
 	notifyUpdate: () => Promise.resolve(),
 }
 
-export type EnabledInterfaces =  ICredentialIssuer & IDIDManager & IKeyManager
+export type EnabledInterfaces =  ICredentialIssuer & IDIDManager & IKeyManager & ICredentialVerifier
 
 export const agent = createAgent<EnabledInterfaces>({
 	plugins: [
@@ -42,7 +46,12 @@ export const agent = createAgent<EnabledInterfaces>({
 			}
 		}),
 		new DataStoreJson(memoryJsonStore),
-    new CredentialIssuer(),
+		new DIDResolverPlugin({
+			resolver: new Resolver({
+				...getDidKeyResolver()
+			})
+		}),
+		new CredentialIssuer()
 	]
 })
 
@@ -66,17 +75,32 @@ export async function createPresentation(did: string, credentials: Credential[])
 	})
 }
 
+export async function verifyPresentation(presentation: VerifiablePresentation) :Promise<Boolean>{
+	return agent.verifyPresentation({
+		presentation,
+	}).then((result)=>{
+		if(result.verified) return true
+		return false
+	})
+	.catch((error)=>{
+		return false
+	})
+}
+
 export async function createAndImportDID(keyPair: any){
 	try {
 
-		const did = `did:key:${Buffer.from(
-			Multibase.encode('base58btc', Multicodec.addPrefix('ed25519-pub', Buffer.from(keyPair.publicKey))),
-		).toString()}`
-
+		const methodSpecificId = Buffer.from(
+			Multibase.encode(
+			  'base58btc',
+			  Multicodec.addPrefix('ed25519-pub', Buffer.from(keyPair.publicKey, 'hex')),
+			),
+		).toString()
+	  
 		const identifier: MinimalImportableIdentifier = {
 			services: [],
 			provider: 'did:key',
-			did,
+			did: 'did:key:' + methodSpecificId,
 			alias: 'key-1',
 			controllerKeyId: 'key-1',
 			keys: [
@@ -92,7 +116,6 @@ export async function createAndImportDID(keyPair: any){
 		await importDID(identifier)
 		return identifier
 	} catch (error: any) {
-		console.log(error)
 		throw new Error(error)
 	}
 }

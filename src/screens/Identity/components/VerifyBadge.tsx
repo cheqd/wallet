@@ -3,15 +3,22 @@ import { useTranslation } from 'react-i18next';
 import Assets from 'assets';
 
 import './VerifyBadge.scss';
-import { CredentialVerificationState } from './CredentialCard';
 
 type Props = {
-	verified: CredentialVerificationState;
+	verified: VerificationState;
 }
 
-const CredentialVerificationBadge: React.FC<Props> = ({ verified }): JSX.Element => {
+export enum VerificationState {
+	Noop = "NO_OP",
+	InProgress = 'IN_PROGRESS',
+	Success = 'SUCCESS',
+	Failed = 'FAILED'
+}
+
+
+const VerificationBadge: React.FC<Props> = ({ verified }): JSX.Element => {
 	const { t } = useTranslation();
-	if (verified === CredentialVerificationState.Success) {
+	if (verified === VerificationState.Success) {
 		return (
 			<div>
 				<div className={`app-badge success`}>
@@ -36,4 +43,4 @@ const CredentialVerificationBadge: React.FC<Props> = ({ verified }): JSX.Element
 	);
 };
 
-export default CredentialVerificationBadge;
+export default VerificationBadge;

@@ -10,9 +10,8 @@ type Props = {
     qr: string
 }
 
-function changeActiveTab(activeTab: string) {
+export function changeActiveTab(activeTab: string) {
     const tabs = ['tab-formatted', 'tab-json', 'tab-qr'];
-
     tabs.forEach((tab) => {
         const tabObj = document.getElementById(tab);
         if (tab === activeTab) {

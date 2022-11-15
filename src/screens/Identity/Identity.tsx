@@ -22,12 +22,13 @@ import type { User as Auth0User } from "@auth0/auth0-spa-js";
 import { loadUrlInIframe } from "../../utils/iframe";
 import axios, { AxiosResponse } from 'axios';
 import CredentialList from './components/CredentialList';
-import DetailsPopup from './components/DetailsPopup';
-import { agent, createAndImportDID, createKeyPairHex, createPresentation, importDID } from 'utils/veramo';
+import DetailsPopup, { changeActiveTab } from './components/DetailsPopup';
+import { agent, createAndImportDID, createKeyPairHex, createPresentation, importDID, verifyPresentation } from 'utils/veramo';
 import { Html5Qrcode } from 'html5-qrcode';
 import { CredentialMode } from './components/CredentialCard';
 import { VerifiablePresentation } from '@veramo/core';
 import { fromBase64, toBase64 } from '@cosmjs/encoding';
+import VerificationBadge, { VerificationState } from './components/VerifyBadge';
 
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
@@ -39,6 +40,7 @@ const Identity = (): JSX.Element => {
 	const presentationDetailedRef = useRef<HTMLDivElement>(null);
 	const [qrCodeParsedData, setQrCodeParsedData] = useState('');
 	const [presentation, setPresentation] = useState<VerifiablePresentation | null>(null);
+	const [isVerified, setIsVerified] = useState<VerificationState>(VerificationState.Noop)
 
 	// Redux hooks
 	const { wallet, identityWallet, authToken, passphrase, claims } = useSelector((state: RootState) => ({
@@ -229,7 +231,6 @@ const Identity = (): JSX.Element => {
 	};
 
 	const handlePassphrase = async (authToken: string) => {
-		console.log('passphrase', passphrase)
 		if (!passphrase) {
 			setPassphraseInput('');
 			showModal('passphrase', true);
@@ -288,10 +289,10 @@ const Identity = (): JSX.Element => {
 			setWallet(decryptedWallet);
 
 			// import DIDs if the local kms is empty
-			agent.didManagerGetByAlias({ alias: 'key-1' })
-				.catch(async () => {
-					for (var did of decryptedWallet!.dids) {
-						await importDID(did)
+			agent.didManagerFind({ provider: 'did:key' })
+				.then(async (result) => {
+					if(!result.length) {
+						const identifier = await importDID(decryptedWallet!.dids[0])
 					}
 				})
 
@@ -381,7 +382,6 @@ const Identity = (): JSX.Element => {
 			return
 		}
 		const pres = await createPresentation(subjectDid, creds)
-		console.log(pres)
 		setPresentation(pres)
 		showModal('presentationDetails', true)
 	}
@@ -415,12 +415,30 @@ const Identity = (): JSX.Element => {
 		html5QrCode.scanFile(imageFile, true).then(async (decodedText) => {
 			setQrCodeParsedData(decodedText)
 			await handleGetCredential('Ticket', decodedText.slice(0, 10))
-			showSuccessToast(`data: ${decodedText}`)
 			e.target.value = ''
 		}).catch(err => {
 			console.log(`Error scanning file. Reason: ${err}`)
 			showErrorToast(`Error scanning file: ${err}`)
 		});
+	}
+
+	async function handleVerifyPresentation(presentation: VerifiablePresentation) {
+		setIsVerified(VerificationState.InProgress)
+		setIsVerified(await verifyPresentation(presentation) ? VerificationState.Success : VerificationState.Failed)
+	}
+
+	function handleCredentialClose() {
+		setPresentation(null)
+		showModal('credentialDetails', false)
+		changeActiveTab('null')
+	}
+
+	function handlePresentationClose() {
+		setActiveVC(null)
+		showModal('presentationDetails', false)
+		setIsVerified(VerificationState.Noop)
+		handleCredentialMode()
+		changeActiveTab('null')
 	}
 
 	return (
@@ -648,6 +666,7 @@ const Identity = (): JSX.Element => {
 					ref={credentialDetailedRef}
 					id="credentialDetails"
 					withCloseButton={true}
+					onCloseButtonPress={handleCredentialClose}
 					dataBsBackdrop="static"
 					dataBsKeyboard={false}
 					contentClassName="p-3 w-auto"
@@ -674,7 +693,7 @@ const Identity = (): JSX.Element => {
 								<div className="d-flex flex-row gap-4 align-items-center justify-content-center">
 									<CustomButton
 										className="mt-5"
-										onClick={() => showModal('credentialDetails', false)}
+										onClick={handleCredentialClose}
 									>
 										{t('identity.credential.close')}
 									</CustomButton>
@@ -687,6 +706,7 @@ const Identity = (): JSX.Element => {
 					ref={presentationDetailedRef}
 					id="presentationDetails"
 					withCloseButton={true}
+					onCloseButtonPress={handlePresentationClose}
 					dataBsBackdrop="static"
 					dataBsKeyboard={false}
 					contentClassName="p-3 w-auto"
@@ -707,9 +727,23 @@ const Identity = (): JSX.Element => {
 								qr={presentation.proof.jwt}
 							/>)}
 						<div className="d-flex flex-row gap-4 align-items-center justify-content-center">
+							{
+								isVerified === VerificationState.Success ||
+								isVerified === VerificationState.Failed ?
+									<div className="mt-5">
+										<VerificationBadge verified={isVerified} />
+									</div> :
+									<CustomButton
+										className="mt-5"
+										onClick={() => handleVerifyPresentation(presentation!)}
+										isLoading={isVerified === VerificationState.InProgress}
+									>
+										Verify
+									</CustomButton>
+							}
 							<CustomButton
 								className="mt-5"
-								onClick={() => showModal('presentationDetails', false)}
+								onClick={handlePresentationClose}
 							>
 								{t('identity.presentation.close')}
 							</CustomButton>
