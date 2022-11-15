@@ -76,7 +76,7 @@ const DetailsPopup: React.FC<Props> = ({
 					</li>
 					<li id={`qr-code-${id}`} className="container tab-pane">
 						{
-							qr.length < 4000 ?
+							qr?.length < 4000 ?
 								(
 									<QRCodeSVG
 										value={qr}

@@ -9,7 +9,7 @@ import { RootDispatch, RootState } from 'redux/store';
 import './styles/Identity.scss';
 import { showErrorToast, showInfoToast, showSuccessToast, trunc } from 'utils';
 import { getAuthToken } from '../../utils/walletAuth';
-import { getPersonCredential, getTicketCredential } from '../../apis/issuer';
+import { getPersonCredential, getTicketCredential, postJWT } from '../../apis/issuer';
 import { useRematchDispatch } from '../../redux/hooks';
 import { Credential as VerifiableCredential, IdentityWallet, Wallet } from '../../models';
 import { Modal as BSModal } from 'bootstrap';
@@ -40,8 +40,8 @@ const Identity = (): JSX.Element => {
 	const presentationDetailedRef = useRef<HTMLDivElement>(null);
 	const [qrCodeParsedData, setQrCodeParsedData] = useState('');
 	const [presentation, setPresentation] = useState<VerifiablePresentation | null>(null);
-	const [isVerified, setIsVerified] = useState<VerificationState>(VerificationState.Noop);
-
+	const [isVerified, setIsVerified] = useState<VerificationState>(VerificationState.Noop)
+	const [presQR, setPresQR] = useState<string | null>(null)
 	// Redux hooks
 	const { wallet, identityWallet, authToken, passphrase, claims } = useSelector((state: RootState) => ({
 		wallet: state.wallet.currentWallet,
@@ -384,6 +384,12 @@ const Identity = (): JSX.Element => {
 		try {
 			const pres = await createPresentation(subjectDid, creds)
 			setPresentation(pres)
+			const jwt: string = pres.proof.jwt
+			if (jwt.length > 4000) {
+				setPresQR(await postJWT(jwt))
+			} else {
+				setPresQR(jwt)
+			}
 			showModal('presentationDetails', true)
 		} catch (err) {
 			showErrorToast((err as Error).message)
@@ -440,6 +446,7 @@ const Identity = (): JSX.Element => {
 		setActiveVC(null)
 		showModal('presentationDetails', false)
 		setIsVerified(VerificationState.Noop)
+		setPresQR(null)
 		handleCredentialMode()
 	}
 
