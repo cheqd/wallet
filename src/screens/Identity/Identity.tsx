@@ -165,7 +165,7 @@ const Identity = (): JSX.Element => {
 			}
 
 			// Get credential
-			if (claims.length !== 1 && type=='Person') {
+			if (claims.length !== 1 && type == 'Person') {
 				showInfoToast(t("identity.get.message.connectionNeeded"));
 				return;
 			}
@@ -176,11 +176,11 @@ const Identity = (): JSX.Element => {
 			}
 
 			let cred: VerifiableCredential
-			switch(type) {
+			switch (type) {
 				case 'Ticket':
-				 	cred = await getTicketCredential(subjectDid, data);
+					cred = await getTicketCredential(subjectDid, data);
 					break
-				default: 
+				default:
 					cred = await getPersonCredential(subjectDid, claims[0]);
 					break
 			}
@@ -291,7 +291,7 @@ const Identity = (): JSX.Element => {
 			// import DIDs if the local kms is empty
 			agent.didManagerFind({ provider: 'did:key' })
 				.then(async (result) => {
-					if(!result.length) {
+					if (!result.length) {
 						const identifier = await importDID(decryptedWallet!.dids[0])
 					}
 				})
@@ -381,9 +381,13 @@ const Identity = (): JSX.Element => {
 			showErrorToast(t('identity.wallet.error.locked'));
 			return
 		}
-		const pres = await createPresentation(subjectDid, creds)
-		setPresentation(pres)
-		showModal('presentationDetails', true)
+		try {
+			const pres = await createPresentation(subjectDid, creds)
+			setPresentation(pres)
+			showModal('presentationDetails', true)
+		} catch (err) {
+			showErrorToast((err as Error).message)
+		}
 	}
 
 	const handleRemoveCredential = async (cred: VerifiableCredential) => {
@@ -448,20 +452,20 @@ const Identity = (): JSX.Element => {
 			subject: payload.credentialSubject?.id || payload.holder,
 		}
 
-		if((payload.type!).includes('Person')) {
-			result.provider=payload.WebPage[0].description
-			result.username=payload.WebPage[0].identifier
-			result.lastReviewed=new Date(payload.issuanceDate!).toUTCString()
-			result.issuer=payload.issuer.id
-		} else if((payload.type!).includes('EventReservation')) {
-			result.reservationId=payload.reservationId
-			result.eventName=payload.reservationFor.name
-			result.startDate=new Date(payload.reservationFor.startDate).toUTCString()
-			result.endDate=new Date(payload.reservationFor.endDate).toUTCString()
-			result.location=payload.reservationFor.location
-			result.issuer=payload.issuer.id
-		} else if (payload.type=['VerifiablePresentation']) {
-			result.numberOfCredentials=payload.verifiableCredential.length
+		if ((payload.type!).includes('Person')) {
+			result.provider = payload.WebPage[0].description
+			result.username = payload.WebPage[0].identifier
+			result.lastReviewed = new Date(payload.issuanceDate!).toUTCString()
+			result.issuer = payload.issuer.id
+		} else if ((payload.type!).includes('EventReservation')) {
+			result.reservationId = payload.reservationId
+			result.eventName = payload.reservationFor.name
+			result.startDate = new Date(payload.reservationFor.startDate).toUTCString()
+			result.endDate = new Date(payload.reservationFor.endDate).toUTCString()
+			result.location = payload.reservationFor.location
+			result.issuer = payload.issuer.id
+		} else if (payload.type = ['VerifiablePresentation']) {
+			result.numberOfCredentials = payload.verifiableCredential.length
 		}
 
 		return result
@@ -708,9 +712,12 @@ const Identity = (): JSX.Element => {
 									<img src={Assets.images.cheqdRoundLogo} height="28" className="me-3" />
 									{t('identity.credential.title')}
 								</h2>
-								<DetailsPopup formatted={handleCreateFormatted(activeVC)}
+								<DetailsPopup
+									formatted={handleCreateFormatted(activeVC)}
 									data={activeVC}
 									qr={activeVC.proof.jwt}
+									changeActiveTab={changeActiveTab}
+									id="credential"
 								/>
 								<div className="d-flex flex-row gap-4 align-items-center justify-content-center">
 									<CustomButton
@@ -743,11 +750,13 @@ const Identity = (): JSX.Element => {
 								formatted={handleCreateFormatted(presentation)}
 								data={presentation}
 								qr={presentation.proof.jwt}
+								changeActiveTab={changeActiveTab}
+								id="presentation"
 							/>)}
 						<div className="d-flex flex-row gap-4 align-items-center justify-content-center">
 							{
 								isVerified === VerificationState.Success ||
-								isVerified === VerificationState.Failed ?
+									isVerified === VerificationState.Failed ?
 									<div className="mt-5">
 										<VerificationBadge verified={isVerified} />
 									</div> :

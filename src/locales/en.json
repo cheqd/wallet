@@ -432,17 +432,18 @@
                 "resetConfirmation": "Are you sure you want to reset your wallet? This will delete all your credentials."
             }
         },
-
         "credential": {
             "title": "Credential",
             "remove": "Remove",
             "show": "Show",
             "notFound": "Credential is not found",
-			"close": "Close",
-			"verified": "Verified",
-			"notVerified": "Not verified"
+						"close": "Close",
+						"verified": "Verified",
+						"notVerified": "Not verified",
+						"formatted": "Formatted",
+						"json": "JSON",
+						"qrCode": "QR Code"
         },
-
         "presentation": {
             "title": "Presentation",
             "notFound": "Presentation is not found",
