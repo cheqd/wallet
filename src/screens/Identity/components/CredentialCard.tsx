@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { trunc } from "utils";
 import { Credential as VerifiableCredential } from '../../../models';
-import VerificationBadge, {VerificationState as CredentialVerificationState} from "./VerifyBadge";
+import VerificationBadge, { VerificationState as CredentialVerificationState } from "./VerifyBadge";
 
 type Props = {
 	cred: VerifiableCredential;
@@ -49,15 +49,17 @@ const CredentialCard: React.FC<Props> = ({
 		<div className="col-lg-6 col-12">
 			<Card className="d-flex credential-card flex-column h-100 justify-content-between">
 				<div>
-					<div className="d-flex flex-row justify-content-between mb-2">
-						<h2>
+					<div className="d-flex flex-row align-items-center justify-content-between mb-2">
+						<div className="d-flex flex-row gap-2">
 							<img
 								src={Assets.images.cheqdRoundLogo}
 								height="28"
-								className="me-3"
+								className=""
 							/>
-							Credential
-						</h2>
+							<h2>
+								Credential
+							</h2>
+						</div>
 						{mode === CredentialMode.Presentation ?
 							<div className="d-flex align-items-center justify-content-center gap-2">
 								{
@@ -83,13 +85,20 @@ const CredentialCard: React.FC<Props> = ({
 										<div className="outline d-flex flex-row align-items-center">
 											<VerificationBadge verified={state.isVerified} />
 										</div> :
-										<CustomButton
-											outline={true}
-											onClick={() => handleVerifyCredential(cred)}
-											isLoading={state.isVerified === CredentialVerificationState.InProgress}
-										>
-											Verify
-										</CustomButton>
+										<>
+											{
+												cred.reservationFor && cred.reservationFor.logo ?
+													<img src={cred.reservationFor.logo} height={48} width={48} />
+													: null
+											}
+											<CustomButton
+												outline={true}
+												onClick={() => handleVerifyCredential(cred)}
+												isLoading={state.isVerified === CredentialVerificationState.InProgress}
+											>
+												Verify
+											</CustomButton>
+										</>
 								}
 							</div>
 						}

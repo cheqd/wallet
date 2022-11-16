@@ -4,6 +4,7 @@ import { Credential as VerifiableCredential } from '../../../models';
 import Assets from '../../../assets';
 import { QRCodeSVG } from "qrcode.react";
 import { useTranslation } from "react-i18next";
+import { Table } from "@cheqd/wallet-frontend-elements";
 
 type Props = {
 	data: VerifiableCredential | VerifiablePresentation
@@ -21,6 +22,8 @@ const DetailsPopup: React.FC<Props> = ({
 	const handleActiveTab = (tabIndex: number) => {
 		setActiveTab(tabIndex)
 	}
+
+	console.log('credential: ', data)
 
 	return (
 		<>
@@ -52,19 +55,17 @@ const DetailsPopup: React.FC<Props> = ({
 			</div>
 			<div className="tabs-content">
 				<ul>
-					<li id={`formatted-${id}`} >
-						<table className="table app-table-striped table-borderless">
-							<tbody>
-								{Object.keys(formatted).map((key, index) => {
-									return (
-										<tr key={index}>
-											<td><b>{(key.replace(/([A-Z])/g, " $1")).toUpperCase()}</b></td>
-											<td>{formatted[key]}</td>
-										</tr>
-									)
-								})}
-							</tbody>
-						</table>
+					<li id={`formatted-${id}`} style={{ overflowY: 'scroll', minHeight: 'content', maxHeight: '100%' }}>
+						<Table head={[]}>
+							{Object.keys(formatted).map((key, index) => {
+								return (
+									<tr key={index}>
+										<td><b>{(key.replace(/([A-Z])/g, " $1")).toUpperCase()}</b></td>
+										<td>{formatted[key]}</td>
+									</tr>
+								)
+							})}
+						</Table>
 					</li>
 					<li id={`json-${id}`} className="container tab-pane">
 						<textarea

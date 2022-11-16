@@ -713,10 +713,15 @@ const Identity = (): JSX.Element => {
 					) : (
 						<>
 							<div className="d-flex flex-column align-items-center">
-								<h2 className="text-center">
-									<img src={Assets.images.cheqdRoundLogo} height="28" className="me-3" />
-									{t('identity.credential.title')}
-								</h2>
+								<div className="d-flex gap-4 align-items-center">
+									<div>
+										<img src={Assets.images.cheqdRoundLogo} height="32" className="me-3" />
+										<img height={64} width={64} src={activeVC.reservationFor.logo} />
+									</div>
+									<label className="text-center title">
+										{t('identity.credential.title')}
+									</label>
+								</div>
 								<DetailsPopup
 									formatted={handleCreateFormatted(activeVC)}
 									data={activeVC}

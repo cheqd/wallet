@@ -4,6 +4,15 @@
 $color-arrow-green: #5ecd42ff;
 $color-arrow-red: #ff7245ff;
 
+* {
+		scrollbar-width: 8px;
+}
+
+*::-webkit-scrollbar {
+		width: 8px;
+		height: 8px;
+}
+
 #root {
     overflow-x: hidden;
     white-space: pre-line; // to allow \n in translation
