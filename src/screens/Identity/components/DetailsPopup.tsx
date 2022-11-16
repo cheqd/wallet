@@ -5,10 +5,11 @@ import Assets from '../../../assets';
 import { QRCodeSVG } from "qrcode.react";
 import { useTranslation } from "react-i18next";
 import { Table } from "@cheqd/wallet-frontend-elements";
+import { FormattedCredentialOrPresentation } from "../Identity";
 
 type Props = {
 	data: VerifiableCredential | VerifiablePresentation
-	formatted: any
+	formatted: any;
 	qr: string
 	id: string
 }
@@ -23,7 +24,68 @@ const DetailsPopup: React.FC<Props> = ({
 		setActiveTab(tabIndex)
 	}
 
-	console.log('credential: ', data)
+	const isDate = (date: any): date is Date => {
+		return date.toUTCString !== undefined
+	}
+
+	const findURI = (ctx: string | string[], filterBy: string): string => {
+		if (typeof ctx === 'string') {
+			ctx = [ctx]
+		}
+
+		const result = ctx.filter(u => {
+			const uri = new URL(u)
+			if (uri.host === filterBy) {
+				return u
+			}
+
+			return uri.toString() == filterBy
+		})
+
+		return result[0]
+	}
+
+	const formatCredentialType = (value: any, ctx: string | string[]) => {
+		const resolverURI = findURI(ctx, 'resolver.cheqd.net')
+		const credentialSchemaURI = findURI(ctx, 'https://www.w3.org/2018/credentials/v1')
+		const personSchemaUri = findURI(ctx, 'https://veramo.io/contexts/profile/v1')
+		if (typeof value === 'string') {
+			const parts = value.split(', ')
+			return parts.map((v, i) => {
+				const lastEl = i === parts.length - 1
+				switch (v) {
+					case 'VerifiableCredential':
+						return <a target="_blank" href={credentialSchemaURI}>{v}{!lastEl ? ', ' : ''}</a>
+					case 'EventReservation':
+						return <a target="_blank" href={resolverURI}>{v}{!lastEl ? ', ' : ''}</a>
+					case 'Person':
+						return <a target="_blank" href={personSchemaUri}>{v}{!lastEl ? ', ' : ''}</a>
+				}
+			})
+		}
+	}
+
+	const renderRows = (formattedCred: any) => {
+		return Object.keys(formattedCred).filter(key => key !== '@context').map((key, index) => {
+			const value = formattedCred[key]
+			if (key === 'type') {
+				return <tr key={index}>
+					<td>
+						<b>{key.charAt(0).toUpperCase() + key.slice(1)}</b>
+					</td>
+					<td>
+						{formatCredentialType(value, formattedCred['@context'])}
+					</td>
+				</tr>
+			}
+			return <tr key={index}>
+				<td>
+					<b>{key.charAt(0).toUpperCase() + key.slice(1)}</b>
+				</td>
+				<td>{isDate(value) ? value.toUTCString() : value}</td>
+			</tr>
+		})
+	}
 
 	return (
 		<>
@@ -57,14 +119,7 @@ const DetailsPopup: React.FC<Props> = ({
 				<ul>
 					<li id={`formatted-${id}`} style={{ overflowY: 'scroll', minHeight: 'content', maxHeight: '100%' }}>
 						<Table head={[]}>
-							{Object.keys(formatted).map((key, index) => {
-								return (
-									<tr key={index}>
-										<td><b>{(key.replace(/([A-Z])/g, " $1")).toUpperCase()}</b></td>
-										<td>{formatted[key]}</td>
-									</tr>
-								)
-							})}
+							{renderRows(formatted)}
 						</Table>
 					</li>
 					<li id={`json-${id}`} className="container tab-pane">

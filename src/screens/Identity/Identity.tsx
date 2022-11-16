@@ -30,6 +30,24 @@ import { VerifiablePresentation } from '@veramo/core';
 import { fromBase64, toBase64 } from '@cosmjs/encoding';
 import VerificationBadge, { VerificationState } from './components/VerifyBadge';
 
+export type FormattedCredentialOrPresentation = {
+	type?: string | string[]
+	'@context'?: string | string[]
+	issuanceDate: Date
+	subject: string
+	provider?: string
+	username?: string
+	lastReviewed?: Date
+	issuer?: string
+	reservationId?: string
+	eventName?: string
+	startDate?: Date
+	endDate?: Date
+	location?: string
+	numberOfCredentials?: number
+	[key: string]: any
+}
+
 const Identity = (): JSX.Element => {
 	const [passphraseInput, setPassphraseInput] = useState('');
 	const [credentialMode, setCredentialMode] = useState("VIEW" as CredentialMode);
@@ -451,26 +469,27 @@ const Identity = (): JSX.Element => {
 	}
 
 	function handleCreateFormatted(payload: VerifiableCredential | VerifiablePresentation) {
-		let result: any = {
-			type: payload.type,
-			issuanceDate: new Date(payload.issuanceDate!).toUTCString(),
+		let result: FormattedCredentialOrPresentation = {
+			type: Array.isArray(payload.type) ? payload.type.join(', ') : payload.type,
+			issuanceDate: new Date(payload.issuanceDate!),
 			subject: payload.credentialSubject?.id || payload.holder,
+			'@context': payload['@context']!
 		}
 
 		if ((payload.type!).includes('Person')) {
 			result.provider = payload.WebPage[0].description
 			result.username = payload.WebPage[0].identifier
-			result.lastReviewed = new Date(payload.issuanceDate!).toUTCString()
+			result.lastReviewed = new Date(payload.issuanceDate!)
 			result.issuer = payload.issuer.id
 		} else if ((payload.type!).includes('EventReservation')) {
 			result.reservationId = payload.reservationId
 			result.eventName = payload.reservationFor.name
-			result.startDate = new Date(payload.reservationFor.startDate).toUTCString()
-			result.endDate = new Date(payload.reservationFor.endDate).toUTCString()
+			result.startDate = new Date(payload.reservationFor.startDate)
+			result.endDate = new Date(payload.reservationFor.endDate)
 			result.location = payload.reservationFor.location
 			result.issuer = payload.issuer.id
 		} else if (payload.type = ['VerifiablePresentation']) {
-			result.numberOfCredentials = payload.verifiableCredential.length
+			result.numberOfCredentials = payload.verifiableCredential.length as number
 		}
 
 		return result
@@ -716,7 +735,10 @@ const Identity = (): JSX.Element => {
 								<div className="d-flex gap-4 align-items-center">
 									<div>
 										<img src={Assets.images.cheqdRoundLogo} height="32" className="me-3" />
-										<img height={64} width={64} src={activeVC.reservationFor.logo} />
+										{activeVC.reservationFor && activeVC.reservationFor.logo ?
+											<img height={64} width={64} src={activeVC.reservationFor.logo} />
+											: null
+										}
 									</div>
 									<label className="text-center title">
 										{t('identity.credential.title')}
