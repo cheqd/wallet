@@ -753,7 +753,7 @@ const Identity = (): JSX.Element => {
 							(<DetailsPopup
 								formatted={handleCreateFormatted(presentation)}
 								data={presentation}
-								qr={presentation.proof.jwt}
+								qr={presQR!}
 								id="presentation"
 							/>)}
 						<div className="d-flex flex-row gap-4 align-items-center justify-content-center">
