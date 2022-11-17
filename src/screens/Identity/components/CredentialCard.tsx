@@ -44,7 +44,6 @@ const CredentialCard: React.FC<Props> = ({
 			setState({ isVerified: CredentialVerificationState.Failed })
 		})
 	}
-
 	return (
 		<div className="col-lg-6 col-12">
 			<Card className="d-flex credential-card flex-column h-100 justify-content-between">
@@ -54,7 +53,6 @@ const CredentialCard: React.FC<Props> = ({
 							<img
 								src={Assets.images.cheqdRoundLogo}
 								height="28"
-								className=""
 							/>
 							<h2>
 								Credential
@@ -114,6 +112,11 @@ const CredentialCard: React.FC<Props> = ({
 									<p key={i}> <b>{webpage.description}:</b> {webpage.name} </p>
 								)
 							}) : null
+						}
+						{
+							cred.provider && cred.provider.brand ?
+								<p><b> provider:</b> {cred?.provider?.brand} </p>
+								: null
 						}
 					</>
 

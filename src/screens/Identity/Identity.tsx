@@ -479,6 +479,7 @@ const Identity = (): JSX.Element => {
 		if ((payload.type!).includes('Person')) {
 			result.provider = payload.WebPage[0].description
 			result.username = payload.WebPage[0].identifier
+			result.thumbnailUrl = payload.WebPage[0].thumbnailUrl
 			result.lastReviewed = new Date(payload.issuanceDate!)
 			result.issuer = payload.issuer.id
 		} else if ((payload.type!).includes('EventReservation')) {
@@ -488,6 +489,8 @@ const Identity = (): JSX.Element => {
 			result.endDate = new Date(payload.reservationFor.endDate)
 			result.location = payload.reservationFor.location
 			result.issuer = payload.issuer.id
+			result.thumbnailUrl = payload.provider.image
+			result.provider = payload.provider.brand
 		} else if (payload.type = ['VerifiablePresentation']) {
 			result.numberOfCredentials = payload.verifiableCredential.length as number
 		}

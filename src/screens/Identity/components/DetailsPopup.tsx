@@ -66,7 +66,7 @@ const DetailsPopup: React.FC<Props> = ({
 	}
 
 	const renderRows = (formattedCred: any) => {
-		return Object.keys(formattedCred).filter(key => key !== '@context').map((key, index) => {
+		return Object.keys(formattedCred).filter(key => key !== '@context' && key !== 'thumbnailUrl').map((key, index) => {
 			const value = formattedCred[key]
 			if (key === 'type') {
 				return <tr key={index}>
@@ -78,6 +78,26 @@ const DetailsPopup: React.FC<Props> = ({
 					</td>
 				</tr>
 			}
+
+			if (key === 'provider') {
+				return <tr>
+					<td>
+						<b>{key.charAt(0).toUpperCase() + key.slice(1)}</b>
+					</td>
+					<td>
+						<td>
+							{value === 'EventBrite' ?
+								<img src={formatted.thumbnailUrl} height={36} width={200} />
+								:
+								<img src={formatted.thumbnailUrl} height={28} width={30} />
+							}
+							&nbsp; &nbsp;
+							{(value as string).charAt(0).toUpperCase() + (value as string).slice(1)}
+						</td>
+					</td>
+				</tr>
+			}
+
 			return <tr key={index}>
 				<td>
 					<b>{key.charAt(0).toUpperCase() + key.slice(1)}</b>
