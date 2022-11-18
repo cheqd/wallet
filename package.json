@@ -34,7 +34,7 @@
         ]
     },
     "dependencies": {
-        "@auth0/auth0-spa-js": "^1.22.5",
+        "@auth0/auth0-spa-js": "^2.0.0",
         "@cheqd/wallet-frontend-elements": "^1.0.2",
         "@cosmjs/amino": "^0.29.4",
         "@cosmjs/crypto": "0.29.3",
