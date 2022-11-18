@@ -86,10 +86,16 @@ const DetailsPopup: React.FC<Props> = ({
 					</td>
 					<td>
 						<td>
-							{value === 'EventBrite' ?
+							{value === 'EventBrite' && formatted.thumbnailUrl ?
 								<img src={formatted.thumbnailUrl} height={36} width={200} />
 								:
-								<img src={formatted.thumbnailUrl} height={28} width={30} />
+								null
+							}
+
+							{  // older credentials don't have thumbnailUrl
+								formatted.thumbnailUrl ?
+									<img src={formatted.thumbnailUrl} height={28} width={30} />
+									: null
 							}
 							&nbsp; &nbsp;
 							{(value as string).charAt(0).toUpperCase() + (value as string).slice(1)}
