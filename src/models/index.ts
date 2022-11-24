@@ -147,6 +147,7 @@ export interface WebPage {
 	name: string;
 	identifier: string;
 	URL: string;
+	thumbnailUrl?: string;
 }
 
 export interface Issuer {

@@ -5,14 +5,17 @@
   height:auto;
   overflow:hidden;
 }
+
 .tabs-content ul {
   list-style: none;
   height: 300px;
 }
+
 .tabs-content ul li {
   width:auto;
   height:1300px;
 }
+
 .tabs-content ul li textarea {
   height:300px;
 }
@@ -35,4 +38,9 @@
 
 .claim .delete {
   display: none;
+}
+
+.title {
+		font-size: 2rem;
+		font-weight: 700;
 }
