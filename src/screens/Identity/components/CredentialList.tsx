@@ -18,6 +18,9 @@ const CredentialList: React.FC<Props> = ({
 		<div className="row gy-4">
 			{
 				credentialList?.map((cred: VerifiableCredential, i) => {
+					if(!cred) {
+						return
+					}
 					return (
 						<CredentialCard
 							key={i}

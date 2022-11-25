@@ -202,14 +202,17 @@ const Identity = (): JSX.Element => {
 					cred = await getPersonCredential(subjectDid, claims[0]);
 					break
 			}
+			if(cred) {
+				const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
 
-			const newWallet = update(identityWallet, { credentials: { $push: [cred] } });
-
-			// Backup wallet
-			const encrypted = await encryptIdentityWallet(newWallet, passphrase!);
-			await backupCryptoBox(wallet.getAddress(), toBase64(encrypted), authToken!);
-			setWallet(newWallet)
-			showSuccessToast('Credential added');
+				// Backup wallet
+				const encrypted = await encryptIdentityWallet(newWallet, passphrase!);
+				await backupCryptoBox(wallet.getAddress(), toBase64(encrypted), authToken!);
+				setWallet(newWallet)
+				showSuccessToast('Credential added');
+			} else {
+				showErrorToast('Credential Issuance failed');
+			}
 		} catch (e) {
 			showErrorToast((e as Error).message);
 		}
