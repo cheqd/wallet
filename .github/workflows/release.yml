@@ -31,8 +31,6 @@ jobs:
 
       - name: "Clean install dependencies"
         run: npm ci
-        env:
-          NODE_ENV: production
 
       - name: "Build"
         run: npm run build
