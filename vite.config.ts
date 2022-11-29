@@ -45,7 +45,6 @@ export default defineConfig({
 			enforce: 'post'
 		}
 	],
-	root: './src',
 	server: {
 		host: "0.0.0.0",
 		port: 3000,
