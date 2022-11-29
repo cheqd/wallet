@@ -21,7 +21,8 @@
         "jsx": "react",
 		"paths": {
 			"~frontend-elements/*": ["./node_modules/@cheqd/wallet-frontend-elements/dist/*"]
-		}
+		},
+        "sourceMap": false
     },
 	"include": ["src"]
 }

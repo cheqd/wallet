@@ -1,23 +1,18 @@
-import { defineConfig } from 'vite';
+import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
 import svgrPlugin from 'vite-plugin-svgr';
 import alias from '@rollup/plugin-alias'
-import { fileURLToPath } from 'url';
-import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import imagePlugin from '@rollup/plugin-image';
-import inject from '@rollup/plugin-inject'
-import stdLibBrowser from 'node-stdlib-browser';
+import inject from '@rollup/plugin-inject';
 
-
-function getPolyfillsForEnv() {
-}
 
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
 		react(),
 		viteTsconfigPaths(),
+		splitVendorChunkPlugin(),
 		svgrPlugin(),
 		alias(),
 		imagePlugin(),
@@ -60,6 +55,6 @@ export default defineConfig({
 		polyfillModulePreload: true,
 	},
 	optimizeDeps: {
-		include: ['buffer', 'process'],
+		include: ['buffer', '@cheqd/**', '@cosmjs/**', '@ledgerhq/**', 'process', '@veramo/**'],
 	}
 });
