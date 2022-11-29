@@ -406,7 +406,7 @@ const Identity = (): JSX.Element => {
 			const pres = await createPresentation(subjectDid, creds)
 			setPresentation(pres)
 			const jwt: string = pres.proof.jwt
-			if (jwt.length > 4000) {
+			if (jwt.length > 3500) {
 				setPresQR(await postJWT(jwt))
 			} else {
 				setPresQR(jwt)
