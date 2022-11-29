@@ -31,9 +31,14 @@ jobs:
 
       - name: "Clean install dependencies"
         run: npm ci
+        env:
+          NODE_ENV: production
 
       - name: "Build"
         run: npm run build
+        env:
+          NODE_ENV: production
+          NODE_OPTIONS: --max-old-space-size=6144
 
       - name: "Execute Semantic Release"
         run: npx semantic-release
