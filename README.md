@@ -21,7 +21,7 @@
 
 ### Setup
 
-There are two `package.json` in this repository. You can use a package manager like NPM to install dependencies.
+You can use a package manager like NPM to install dependencies. The `env.example` file is renamed to `.env` in the first step and contains environment variables that need to be configured for the application to run correctly.
 
 ```bash
 mv env.example .env
