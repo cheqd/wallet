@@ -10,9 +10,9 @@
     },
     "homepage": "https://github.com/cheqd/wallet#readme",
     "scripts": {
-        "start": "vite NODE_OPTIONS=--max-old-space-size=8192",
-        "build": "rm -rf dist && tsc && vite build NODE_OPTIONS=--max-old-space-size=8192",
-        "preview": "npm run build NODE_OPTIONS=--max-old-space-size=8192 && vite preview NODE_OPTIONS=--max-old-space-size=8192",
+        "start": "vite",
+        "build": "rm -rf dist && tsc && vite build",
+        "preview": "npm run build && vite preview",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
     },
     "eslintConfig": {
