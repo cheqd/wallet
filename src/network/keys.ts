@@ -12,7 +12,7 @@ import {
 	Random,
 } from '@cosmjs/crypto';
 
-import { Bech32 } from '@cosmjs/encoding';
+import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { CheqBech32PrefixAccAddr, getCheqHdPath, PrivateKeyLength } from './constants';
 
 /**
@@ -27,7 +27,7 @@ export const getAddressFromPublicKey = (publicKey: Uint8Array, prefix = CheqBech
 	}
 	const hash1 = sha256(publicKey);
 	const hash2 = ripemd160(hash1);
-	return Bech32.encode(prefix, hash2);
+	return toBech32(prefix, hash2);
 };
 
 /**
@@ -93,7 +93,7 @@ export const generatePrivateKey = (): Uint8Array => {
  */
 export const isAddressValid = (address: string, prefix: string | undefined = CheqBech32PrefixAccAddr): boolean => {
 	try {
-		const decoded = Bech32.decode(address);
+		const decoded = fromBech32(address);
 		return (!prefix || prefix === decoded.prefix) && decoded.data.length === 20;
 	} catch (err) {
 		return false;

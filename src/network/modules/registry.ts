@@ -146,7 +146,7 @@ function createDefaultTypes(prefix: string): AminoConverters {
 		...createBankAminoConverters(),
 		...createDistributionAminoConverters(),
 		...createGovAminoConverters(),
-		...createStakingAminoConverters(prefix),
+		...createStakingAminoConverters(),
 		...createIbcAminoConverters(),
 	};
 }

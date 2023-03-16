@@ -1,5 +1,5 @@
 import { ripemd160, sha256 } from '@cosmjs/crypto';
-import { Bech32 } from '@cosmjs/encoding';
+import { toBech32 } from '@cosmjs/encoding';
 import { Int53 } from '@cosmjs/math';
 import { DirectSecp256k1HdWallet, EncodeObject, makeSignBytes } from '@cosmjs/proto-signing';
 import { GasPrice, SigningStargateClient, StdFee } from '@cosmjs/stargate';
@@ -101,7 +101,7 @@ export class CheqPaperWallet extends CheqWallet {
 
 		const hash1 = sha256(publicKey);
 		const hash2 = ripemd160(hash1);
-		return Bech32.encode(prefix, hash2);
+		return toBech32(prefix, hash2);
 	};
 
 	sign = async (data: Uint8Array): Promise<Uint8Array> => {

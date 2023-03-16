@@ -26,13 +26,13 @@ import DetailsPopup from './components/DetailsPopup';
 import { agent, createAndImportDID, createKeyPairHex, createPresentation, importDID, verifyPresentation } from 'utils/veramo';
 import { Html5Qrcode } from 'html5-qrcode';
 import { CredentialMode } from './components/CredentialCard';
-import { VerifiablePresentation } from '@veramo/core';
+import { ContextType, VerifiablePresentation } from '@veramo/core';
 import { fromBase64, toBase64 } from '@cosmjs/encoding';
 import VerificationBadge, { VerificationState } from './components/VerifyBadge';
 
 export type FormattedCredentialOrPresentation = {
 	type?: string | string[]
-	'@context'?: string | string[]
+	'@context'?: ContextType
 	issuanceDate: Date
 	subject: string
 	provider?: string
