@@ -34,7 +34,7 @@ const CredentialCard: React.FC<Props> = ({
 	const handleVerifyCredential = async (credential: VerifiableCredential) => {
 		const uri = `${import.meta.env.VITE_ISSUER_ENDPOINT}/api/credentials/verify`;
 		setState({ isVerified: CredentialVerificationState.InProgress })
-		axios.post(uri, { credential }).then((resp: { data: { verified: boolean }, status: number }) => {
+		axios.post(uri, { credential: credential.proof.jwt }).then((resp: { data: { verified: boolean }, status: number }) => {
 			if (resp.data.verified) {
 				setState({ isVerified: CredentialVerificationState.Success })
 				return
