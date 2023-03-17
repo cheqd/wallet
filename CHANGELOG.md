@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.0](https://github.com/cheqd/wallet/compare/1.3.0...1.4.0) (2023-03-17)
+
+
+### Features
+
+* Pass jwt for verification ([541e8c5](https://github.com/cheqd/wallet/commit/541e8c57fd96d334f523f4de054243299c715512))
+* Pass jwt for verification ([#173](https://github.com/cheqd/wallet/issues/173)) ([345f94f](https://github.com/cheqd/wallet/commit/345f94fd0132595c4f40b57b3bd9e7f36f4c9d2d))
+
+
+### Bug Fixes
+
+* presentation QR ([c617edc](https://github.com/cheqd/wallet/commit/c617edc2989ced1edb4fd486e5193317c307a0a1))
+
 ## [1.3.0](https://github.com/cheqd/wallet/compare/1.2.0...1.3.0) (2022-11-29)
 
 
